@@ -110,6 +110,8 @@ try {
         await driver.wait(async () => (await driver.findElement(By.css('html')).getAttribute('lang')) === 'en', 5000);
         await driver.findElement(By.css('[data-menu="appearance"]')).click();
         await driver.wait(async () => (await driver.findElements(By.id('macThemeDark'))).length > 0, 5000);
+        await driver.executeScript(`document.querySelector('.changelog-btn-close')?.click()`);
+        await driver.wait(async () => await driver.executeScript(`const el=document.querySelector('.changelog-popover'); return !el || getComputedStyle(el).display==='none';`), 5000);
         await driver.findElement(By.css('label:has(#macThemeDark)')).click();
         await driver.wait(async () => (await driver.findElement(By.css('html')).getAttribute('data-theme')) === 'dark', 5000);
         const settings = await runInExtension('return await chrome.storage.sync.get(["uiTheme","interfaceLanguage"])');
@@ -134,7 +136,7 @@ try {
     await check('storage event wakes background and creates hourly alarm', async () => {
         await suspendBackground();
         await runInExtension(`const {backgroundSettings} = await chrome.storage.sync.get('backgroundSettings');
-            await chrome.storage.sync.set({backgroundSettings:{...backgroundSettings,type:'unsplash',frequency:'hour'}});`);
+            await chrome.storage.sync.set({backgroundSettings:{...backgroundSettings,type:'pexels',frequency:'hour'}});`);
         await driver.wait(async () => (await runInExtension('return await chrome.alarms.get("refreshBackground")'))?.periodInMinutes === 60, 10000);
     });
     await check('alarm wakes suspended background and broadcasts refresh', async () => {
@@ -162,6 +164,8 @@ try {
     if (includeM5) {
         const { runM5Tests } = await import('./test-firefox-m5.mjs');
         await runM5Tests({driver, check, runInExtension, evidence, uuid});
+        const { runWallhavenTests } = await import('./test-firefox-wallhaven.mjs');
+        await runWallhavenTests({driver, check, runInExtension, evidence});
     }
     if (includeCustomIcons) {
         const {runCustomIconTests}=await import('./test-firefox-custom-icons.mjs');

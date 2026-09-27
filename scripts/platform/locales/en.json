@@ -354,5 +354,12 @@
     "emberLicenses": "Third-party licenses",
     "emberUpstream": "Original project",
     "webdavHttpsRequired": "Use an HTTPS WebDAV address without a username or password in the URL.",
-    "pixabayPaused": "Pixabay (temporarily unavailable)"
+    "wallhavenUsername": "Wallhaven username",
+    "wallhavenCollectionId": "Collection ID",
+    "wallhavenCollectionHint": "Leave both fields empty for random SFW wallpapers. To use a collection, enter its owner’s username and numeric ID from wallhaven.cc/user/USERNAME/favorites/ID. Public collections need no key; your private collections need your API key above. Only SFW images are used. Apply, then choose the automatic refresh frequency.",
+    "wallhavenApply": "Save and apply",
+    "wallhavenCollectionInvalid": "Enter both a valid Wallhaven username and numeric collection ID, or leave both empty.",
+    "wallhavenCollectionUnavailable": "Wallhaven collection or image is unavailable. Check its ID, visibility and API key.",
+    "wallhavenUploadedBy": "Uploaded by {name}",
+    "wallhavenOptionalKey": "Wallhaven API Key (optional)"
 }

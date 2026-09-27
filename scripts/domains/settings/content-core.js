@@ -15,7 +15,7 @@ import { normalizeLocaleForChangelog, loadChangelogData } from '../changelog/uti
 import { escapeHtml } from '../../shared/text.js';
 import { QUICKLINKS_BOUNDS, QUICKLINKS_SYNC_KEYS } from '../quicklinks/store.js';
 
-const ONLINE_BACKGROUND_SOURCES = ['unsplash', 'pixabay', 'pexels', 'bing'];
+const ONLINE_BACKGROUND_SOURCES = ['wallhaven', 'pexels', 'bing'];
 const BACKGROUND_UI_DEFAULTS = createBackgroundSettingsDefaults();
 const QUICKLINKS_KEYS = QUICKLINKS_SYNC_KEYS;
 const LAUNCHPAD_DENSITY_STEPPERS = [

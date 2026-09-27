@@ -64,7 +64,7 @@ describe('Background startup warm render path', () => {
     function seedTabsWarmStorage() {
         setStorageData({
             backgroundSettings: {
-                type: 'unsplash',
+                type: 'pexels',
                 frequency: 'tabs',
                 texture: { type: 'none' },
                 apiKeys: {}
@@ -192,7 +192,7 @@ describe('Background startup warm render path', () => {
     it('skips pending startup refresh when a hidden tab receives fresh synced background', async () => {
         setStorageData({
             backgroundSettings: {
-                type: 'unsplash',
+                type: 'pexels',
                 frequency: 'hour',
                 texture: { type: 'none' },
                 apiKeys: {}
@@ -261,7 +261,7 @@ describe('Background startup warm render path', () => {
     it('keeps visibility auto-refresh for time-based frequencies', async () => {
         setStorageData({
             backgroundSettings: {
-                type: 'unsplash',
+                type: 'pexels',
                 frequency: 'hour',
                 texture: { type: 'none' },
                 apiKeys: {}

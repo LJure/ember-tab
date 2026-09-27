@@ -8,9 +8,9 @@ describe('background transition pipeline', () => {
         window.addEventListener('background:applied', eventSpy, { once: true });
 
         backgroundApplyMethods._emitBackgroundApplied.call({
-            wrapper: { dataset: { type: 'unsplash' } }
+            wrapper: { dataset: { type: 'pexels' } }
         }, {
-            type: 'unsplash',
+            type: 'pexels',
             background,
             element: null,
             color: '#123456'
@@ -40,7 +40,7 @@ describe('background transition pipeline', () => {
         };
 
         const system = {
-            settings: { type: 'unsplash', smartCropEnabled: true },
+            settings: { type: 'pexels', smartCropEnabled: true },
             _prepareBackgroundForDisplay: vi.fn(async () => prepared),
             _applyBackgroundInternal: vi.fn(async () => {}),
             _saveBackgroundState: vi.fn(async () => {}),
@@ -49,7 +49,7 @@ describe('background transition pipeline', () => {
 
         const result = await runBackgroundTransition(system, {
             background: prepared,
-            type: 'unsplash',
+            type: 'pexels',
             basePrepareTimeoutMs: 140,
             updateTimestamp: true,
             save: true,
@@ -107,7 +107,7 @@ describe('background transition pipeline', () => {
         };
 
         const system = {
-            settings: { type: 'unsplash', smartCropEnabled: true },
+            settings: { type: 'pexels', smartCropEnabled: true },
             _prepareBackgroundForDisplay: vi.fn(async () => prepared),
             _applyBackgroundInternal: vi.fn(async () => {}),
             _saveBackgroundState: vi.fn(async () => {}),
@@ -116,7 +116,7 @@ describe('background transition pipeline', () => {
 
         await runBackgroundTransition(system, {
             background: prepared,
-            type: 'unsplash',
+            type: 'pexels',
             phase: 'startup',
             updateTimestamp: false,
             save: false,
@@ -137,7 +137,7 @@ describe('background transition pipeline', () => {
         };
 
         const system = {
-            settings: { type: 'unsplash', frequency: 'tabs', smartCropEnabled: true },
+            settings: { type: 'pexels', frequency: 'tabs', smartCropEnabled: true },
             _prepareBackgroundForDisplay: vi.fn(async () => prepared),
             _applyBackgroundInternal: vi.fn(async () => {}),
             _saveBackgroundState: vi.fn(async () => {}),
@@ -146,7 +146,7 @@ describe('background transition pipeline', () => {
 
         await runBackgroundTransition(system, {
             background: prepared,
-            type: 'unsplash',
+            type: 'pexels',
             updateTimestamp: true,
             save: true,
             preload: true

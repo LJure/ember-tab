@@ -2,6 +2,8 @@
 
 当前为 Ember Tab 0.1.0 未签名开发包，不是 AMO 正式发布。固定 ID 为 `ember-tab@ljure.github.io`，目标桌面 Firefox 140+；完整 ESR 验证在 M6。
 
+当前来源为本地、Wallhaven、Pexels、Bing；Unsplash／Pixabay 已移除，旧收藏保留。[Wallhaven 使用与收藏集验收](WALLHAVEN.md)包含设置方法及最新构建哈希。
+
 ## 复现构建
 
 在当前阶段分支检出源码，使用 Node 24.14.1 / npm 11.11.0（本次环境）：

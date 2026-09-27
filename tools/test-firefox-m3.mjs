@@ -197,7 +197,7 @@ export async function runM3Tests({driver, check, runInExtension: run, evidence, 
             await run(`const {backgroundSettings}=await chrome.storage.sync.get('backgroundSettings');
                 await chrome.storage.sync.set({backgroundSettings:{...backgroundSettings,type:'color',color:'#123456'}});`);
             await driver.wait(async()=>await driver.executeScript('return document.documentElement.style.getPropertyValue("--solid-background")==="#123456"'),10000);
-            for(const type of ['unsplash','pixabay','pexels']) {
+            for(const type of ['pexels']) {
                 await run(`const {backgroundSettings}=await chrome.storage.sync.get('backgroundSettings');
                     await chrome.storage.sync.set({backgroundSettings:{...backgroundSettings,type:'color'}});`);
                 await driver.wait(async()=>await driver.executeScript('return document.querySelectorAll(".background-image").length===0'),10000);

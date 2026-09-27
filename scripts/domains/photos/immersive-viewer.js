@@ -271,6 +271,7 @@ export class ImmersiveViewer {
             case 'local':
                 this._currentImageList = await this._host._getLocalItems();
                 break;
+            case 'wallhaven':
             case 'unsplash':
             case 'pixabay':
             case 'pexels':

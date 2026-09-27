@@ -1,10 +1,8 @@
+import { createWallhavenProvider } from './source-wallhaven.js';
 import { API_CONFIG } from './types.js';
 import { t } from '../../platform/i18n.js';
 import { fetchWithRetry } from '../../shared/net.js';
 
-const PIXABAY_PER_PAGE = 200;
-const PIXABAY_MAX_RESULTS_PER_QUERY = 500; // Pixabay docs: API returns at most 500 results per query
-const PIXABAY_RANDOM_PAGE_MAX = Math.max(1, Math.ceil(PIXABAY_MAX_RESULTS_PER_QUERY / PIXABAY_PER_PAGE));
 const PEXELS_RANDOM_PAGE_MAX = 25;
 const BING_ENDPOINT = 'https://www.bing.com/HPImageArchive.aspx';
 const BING_DEFAULT_MARKET = 'en-US';
@@ -66,18 +64,6 @@ function appendImageParams(baseUrl, params) {
         ).toString();
         if (!serialized) return baseUrl;
         return `${baseUrl}${baseUrl.includes('?') ? '&' : '?'}${serialized}`;
-    }
-}
-
-async function buildDetailedApiError(response, source) {
-    const fallback = t('bgApiRequestFailed', { source, status: response.status });
-    try {
-        const text = (await response.text()).trim();
-        if (!text) return fallback;
-        const compact = text.replace(/\s+/g, ' ').slice(0, 180);
-        return `${source} API request failed: ${response.status} (${compact})`;
-    } catch {
-        return fallback;
     }
 }
 
@@ -178,27 +164,6 @@ function pickRandomItem(items) {
     return items[Math.floor(Math.random() * items.length)] || null;
 }
 
-function buildUnsplashUrls(photo) {
-    const baseUrl = photo?.urls?.raw || photo?.urls?.full;
-
-    if (!baseUrl) {
-        return {
-            full: photo?.urls?.full,
-            small: photo?.urls?.regular || photo?.urls?.small
-        };
-    }
-
-    return {
-        full: baseUrl,
-        small: appendImageParams(baseUrl, {
-            w: 1280,
-            auto: 'format',
-            q: '72',
-            fm: 'webp'
-        })
-    };
-}
-
 function buildPexelsUrls(photo) {
     const baseUrl = photo?.src?.original || photo?.src?.large2x || photo?.src?.large || photo?.src?.landscape;
 
@@ -219,131 +184,6 @@ function buildPexelsUrls(photo) {
         })
     };
 }
-
-export const unsplashProvider = {
-    name: 'Unsplash',
-    requiresApiKey: true,
-
-    async fetchRandom(apiKey, query) {
-        validateApiKey(apiKey, 'Unsplash');
-
-        const normalizedQuery = normalizeQuery(query);
-        const params = new URLSearchParams({
-            content_filter: 'high'
-        });
-        if (normalizedQuery) {
-            params.set('query', normalizedQuery);
-        }
-
-        const response = await fetchWithProviderRetry(
-            `https://api.unsplash.com/photos/random?${params}`,
-            { headers: { 'Authorization': `Client-ID ${apiKey.trim()}` } }
-        );
-
-        await handleApiError(response, 'Unsplash', { treatForbiddenAsInvalid: false });
-
-        const data = await response.json();
-
-        if (!data || !data.urls) {
-            throw new Error(t('bgApiDataError', { source: 'Unsplash' }));
-        }
-
-        // Unsplash API requirement: Trigger download_location for statistics
-        if (isUnsplashApiUrl(data.links?.download_location)) {
-            fetch(data.links.download_location, {
-                credentials: 'omit', redirect: 'error',
-                headers: { 'Authorization': `Client-ID ${apiKey.trim()}` }
-            }).catch(() => { }); // Fire and forget
-        }
-
-        const urls = buildUnsplashUrls(data);
-        const downloadUrl = data.urls.raw || data.urls.full;
-
-        return {
-            format: 'image',
-            id: data.id || `unsplash-${Date.now()}`,
-            urls,
-            downloadUrl,
-            username: data.user?.name,
-            provider: 'unsplash',
-            userUrl: unsplashReferral(data.user?.links?.html),
-            page: unsplashReferral(data.links?.html),
-            color: data.color,
-            width: Number.isFinite(data.width) ? data.width : undefined,
-            height: Number.isFinite(data.height) ? data.height : undefined
-        };
-    }
-};
-
-export const pixabayProvider = {
-    name: 'Pixabay',
-    requiresApiKey: true,
-
-    async fetchRandom(apiKey, query) {
-        validateApiKey(apiKey, 'Pixabay');
-
-        const normalizedQuery = normalizeQuery(query);
-        const initialPage = normalizedQuery ? 1 : randomInt(1, PIXABAY_RANDOM_PAGE_MAX);
-        const params = new URLSearchParams({
-            key: apiKey.trim(),
-            page: String(initialPage),
-            per_page: String(PIXABAY_PER_PAGE),
-            image_type: 'photo',
-            safesearch: 'true',
-            lang: 'en'
-        });
-        if (normalizedQuery) {
-            params.set('q', normalizedQuery);
-        }
-
-        let response = await fetchWithProviderRetry(`https://pixabay.com/api/?${params}`);
-
-        // Some requests return 400 on high page numbers (e.g., page exceeds available window), fallback to first page.
-        if (response.status === 400 && initialPage !== 1) {
-            params.set('page', '1');
-            response = await fetchWithProviderRetry(`https://pixabay.com/api/?${params}`);
-        }
-
-        if (response.status === 401 || response.status === 403 || response.status === 429) {
-            await handleApiError(response, 'Pixabay');
-        }
-        if (!response.ok) {
-            throw new Error(await buildDetailedApiError(response, 'Pixabay'));
-        }
-
-        const data = await response.json();
-
-        if (!data.hits || data.hits.length === 0) {
-            throw new Error(t('bgNoResults'));
-        }
-
-        const randomImage = pickRandomItem(data.hits);
-        if (!randomImage) {
-            throw new Error(t('bgNoResults'));
-        }
-
-        const fullUrl = randomImage.fullHDURL || randomImage.largeImageURL || randomImage.webformatURL || randomImage.previewURL;
-        const smallUrl = randomImage.webformatURL || randomImage.previewURL || fullUrl;
-
-        if (!fullUrl || !smallUrl) {
-            throw new Error(t('bgApiDataError', { source: 'Pixabay' }));
-        }
-
-        return {
-            format: 'image',
-            id: String(randomImage.id || `pixabay-${Date.now()}`),
-            urls: {
-                full: fullUrl,
-                small: smallUrl
-            },
-            downloadUrl: randomImage.imageURL || fullUrl,
-            username: randomImage.user,
-            page: randomImage.pageURL,
-            width: Number.isFinite(randomImage.imageWidth) ? randomImage.imageWidth : undefined,
-            height: Number.isFinite(randomImage.imageHeight) ? randomImage.imageHeight : undefined
-        };
-    }
-};
 
 async function fetchPexelsCuratedPhotos(apiKey, page, perPage) {
     const params = new URLSearchParams({
@@ -486,31 +326,11 @@ export const bingProvider = {
     }
 };
 
-export function getProvider(type) {
+export function getProvider(type, settings = {}) {
     switch (type) {
-        case 'unsplash': return unsplashProvider;
-        // Paused until API response caching and request policy meet service terms.
-        // Keep stored keys, metadata and already downloaded images intact.
-        case 'pixabay': return null;
+        case 'wallhaven': return createWallhavenProvider(settings.wallhaven);
         case 'pexels': return pexelsProvider;
         case 'bing': return bingProvider;
         default: return null;
     }
-}
-
-function isUnsplashApiUrl(value) {
-    try {
-        const url = new URL(value);
-        return url.origin === 'https://api.unsplash.com' && !url.username && !url.password;
-    } catch { return false; }
-}
-
-function unsplashReferral(value) {
-    try {
-        const url = new URL(value);
-        if (url.origin !== 'https://unsplash.com' || url.username || url.password) return '';
-        url.searchParams.set('utm_source', 'ember_tab');
-        url.searchParams.set('utm_medium', 'referral');
-        return url.href;
-    } catch { return ''; }
 }

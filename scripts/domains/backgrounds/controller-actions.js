@@ -1,4 +1,4 @@
-const ONLINE_BACKGROUND_TYPES = new Set(['unsplash', 'pixabay', 'pexels', 'bing']);
+const ONLINE_BACKGROUND_TYPES = new Set(['wallhaven', 'pexels', 'bing']);
 const SMART_CROP_STABLE_PREPARE_TIMEOUT_MS = 360;
 
 export function isOnlineBackgroundType(type) {
@@ -28,6 +28,7 @@ export function getApplyOptions(settings, type = settings?.type) {
 }
 
 export function shouldPreloadNextBackground(settings, type = settings?.type) {
+    if (type === 'wallhaven') return false; // Avoid unused requests and stale collection prefetches.
     if (!settings) return true;
     return !(settings.frequency === 'tabs' && isOnlineBackgroundType(type));
 }

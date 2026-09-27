@@ -3,17 +3,20 @@
     "en": [
       "Ember Tab: an unofficial Firefox port of Aura Tab 3.5.3.",
       "Firefox icon loading, bookmark import and backup reliability improvements.",
-      "Independent icons, bundled attribution and privacy information. Remote network requests require HTTPS."
+      "Independent icons, bundled attribution and privacy information. Remote network requests require HTTPS.",
+      "Added Wallhaven collections and uploader credits; removed Unsplash/Pixabay; enlarged the Ember icon."
     ],
     "zh_CN": [
       "Ember Tab：基于 Aura Tab 3.5.3 的非官方 Firefox 移植版。",
       "改进 Firefox 图标加载、书签导入和备份可靠性。",
-      "独立图标、随包许可与隐私说明；远程网络请求要求 HTTPS。"
+      "独立图标、随包许可与隐私说明；远程网络请求要求 HTTPS。",
+      "新增 Wallhaven 收藏集与上传者信息，移除 Unsplash／Pixabay，放大 Ember 图标主体。"
     ],
     "zh_TW": [
       "Ember Tab：基於 Aura Tab 3.5.3 的非官方 Firefox 移植版。",
       "改善 Firefox 圖示載入、書籤匯入和備份可靠性。",
-      "獨立圖示、隨附授權與隱私說明；遠端網路請求要求 HTTPS。"
+      "獨立圖示、隨附授權與隱私說明；遠端網路請求要求 HTTPS。",
+      "新增 Wallhaven 收藏集與上傳者資訊，移除 Unsplash／Pixabay，放大 Ember 圖示主體。"
     ],
     "moreUrl": "https://github.com/LJure/ember-tab"
   }

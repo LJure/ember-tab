@@ -322,6 +322,7 @@ class BackgroundSystem {
                 showRefreshButton: this.settings.showRefreshButton,
                 showPhotoInfo: this.settings.showPhotoInfo,
                 smartCropEnabled: this.settings.smartCropEnabled,
+                wallhaven: { ...this.settings.wallhaven },
                 apiKeys: { ...this.settings.apiKeys }
             };
 
@@ -417,8 +418,7 @@ class BackgroundSystem {
                 case 'color':
                     this.applyColorBackground(this.settings.color);
                     return;
-                case 'unsplash':
-                case 'pixabay':
+                case 'wallhaven':
                 case 'pexels':
                 case 'bing':
                     background = await this.getProviderBackground(requestedType, {
@@ -496,8 +496,8 @@ class BackgroundSystem {
     }
 
     async getProviderBackground(type, { suppressRecoverableErrors = false } = {}) {
-        if (type === 'pixabay') return this.getLocalFileBackground();
-        const provider = getProvider(type);
+        if (type === 'pixabay' || type === 'unsplash') return this.getLocalFileBackground();
+        const provider = getProvider(type, this.settings);
         if (!provider) {
             throw new Error(t('bgUnknownProvider'));
         }
@@ -713,6 +713,7 @@ class BackgroundSystem {
         if (!newValue || typeof newValue !== 'object') return;
 
         const oldType = this.settings.type;
+        const oldWallhaven = JSON.stringify([this.settings.wallhaven, this.settings.apiKeys?.wallhaven]);
         const oldTexture = this.settings.texture;
         const oldColor = this.settings.color;
         const oldFilters = {
@@ -749,6 +750,8 @@ class BackgroundSystem {
         }
 
         const typeChanged = oldType !== this.settings.type;
+        const collectionChanged = this.settings.type === 'wallhaven' &&
+            oldWallhaven !== JSON.stringify([this.settings.wallhaven, this.settings.apiKeys?.wallhaven]);
 
         if (this.settings.type === 'color') {
             if (typeChanged || oldColor !== this.settings.color) {
@@ -757,10 +760,11 @@ class BackgroundSystem {
             return;
         }
 
-        if (typeChanged) {
+        if (typeChanged || collectionChanged) {
             // Invalidate any provider result fetched for the previous source.
             this._loadGeneration += 1;
             this.nextBackground = null;
+            this._metadataCache.clear();
             const isOnlineSource = this._isOnlineBackgroundType(this.settings.type);
             if (!isOnlineSource) {
                 this.loadBackground(true);

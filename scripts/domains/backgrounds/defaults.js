@@ -15,9 +15,9 @@ export const DEFAULT_SETTINGS = Object.freeze({
     showRefreshButton: true,
     showPhotoInfo: true,
     smartCropEnabled: true,
+    wallhaven: Object.freeze({ username: '', collectionId: '' }),
     apiKeys: Object.freeze({
-        unsplash: '',
-        pixabay: '',
+        wallhaven: '',
         pexels: ''
     })
 });

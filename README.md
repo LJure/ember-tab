@@ -4,7 +4,7 @@ An unofficial Firefox port of [Aura Tab by nil-byte](https://github.com/nil-byte
 
 基于 Aura Tab 的非官方 Firefox 新标签页扩展，保留快捷链接、Dock、搜索、书签导入、本地／在线壁纸、照片、备份与 WebDAV。独立维护，名称为 **Ember Tab**。
 
-**状态：M5 工程与审计完成，仍是 0.1.0 开发包。Unsplash 等上线门槛及 M6 验收未完成；没有 AMO 发布。**
+**状态：M5 工程与审计完成，仍是 0.1.0 开发包。服务与素材审核及 M6 验收未完成；没有 AMO 发布。**
 
 ## 安装与迁移
 
@@ -16,9 +16,9 @@ Aura 数据通过 ZIP 导入；用户已验证 Brave／Aura 3.5.3 的 59 链接�
 
 ## M5 变化
 
-- 独立产品／相册／设置图标与默认壁纸，SVG 源文件随源码提供；Dock 默认行为保持上游一致。
+- 独立产品／相册／设置图标与默认壁纸（产品图标主体放大 14%），SVG 源文件随源码提供；Dock 默认行为保持上游一致。
 - 本地隐私页、Firefox 数据传输声明、完整第三方许可与包检查；未接入统计、广告或开发者后端。
-- Pixabay 按用户决定暂时停用新 API 请求，保留设置和已有图片。Unsplash 暂保留，已改善署名与密钥发送边界；共享凭据／OAuth、用途与热链等问题必须在上线前解决。
+- 已移除 Unsplash／Pixabay 取图来源，保留历史收藏与备份兼容。新增 Wallhaven：随机 SFW 壁纸、指定公开／自己的私有收藏集、自动更换与上传者信息。[设置方法与验证](docs/WALLHAVEN.md)。
 - 保留 Aura 数据键、备份 schema 和已有 WebDAV 目录兼容性；关于页和变更记录明确标注分叉来源。
 
 ## 文档

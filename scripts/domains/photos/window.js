@@ -7,11 +7,10 @@ import { ICONS } from './icons.js';
 import { libraryRemoteToWallpaperItem } from './mappers.js';
 import { ImmersiveViewer } from './immersive-viewer.js';
 
-const REMOTE_PROVIDER_CATEGORIES = ['unsplash', 'pixabay', 'pexels', 'bing'];
+const REMOTE_PROVIDER_CATEGORIES = ['wallhaven', 'pexels', 'bing'];
 const REMOTE_PROVIDER_CATEGORY_SET = new Set(REMOTE_PROVIDER_CATEGORIES);
 const REMOTE_PROVIDER_META = {
-    unsplash: { icon: 'camera', label: 'Unsplash' },
-    pixabay: { icon: 'image', label: 'Pixabay' },
+    wallhaven: { icon: 'image', label: 'Wallhaven' },
     pexels: { icon: 'pexels', label: 'Pexels' },
     bing: { icon: 'bing', label: 'Bing', i18nKey: 'photosBing' }
 };
@@ -684,8 +683,7 @@ export class PhotosWindow extends MacWindowBase {
                 'all': t('photosAll') || 'All',
                 'favorites': t('photosFavorites') || 'Favorites',
                 'local': t('photosLocal') || 'Local',
-                'unsplash': 'Unsplash',
-                'pixabay': 'Pixabay',
+                'wallhaven': 'Wallhaven',
                 'pexels': 'Pexels',
                 'bing': t('photosBing') || 'Bing'
             };
@@ -860,8 +858,7 @@ export class PhotosWindow extends MacWindowBase {
         icon.innerHTML = this._getEmptyStateIcon(category);
         switch (category) {
             case 'favorites':
-            case 'unsplash':
-            case 'pixabay':
+            case 'wallhaven':
             case 'pexels':
             case 'bing':
                 title.dataset.i18n = 'photosNoFavorites';
@@ -890,9 +887,7 @@ export class PhotosWindow extends MacWindowBase {
     }
     _getEmptyStateIcon(category) {
         switch (category) {
-            case 'unsplash':
-                return ICONS.camera;
-            case 'pixabay':
+            case 'wallhaven':
                 return ICONS.image;
             case 'pexels':
                 return ICONS.pexels;
@@ -1179,7 +1174,7 @@ export class PhotosWindow extends MacWindowBase {
         const isFavorited = wallpaper?.isFavorited === true;
         const isLocalPresent = wallpaper?.isLocalPresent !== false;
         const id = String(wallpaper?.id ?? '');
-        const source = String(wallpaper?.source ?? 'unsplash');
+        const source = String(wallpaper?.source ?? 'remote');
         const authorName = String(wallpaper?.username || wallpaper?.favoriteData?.username || '');
         const el = document.createElement('article');
         el.className = `photos-card${isFavorited ? ' is-favorite' : ''}${isLocal ? ' is-local' : ''}`;

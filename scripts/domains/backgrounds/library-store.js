@@ -199,7 +199,7 @@ class LibraryStore {
         const downloadUrl = downloadCandidate || fullCandidate;
         const smallCandidate = safeString(background?.urls?.small, '');
 
-        const resolvedProvider = safeString(provider, '') || safeString(background?.provider, '') || 'unsplash';
+        const resolvedProvider = safeString(provider, '') || safeString(background?.provider, '') || 'remote';
 
         const item = {
             id,

@@ -9,7 +9,7 @@ describe('background refresh policy', () => {
     it('forces bing source to daily frequency', () => {
         expect(resolveEffectiveFrequency('bing', 'never')).toBe('day');
         expect(resolveEffectiveFrequency('bing', 'hour')).toBe('day');
-        expect(resolveEffectiveFrequency('unsplash', 'hour')).toBe('hour');
+        expect(resolveEffectiveFrequency('pexels', 'hour')).toBe('hour');
     });
 
     it('refreshes bing on natural day change even if less than 24 hours', () => {
@@ -18,6 +18,6 @@ describe('background refresh policy', () => {
 
         const lastChange = new Date(2026, 1, 26, 23, 50, 0, 0).toISOString();
         expect(shouldRefreshBackground('bing', 'day', lastChange)).toBe(true);
-        expect(shouldRefreshBackground('unsplash', 'day', lastChange)).toBe(false);
+        expect(shouldRefreshBackground('pexels', 'day', lastChange)).toBe(false);
     });
 });

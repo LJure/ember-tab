@@ -10,7 +10,7 @@
   "status": "m5-engineering-complete-release-gated",
   "note": "Build inputs for tools/build-firefox.mjs; the loadable development manifest is generated in dist/firefox. Not yet a release candidate.",
   "releaseBlockers": [
-    "Unsplash credentials, permitted use and image delivery policy",
+    "Wallhaven private collection acceptance; provider terms and image rights review",
     "Pexels/Bing and inherited asset provenance review",
     "M6 ESR, signed install/upgrade, Sync conflict and stress acceptance"
   ]

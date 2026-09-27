@@ -1,0 +1,53 @@
+# Wallhaven 接入与 M5 补充记录
+
+2026-09-27，沿用 `feat/m5-release-preparation`。本次决定覆盖 M5 初轮“暂停 Pixabay、保留 Unsplash”的安排：移除两者的取图入口与 API 适配器，接入 Wallhaven。产品图标中心图案等比放大 14%，底板、配色和原设计不变，重新导出 16／48／128 PNG。
+
+## 官方接口结论
+
+依据 [Wallhaven API](https://wallhaven.cc/help/api)（本次原地址返回 403，使用可访问的[官方短域名文档](https://www.whvn.cc/help/api)核对）以及官方 API 实际请求：
+
+- 公开收藏集无需密钥；自己的私有收藏集需要自己的 API Key。不能凭自己的密钥读取别人的私有收藏集。
+- 列出公开收藏集：`GET /api/v1/collections/USERNAME`；读取指定收藏集：`GET /api/v1/collections/USERNAME/ID`。已认证的本人收藏集列表为 `/api/v1/collections`。
+- 列表每页 24 项，通过 `meta.total`、`meta.per_page` 和 `page` 分页。收藏集只支持 purity 筛选，没有搜索接口的随机排序；插件按总数选随机索引，再读取对应页。包括最后不足一页的部分，不局限于前 24 张。随机抽取可能重复，不是无重复播放列表。
+- 图片详情 `/api/v1/w/ID` 包含 `uploader.username`、原图地址和尺寸；列表通常没有上传者，故需额外读取详情。
+- 官方限额 45 次／分钟；支持 `X-API-Key` 请求头。当前实现用扩展共享锁与 session 时间记录将请求间隔设为至少 1.5 秒，429 后至少等待一分钟，并尊重较长的 Retry-After（上限一小时）。不自动重试失败请求，不做 Wallhaven 投机预取。
+- API 存在并不意味着图片具有 MIT 或统一可再分发许可。[关于页面](https://wallhaven.cc/index.php/about)与[服务条款](https://wallhaven.cc/index.php/terms)保留原权利人的权利。上传者不一定是创作者，因此使用“上传者 / Uploaded by”，链接到原图片页面；不把第三方图片打包为本项目素材。
+
+## 使用方法
+
+1. 构建或使用当前 `dist/firefox/manifest.json`，在 Firefox 临时扩展管理页重新载入，然后打开新标签页。
+2. 设置 → 外观 → 图片来源，选择 **Wallhaven**。
+3. 随机全站 SFW 壁纸：用户名和收藏集 ID 均留空，点击“保存并应用”。
+4. 指定收藏集：在 Wallhaven 打开目标收藏集，例如 `https://wallhaven.cc/user/havenwall/favorites/16063`，填写用户名 `havenwall`、收藏集 ID `16063`。这是公开测试示例，不是项目默认配置。
+5. 自己的私有收藏集：在 Wallhaven 账号设置取得 API Key，填入插件上方的可选密钥框，离开输入框会保存。不要把密钥发到聊天、Issue 或截图里。公开收藏集无需填写。
+6. 点击“保存并应用”，再选择自动更新间隔：从不／每个新标签页／每小时／每天。小时和每日沿用既有定时机制，在可见的新标签页刷新；不是关闭浏览器后仍在后台下载。
+7. 右上角显示中文“上传者：名称”或英文“Uploaded by 名称”，可点击进入该图片的 Wallhaven 页面。收藏后再应用仍保留这组信息。
+
+当前只请求 `purity=100` 的 **SFW** 图片。收藏集只含其他分级内容时会提示没有结果。用户名和 ID 必须同时填写或同时清空；不存在、未授权或空收藏集不会改成全站随机搜索。失败时沿用本地壁纸回退并显示提示，不修改所配置的收藏集。收藏内容在请求之间变化时可能需要再次刷新。
+
+## 数据与兼容
+
+- 新配置为 `backgroundSettings.wallhaven.{username,collectionId}` 与 `apiKeys.wallhaven`，沿用 Firefox sync 和 ZIP 备份；密钥不在请求 URL、图片请求或仓库中。
+- API 请求固定发送到 `https://wallhaven.cc/api/v1/`，不跟随重定向。原图仅接受 `w.wallhaven.cc` 的 HTTPS 地址，缩略图仅接受 `th.wallhaven.cc`。
+- Unsplash／Pixabay 不再提供来源选项、独立相册分类、取图适配器或新默认密钥字段。旧配置获取新图时回退本地；已有图片、收藏、旧密钥和导入格式不做破坏性清理。旧收藏中的远端图片仍可能访问原主机。
+- Pexels、Bing、本地壁纸保留。Dock 默认背板保持上游一致。
+- 隐私页已同步说明 Wallhaven 用户名、收藏集 ID、可选密钥及图片请求。
+
+## 验证记录
+
+- 本机官方公开搜索、图片详情和公开收藏集请求成功；真实新适配器读取 `havenwall/16063` 成功，返回图片 `e7v2pk`、1920×1080，上传者字段为 API 返回的 `deleted`。原始证据在忽略目录 `.local/wallhaven-public.json`，没有抓取或再分发测试图片。
+- 单元测试：83 文件／624 项通过。包含跨页及末页抽取、公开／私有请求头、空集与鉴权失败不转全站搜索、429 冷却、URL 边界、分级检查、收藏集切换时丢弃旧请求、禁用预取和上传者前缀切换。
+- Firefox 156.0.1：`node tools/test-firefox.mjs --m5 --wallhaven-live` 共 20 项通过（原 M5 16 项、三语言外观界面、真实公开收藏集应用／署名／收藏信息保留）。正常 `--m5` 不做外网 Wallhaven 测试；真实服务测试需显式加 `--wallhaven-live`。证据在 `.local/m5/firefox-smoke.json`、`wallhaven-live.json` 与界面截图。使用一次性配置，不读取用户日常浏览器数据。
+- 截图复核发现旧 `Photo by` 前缀与 `Uploaded by` 叠加，已修正并检查整个署名区域；切回其他来源恢复原前缀。早期模拟脚本因 Firefox WebDriver 隔离模块实例未能替换真实页面，最终改为真实公开收藏集端到端验证；测试还显式关闭首次更新提示并等待设置就绪。
+- ESLint 0 错误／0 警告；可复现构建 1 项通过；web-ext 0 错误／52 警告，与 M5 原有已审计数量一致。M5 HTTP 拦截检查的 CSP 诊断属于预期结果。新增界面模板仅插入固定链接与文案，用户输入使用 `.value`，上传者使用 `.textContent`，未新增未转义 HTML 路径。
+- 最终普通开发包 `dist/ember-tab-0.1.0-firefox.zip`：109 文件，469,886 字节；SHA-256 `a0485cecdea41e3c644393fd0f788ab3163ed1ca207e44dd211d326d8d77805e`。本记录替代 M5 初轮报告中的旧包哈希。
+- 私有收藏集的真实凭据、长期定时轮换和跨设备设置同步尚需人工验收；模拟鉴权测试不等于真实账号测试。M6 的 ESR、签名升级、Sync 冲突与压力项目继续保留。
+
+## 用户协助验收
+
+- 用自己的公开收藏集（最好超过 24 张）应用、刷新多次，核对图片属于该集合，右上角上传者与 Wallhaven 图片页一致。
+- 如有私有收藏集，填入本人密钥后应用；错误密钥应提示失败，不应切换成其他在线图片。
+- 切换到另一个收藏集、点击保存并应用，确认配置重载后仍保留。收藏一张图片，再从相册应用，检查上传者名称和原图页链接。
+- 选择每个新标签页更换，打开几个新标签页检查；每小时／每天的真实等待留作长期验收。遇到限流后稍后再试，不要连续快速点刷新。
+
+本次没有签名、提交 AMO、创建 Release 或启用 GitHub Actions。继续阅读 [开发计划](../DEVELOPMENT_PLAN.md)与[分发说明](DISTRIBUTION.md)。

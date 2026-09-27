@@ -32,14 +32,14 @@ function enqueueSettingsWrite(task) {
 export async function patchBackgroundSettings(patch) {
     if (!isPlainObject(patch)) {
         const { backgroundSettings = {} } = await chrome.storage.sync.get({ backgroundSettings: {} });
-        const current = mergeOneLevel(backgroundSettings, null, ['texture', 'apiKeys']);
+        const current = mergeOneLevel(backgroundSettings, null, ['texture', 'apiKeys', 'wallhaven']);
         return current;
     }
 
     return enqueueSettingsWrite(async () => {
         const { backgroundSettings = {} } = await chrome.storage.sync.get({ backgroundSettings: {} });
-        const current = mergeOneLevel(backgroundSettings, null, ['texture', 'apiKeys']);
-        const next = mergeOneLevel(current, patch, ['texture', 'apiKeys']);
+        const current = mergeOneLevel(backgroundSettings, null, ['texture', 'apiKeys', 'wallhaven']);
+        const next = mergeOneLevel(current, patch, ['texture', 'apiKeys', 'wallhaven']);
         await chrome.storage.sync.set({ backgroundSettings: next });
         return next;
     });

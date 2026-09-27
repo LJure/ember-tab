@@ -1,4 +1,5 @@
 
+import { t } from '../platform/i18n.js';
 import { modalLayer } from '../platform/modal-layer.js';
 import { DisposableComponent } from '../platform/lifecycle.js';
 import { launchpad } from './quicklinks/launchpad.js';
@@ -247,11 +248,14 @@ export class LayoutManager extends DisposableComponent {
 
             // Required source credit remains visible for online licensed images.
             const provider = currentBg?.provider || this.backgroundSystem.settings?.type;
-            const sourceCredit = provider === 'unsplash' ? 'Unsplash' : provider === 'pexels' ? 'Pexels' : '';
+            this.photoAuthor?.querySelector('.author-prefix')?.classList.toggle('hidden', provider === 'wallhaven');
+            const sourceCredit = provider === 'wallhaven' ? 'Wallhaven' : provider === 'pexels' ? 'Pexels' : '';
             if (sourceCredit && currentBg?.username) this.cornerTopRight?.classList.add('always-visible');
 
             if (currentBg?.username && this.authorName && this.photoAuthor) {
-                this.authorName.textContent = currentBg.username + (sourceCredit ? ` · ${sourceCredit}` : '');
+                this.authorName.textContent = provider === 'wallhaven'
+                    ? t('wallhavenUploadedBy', { name: currentBg.username })
+                    : currentBg.username + (sourceCredit ? ` · ${sourceCredit}` : '');
                 const candidate = currentBg.userUrl || currentBg.page;
                 let page = '';
                 try {
