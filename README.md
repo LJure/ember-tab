@@ -4,7 +4,7 @@ An unofficial Firefox port of [Aura Tab](https://github.com/nil-byte/aura-tab), 
 
 基于 Aura Tab 的非官方 Firefox 新标签页扩展。本项目独立维护，保留原项目的 MIT 许可证与版权声明。
 
-**Status: M4 implementation and isolated tests complete; external validation pending. Development build only.**
+**Status: M4 core acceptance complete, including user retesting of slow custom images. Ready to begin M5; development build only.**
 
 - [Development plan and progress / 开发计划与进度](DEVELOPMENT_PLAN.md)
 - [M1 environment and baseline / 基线报告](docs/M1_BASELINE.md)
@@ -12,12 +12,13 @@ An unofficial Firefox port of [Aura Tab](https://github.com/nil-byte/aura-tab), 
 - [M3 feature verification and remaining limits / 主要功能验收](docs/M3_FEATURES.md)
 - [M4 data reliability and test boundaries / 数据与备份验收](docs/M4_DATA.md)
 - [Slow custom image recovery and retest steps / 慢图床修复](docs/M4_ICON_RECOVERY.md)
+- [M5 preparation and remaining release checks / M5 启动准备](docs/M5_PREPARATION.md)
 - [Project identity and Firefox targets](ember.project.json)
 - Baseline: Aura Tab 3.5.3, commit `a706cee56e43b80777de697dd4462083b1f97ef8`.
 - Current local checks: 80 test files / 605 tests passed, package reproducibility test passed; ESLint reports no errors or warnings.
 - Firefox development version: 0.1.0. M4 has 23 browser checks, plus 26 M3 regression checks and temporary-addon upgrade/restart data checks passed on Windows / Firefox 156.0.1. Firefox 140+ is the intended minimum; ESR verification remains pending.
 
-Build with `npm ci` then `npm run build:firefox`. In a separate Firefox test profile, open `about:debugging#/runtime/this-firefox`, choose **Load Temporary Add-on**, and select `dist/firefox/manifest.json`. This unsigned development build is removed on browser restart. Icon discovery, bookmarks, search, local wallpapers and core interactions have Firefox coverage. Backup round trips, a 32 MiB OPFS sample, multi-tab writes and a local WebDAV fixture are covered. User verification passed for a Brave/Aura 3.5.3 backup, a real WebDAV service, and basic Firefox account settings/link sync. Slow custom image loading has been fixed and awaits user retesting; cross-device conflict scenarios, larger libraries, authenticated wallpaper services, privacy declarations, branding and release review remain pending. Restore has per-store transactions, not a global rollback across databases and extension storage. `web-ext lint` currently reports 0 errors and 55 tracked warnings, with no unsupported-API warnings; this is not AMO approval.
+Build with `npm ci` then `npm run build:firefox`. In a separate Firefox test profile, open `about:debugging#/runtime/this-firefox`, choose **Load Temporary Add-on**, and select `dist/firefox/manifest.json`. This unsigned development build is removed on browser restart. Icon discovery, bookmarks, search, local wallpapers and core interactions have Firefox coverage. Backup round trips, a 32 MiB OPFS sample, multi-tab writes and a local WebDAV fixture are covered. User verification passed for a Brave/Aura 3.5.3 backup, a real WebDAV service, and basic Firefox account settings/link sync. The user also confirmed the slow custom image fix passed retesting; cross-device conflict scenarios, larger libraries, authenticated wallpaper services, privacy declarations, branding and release review remain pending. Restore has per-store transactions, not a global rollback across databases and extension storage. `web-ext lint` currently reports 0 errors and 55 tracked warnings, with no unsupported-API warnings; this is not AMO approval.
 
 There is no Ember Tab Firefox release or AMO listing yet. The original root manifest and `package_extension.sh` remain the upstream Chrome configuration. Repository Actions are paused with the owner's authorization, so inherited release workflows cannot publish a Chrome package as Ember Tab. The upstream documentation below is retained for reference; its store links, version badges, and installation instructions refer to **Aura Tab**, not an Ember Tab release.
 

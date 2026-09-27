@@ -2,7 +2,7 @@
 
 日期：2026-09-27；Windows、Firefox 156.0.1、Node 24.14.1。分支 `feat/m4-data-reliability`，从 M3 `e05173c` 继续。开发包仍为 0.1.0，固定 ID `ember-tab@ljure.github.io`。
 
-**本阶段工程实现与隔离环境验证完成，外部验收尚未全部完成。** 用户已验证 Brave 来源备份迁移和真实 WebDAV 通过；Firefox 账号同步的设置／链接通过，慢图床图标缺失修复后待用户复验，冲突场景未单独确认。ESR、签名安装与正式升级留待后续。新增修复见 [慢图床图标报告](M4_ICON_RECOVERY.md)，进度主入口是 [开发计划](../DEVELOPMENT_PLAN.md)。
+**M4 核心验收完成，已具备进入 M5 的开发基线。** 用户已验证 Brave 来源备份迁移、真实 WebDAV、Firefox 账号设置／链接同步，并确认慢图床图标修复测试通过。冲突场景、ESR、签名安装与正式升级等未验证项继续保留为发布前专项，不宣称全部验收通过。见 [M5 启动准备](M5_PREPARATION.md)、[图标修复报告](M4_ICON_RECOVERY.md) 和 [开发计划](../DEVELOPMENT_PLAN.md)。
 
 ## 用户补充验收（2026-09-27）
 
@@ -11,6 +11,7 @@
 - 附带外观反馈：导入前 Dock 有整块背景底板，导入后符合用户预期。核查当前及上游基线均默认 `showBackdrop: true`，界面有“显示 Dock 背板”开关；此差异按设置差异记录。
 - 用户明确决定：既然不是 bug，保持与上游一致，不修改 Dock 默认值。运行代码未改；此项关闭，不列为渲染缺陷。
 - 后续反馈：真实 WebDAV 测试通过；Firefox 账号设置和链接正常同步，但部分自定义图床图片缺失。细分结果、慢图床修复及用户复验步骤见 [补充报告](M4_ICON_RECOVERY.md)。下文自动验收数字及包哈希保留原 M4 `583b0fb` 的历史记录。
+- 收尾反馈：用户确认 `5bee9bd` 的图标修复测试通过，并要求更新文档、准备 M5。关闭该缺陷；不扩展为用户已经完成离线冲突、ESR 或签名升级测试。
 
 ## 修改及原因
 
@@ -99,10 +100,10 @@ M4 脚本需要 Git 中存在上述上游基线；M1 已补全该历史。生命
 ## 未完成项与后续接续
 
 - 真实来源迁移已获 Brave／Aura Tab 3.5.3 用户通过反馈；Chrome 品牌浏览器单独验证、图片数量与浏览器版本补录尚无证据，不影响上述已报告样本的通过记录。
-- Firefox 账号基本设置／链接同步已获用户通过反馈；离线双端编辑、恢复上线、分块送达／清理交叠和冲突决策未单独确认；慢图床图标修复待复验。Chrome Sync 与 Firefox Sync 不互通。
+- Firefox 账号基本设置／链接同步及慢图床图标修复已获用户通过反馈；离线双端编辑、恢复上线、分块送达／清理交叠和冲突决策未单独确认，带入 M6。Chrome Sync 与 Firefox Sync 不互通。
 - 真实 WebDAV 已获用户通过反馈；服务类型、HTTPS、服务商认证／权限／中断等细分场景无单独证据，不把这些细分项自动标为通过。无需把真实密码写入文档或聊天。
 - M2 的 `Promise resolved after context unloaded` 压力场景专项复现仍待做；本轮普通重载／禁用／升级／重启数据检查通过不能证明所有销毁竞态消失。M3 初始化窗口已修复，Bing 立即刷新公网场景及长期后台轮换仍待复核。
-- ESR、实际签名安装／升级、超过 32 MiB 的资源验收与故障时全局恢复边界。
+- ESR、实际签名安装／升级、更大容量的资源验收与故障时全局恢复边界。自动资源采样覆盖 32 MiB；用户 37.1 MB ZIP 迁移成功，但未记录资源占用或容量阈值。
 - M5：独立品牌与图标、第三方素材／许可、网络隐私声明和权限策略、55 个包检查警告；Actions 继续暂停，未签名、未上架。
 
 参考：[Firefox Sync 配额与冲突行为](https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/API/storage/sync)、[OPFS getDirectory](https://developer.mozilla.org/en-US/docs/Web/API/StorageManager/getDirectory)、[host_permissions](https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/manifest.json/host_permissions)。Firefox Sync 按键同步，服务端变更可能覆盖本地；本地锁无法提供跨设备互斥。
