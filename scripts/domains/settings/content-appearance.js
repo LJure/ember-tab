@@ -99,8 +99,8 @@ export function registerAppearanceContent(window) {
                             <span class="mac-settings-row-title" data-i18n="settingsBgSource"></span>
                         </div>
                         <div class="mac-settings-row-control">
-                            <div class="mac-select">
-                                <select class="mac-select-input" id="macBgSource" style="min-width: 140px;">
+                            <div class="mac-select" style="width: 140px;">
+                                <select class="mac-select-input" id="macBgSource">
                                     <option value="files" data-i18n="settingsBgSourceLocal"></option>
                                     <option value="wallhaven">Wallhaven</option>
                                     <option value="pexels">Pexels</option>
@@ -170,9 +170,9 @@ export function registerAppearanceContent(window) {
                     </div>
 
                     <div class="mac-settings-row hidden" id="macWallhavenCollectionRow" style="flex-direction: column; align-items: stretch; gap: 12px;">
-                        <label style="display: flex; align-items: center; justify-content: space-between; gap: 12px;"><span data-i18n="wallhavenUsername"></span><input class="mac-api-input" style="width: 240px; max-width: 55%;" id="macWallhavenUsername" maxlength="64" autocomplete="off"></label>
-                        <label style="display: flex; align-items: center; justify-content: space-between; gap: 12px;"><span data-i18n="wallhavenCollectionId"></span><input class="mac-api-input" style="width: 240px; max-width: 55%;" id="macWallhavenCollectionId" maxlength="12" inputmode="numeric" autocomplete="off"></label>
-                        <p style="font-size: 12px; line-height: 1.6; opacity: .8; overflow-wrap: anywhere;" data-i18n="wallhavenCollectionHint"></p>
+                        <label style="display: flex; align-items: center; justify-content: space-between; gap: 12px;"><span class="mac-settings-row-title" data-i18n="wallhavenUsername"></span><input class="mac-api-input" style="width: 240px; max-width: 55%;" id="macWallhavenUsername" maxlength="64" autocomplete="off"></label>
+                        <label style="display: flex; align-items: center; justify-content: space-between; gap: 12px;"><span class="mac-settings-row-title" data-i18n="wallhavenCollectionId"></span><input class="mac-api-input" style="width: 240px; max-width: 55%;" id="macWallhavenCollectionId" maxlength="12" inputmode="numeric" autocomplete="off"></label>
+                        <p class="mac-settings-row-desc" style="color: var(--mac-text-primary); line-height: 1.6; overflow-wrap: anywhere;" data-i18n="wallhavenCollectionHint"></p>
                         <button type="button" class="mac-button mac-button--primary" style="align-self: flex-end;" id="macWallhavenApply" data-i18n="wallhavenApply"></button>
                     </div>
                     <!-- Pexels API Key -->
