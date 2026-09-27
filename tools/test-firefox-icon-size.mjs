@@ -8,6 +8,8 @@ export async function runIconSizeTests({driver, check, runInExtension:run, repor
         const {buildIconCacheKey}=await import('./scripts/shared/text.js');
         const canvas=document.createElement('canvas');canvas.width=canvas.height=128;
         const ctx=canvas.getContext('2d');ctx.fillStyle='#ff2442';ctx.fillRect(10,10,108,108);
+        // A nearly invisible halo used to defeat visible-size normalization.
+        ctx.fillStyle='rgba(255,36,66,0.01)';ctx.fillRect(3,3,1,1);ctx.fillRect(124,124,1,1);
         const blob=await new Promise(r=>canvas.toBlob(r));
         await iconCache.set(buildIconCacheKey('https://padded.example/'),blob,'https://padded.example/icon.png');
         await iconCache.set(buildIconCacheKey('https://custom.example/','https://custom.example/icon.png'),blob,'https://custom.example/icon.png');
@@ -48,8 +50,15 @@ export async function runIconSizeTests({driver, check, runInExtension:run, repor
                 const {buildIconCacheKey}=await import('./scripts/shared/text.js');
                 const entry=await iconCache.get(buildIconCacheKey('https://www.xiaohongshu.com/'));
                 const original=await createImageBitmap(entry.blob);const img=document.querySelector('#live-size img');
-                const result={source:entry.sourceUrl,originalWidth:original.width,originalHeight:original.height,displayWidth:img.naturalWidth,displayHeight:img.naturalHeight};original.close();return result;`);
+                const canvas=document.createElement('canvas');canvas.width=img.naturalWidth;canvas.height=img.naturalHeight;
+                const ctx=canvas.getContext('2d');ctx.drawImage(img,0,0);const data=ctx.getImageData(0,0,canvas.width,canvas.height).data;
+                let left=canvas.width,top=canvas.height,right=-1,bottom=-1;
+                for(let y=0;y<canvas.height;y++)for(let x=0;x<canvas.width;x++)if(data[(y*canvas.width+x)*4+3]>=128){left=Math.min(left,x);right=Math.max(right,x);top=Math.min(top,y);bottom=Math.max(bottom,y);}
+                const result={source:entry.sourceUrl,originalWidth:original.width,originalHeight:original.height,displayWidth:img.naturalWidth,displayHeight:img.naturalHeight,
+                    visibleWidthRatio:(right-left+1)/canvas.width,visibleHeightRatio:(bottom-top+1)/canvas.height};original.close();return result;`);
             assert.ok(report.liveIconSize.displayWidth<report.liveIconSize.originalWidth);
+            assert.ok(report.liveIconSize.visibleWidthRatio>=0.98);
+            assert.ok(report.liveIconSize.visibleHeightRatio>=0.98);
             await run(`const {createIconElement}=await import('./scripts/domains/quicklinks/icon-renderer.js');
                 document.getElementById('live-size').replaceChildren(createIconElement({title:'小红书',url:'https://www.xiaohongshu.com/'},'quicklink'));`);
             await driver.wait(async()=>run(`return document.querySelector('#live-size img')?.naturalWidth===arguments[0];`,report.liveIconSize.displayWidth),10000);

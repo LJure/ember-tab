@@ -21,10 +21,16 @@ describe('Automatic favicon transparent padding', () => {
             expect(transparentIconCrop(pixels(...args),args[0],args[1])).toBeNull();
         }
     });
-    it('retains even faint alpha shadows instead of cutting them off', () => {
+    it('fits the visible body instead of letting faint halos keep it undersized', () => {
         const data=pixels(128,128,10,10,108,108);
         data[3]=1;
+        expect(transparentIconCrop(data,128,128)).toEqual({x:10,y:10,side:108});
+    });
+    it('keeps visible translucent details and leaves wholly faint artwork unchanged', () => {
+        const data=pixels(128,128,10,10,108,108);
+        data[3]=128;
         expect(transparentIconCrop(data,128,128)).toEqual({x:0,y:0,side:118});
+        expect(transparentIconCrop(pixels(128,128,10,10,108,108,127),128,128)).toBeNull();
     });
     it('leaves other formats, oversized and animated PNGs unchanged', async () => {
         const animated=new Uint8Array([137,80,78,71,13,10,26,10,0,0,0,0,97,99,84,76,0,0,0,0]);

@@ -535,5 +535,126 @@
       "passed": 636,
       "files": 85
     }
+  },
+  "iconSizeBackupFollowup": {
+    "backupFinding": {
+      "sourceHost": "favicon.vemetric.com",
+      "opaqueCanvas": true,
+      "height": 128,
+      "mode": "auto",
+      "width": 128
+    },
+    "unitTests": {
+      "files": 85,
+      "passed": 637
+    },
+    "suites": [
+      {
+        "name": "stable",
+        "finishedAt": "2026-09-27T14:33:34.395Z",
+        "liveIconSize": {
+          "displayHeight": 107,
+          "displayWidth": 107,
+          "originalHeight": 129,
+          "originalWidth": 128,
+          "source": "https://picasso-static.xiaohongshu.com/fe-platform/fbd46ec8a907ca6a8cacc9596f18ff495c639feb.png",
+          "visibleHeightRatio": 1,
+          "visibleWidthRatio": 1
+        },
+        "startedAt": "2026-09-27T14:33:26.667Z",
+        "iconSize": [
+          {
+            "displayWidth": 64,
+            "height": 108,
+            "name": "Auto Dock",
+            "width": 108
+          },
+          {
+            "displayWidth": 64,
+            "height": 108,
+            "name": "Auto Grid",
+            "width": 108
+          },
+          {
+            "displayWidth": 64,
+            "height": 128,
+            "name": "Custom",
+            "width": 128
+          }
+        ],
+        "checks": [
+          "temporary installation and fixed Gecko ID",
+          "new tab boot, localized search and clock",
+          "first-install background defaults",
+          "asynchronous background message reply",
+          "settings UI language and theme changes",
+          "settings survive page reload; local and session Promise APIs",
+          "message wakes suspended module event page",
+          "storage event wakes background and creates hourly alarm",
+          "alarm wakes suspended background and broadcasts refresh",
+          "extension reload preserves settings and restores handlers",
+          "Automatic cached icons fill equal Dock and Launchpad image boxes",
+          "Custom images preserve their original padding",
+          "Display normalization preserves original cache bytes and source",
+          "Live Xiaohongshu automatic icon and cached reload remove transparent padding"
+        ],
+        "status": "passed",
+        "packageSha256": "b77c803f3a7d6d3716208afb0de8e1f9d1c629a78b16f4795314e2c021811c19",
+        "browserVersion": "156.0.1"
+      },
+      {
+        "name": "esr140",
+        "finishedAt": "2026-09-27T14:34:33.726Z",
+        "liveIconSize": {
+          "displayHeight": 107,
+          "displayWidth": 107,
+          "originalHeight": 129,
+          "originalWidth": 128,
+          "source": "https://picasso-static.xiaohongshu.com/fe-platform/fbd46ec8a907ca6a8cacc9596f18ff495c639feb.png",
+          "visibleHeightRatio": 1,
+          "visibleWidthRatio": 1
+        },
+        "startedAt": "2026-09-27T14:34:24.912Z",
+        "iconSize": [
+          {
+            "displayWidth": 64,
+            "height": 108,
+            "name": "Auto Dock",
+            "width": 108
+          },
+          {
+            "displayWidth": 64,
+            "height": 108,
+            "name": "Auto Grid",
+            "width": 108
+          },
+          {
+            "displayWidth": 64,
+            "height": 128,
+            "name": "Custom",
+            "width": 128
+          }
+        ],
+        "checks": [
+          "temporary installation and fixed Gecko ID",
+          "new tab boot, localized search and clock",
+          "first-install background defaults",
+          "asynchronous background message reply",
+          "settings UI language and theme changes",
+          "settings survive page reload; local and session Promise APIs",
+          "message wakes suspended module event page",
+          "storage event wakes background and creates hourly alarm",
+          "alarm wakes suspended background and broadcasts refresh",
+          "extension reload preserves settings and restores handlers",
+          "Automatic cached icons fill equal Dock and Launchpad image boxes",
+          "Custom images preserve their original padding",
+          "Display normalization preserves original cache bytes and source",
+          "Live Xiaohongshu automatic icon and cached reload remove transparent padding"
+        ],
+        "status": "passed",
+        "packageSha256": "b77c803f3a7d6d3716208afb0de8e1f9d1c629a78b16f4795314e2c021811c19",
+        "browserVersion": "140.16.0"
+      }
+    ]
   }
 }

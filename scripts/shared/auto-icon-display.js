@@ -1,6 +1,9 @@
 // Normalize only static PNG favicons for display. Keep the cached original,
 // custom images, animation and non-transparent artwork intact.
 const MAX_SIDE = 1024;
+// Very faint halos and antialiasing are not the perceived edge of an icon.
+// Including every nonzero alpha pixel leaves padded app icons visibly smaller.
+const MIN_VISIBLE_ALPHA = 128;
 const previews = new WeakMap();
 
 function isStaticPng(bytes) {
@@ -21,7 +24,7 @@ export function transparentIconCrop(data, width, height) {
     let left = width, top = height, right = -1, bottom = -1;
     for (let y = 0; y < height; y++) {
         for (let x = 0; x < width; x++) {
-            if (data[(y * width + x) * 4 + 3] === 0) continue;
+            if (data[(y * width + x) * 4 + 3] < MIN_VISIBLE_ALPHA) continue;
             left = Math.min(left, x); right = Math.max(right, x);
             top = Math.min(top, y); bottom = Math.max(bottom, y);
         }
