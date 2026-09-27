@@ -127,6 +127,22 @@ describe('photos domain', () => {
             expect(document.getElementById('photoAuthor').hasAttribute('href')).toBe(false);
         });
 
+        it('links Pexels credit to the displayed photo and keeps it visible when info is disabled', async () => {
+            const photo = {
+                username: 'Photographer', provider: 'pexels',
+                page: 'https://www.pexels.com/photo/123/',
+                userUrl: 'https://www.pexels.com/@photographer/'
+            };
+            const layout = new LayoutManager({ backgroundSystem: {
+                whenReady: async () => {}, getCurrentBackground: () => photo
+            } });
+            layout._applyBackgroundVisibilitySettings({ showPhotoInfo: false });
+            await layout._updatePhotoInfo();
+            expect(document.getElementById('photoAuthor').getAttribute('href')).toBe(photo.page);
+            expect(document.getElementById('authorName').textContent).toBe('Photographer · Pexels');
+            expect(document.getElementById('cornerTopRight').classList.contains('always-visible')).toBe(true);
+        });
+
         it('replaces the photographer prefix for Wallhaven and restores it for other sources', async () => {
             let photo = { username: 'Uploader', provider: 'wallhaven' };
             const layout = new LayoutManager({ backgroundSystem: { whenReady: async () => {}, getCurrentBackground: () => photo } });

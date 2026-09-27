@@ -434,7 +434,10 @@
     "longRunningRotation": "Deferred by user to post-release ongoing validation",
     "wallhavenPrivateCollection": "User reports passed; version and error-case details unspecified",
     "automaticIconSize": "User reports follow-up fix passed; feedback follows f234abf; exact installed package and browser version unspecified",
-    "pexelsRealApiKey": "User confirms Pexels verified; retain provider, superseding earlier removal choice; browser version and error-case details unspecified"
+    "pexelsRealApiKey": "User confirms Pexels verified; retain provider, superseding earlier removal choice; browser version and error-case details unspecified",
+    "interruptedRestoreProtection": "Deferred by user to later versions; retain existing handling; no automatic safety copy or global rollback; not a first-release gate",
+    "permissionRevocation": "Deferred by user to later versions; retain existing handling; not verified and not a first-release gate",
+    "bingWallpaper": "User explicitly retains Bing unchanged; scope decision, not an independently verified authorization grant"
   },
   "iconSizeFollowup": {
     "suites": [
@@ -657,6 +660,102 @@
         "packageSha256": "b77c803f3a7d6d3716208afb0de8e1f9d1c629a78b16f4795314e2c021811c19",
         "browserVersion": "140.16.0"
       }
+    ]
+  },
+  "unsignedCandidate": {
+    "date": "2026-09-27",
+    "version": "0.1.0",
+    "signed": false,
+    "packageSha256": "552ba51e5afdb9483dd8b6946a4bbfe7b01890b8d0474ce00c5be8d86cab8aa4",
+    "bytes": 471981,
+    "files": 110,
+    "unitTests": {
+      "files": 85,
+      "passed": 638
+    },
+    "lint": {
+      "errors": 0,
+      "warnings": 0
+    },
+    "reproducibleBuild": "passed",
+    "webExt": {
+      "errors": 0,
+      "warnings": 52,
+      "notices": 0
+    },
+    "runtimeChange": "Pexels attribution prefers the current photo page over the photographer profile",
+    "suites": [
+      {
+        "source": ".local/m6/candidate-stable/firefox-smoke.json",
+        "browserVersion": "156.0.1",
+        "status": "passed",
+        "checks": [
+          "temporary installation and fixed Gecko ID",
+          "new tab boot, localized search and clock",
+          "first-install background defaults",
+          "asynchronous background message reply",
+          "settings UI language and theme changes",
+          "settings survive page reload; local and session Promise APIs",
+          "message wakes suspended module event page",
+          "storage event wakes background and creates hourly alarm",
+          "alarm wakes suspended background and broadcasts refresh",
+          "extension reload preserves settings and restores handlers",
+          "M5 normal package declares data and denies plaintext hosts",
+          "M5 packaged icons decode at declared sizes",
+          "M5 about attribution and local privacy in zh-CN",
+          "M5 about attribution and local privacy in zh-TW",
+          "M5 about attribution and local privacy in en",
+          "M5 Pexels photo credit remains visible and links to the work",
+          "M5 local privacy renders with no remote subresources",
+          "Wallhaven appearance controls in zh-CN",
+          "Wallhaven appearance controls in zh-TW",
+          "Wallhaven appearance controls in en"
+        ],
+        "packageSha256": "552ba51e5afdb9483dd8b6946a4bbfe7b01890b8d0474ce00c5be8d86cab8aa4",
+        "startedAt": "2026-09-27T14:59:57.146Z",
+        "finishedAt": "2026-09-27T15:00:11.739Z"
+      },
+      {
+        "source": ".local/m6/candidate-esr/firefox-smoke.json",
+        "browserVersion": "140.16.0",
+        "status": "passed",
+        "checks": [
+          "temporary installation and fixed Gecko ID",
+          "new tab boot, localized search and clock",
+          "first-install background defaults",
+          "asynchronous background message reply",
+          "settings UI language and theme changes",
+          "settings survive page reload; local and session Promise APIs",
+          "message wakes suspended module event page",
+          "storage event wakes background and creates hourly alarm",
+          "alarm wakes suspended background and broadcasts refresh",
+          "extension reload preserves settings and restores handlers",
+          "M5 normal package declares data and denies plaintext hosts",
+          "M5 packaged icons decode at declared sizes",
+          "M5 about attribution and local privacy in zh-CN",
+          "M5 about attribution and local privacy in zh-TW",
+          "M5 about attribution and local privacy in en",
+          "M5 Pexels photo credit remains visible and links to the work",
+          "M5 local privacy renders with no remote subresources",
+          "Wallhaven appearance controls in zh-CN",
+          "Wallhaven appearance controls in zh-TW",
+          "Wallhaven appearance controls in en"
+        ],
+        "packageSha256": "552ba51e5afdb9483dd8b6946a4bbfe7b01890b8d0474ce00c5be8d86cab8aa4",
+        "startedAt": "2026-09-27T14:59:59.456Z",
+        "finishedAt": "2026-09-27T15:00:15.505Z"
+      }
+    ],
+    "deferred": [
+      "Additional interrupted-restore protection",
+      "Permission revocation acceptance",
+      "Two-device conflict merging",
+      "Long-running rotation"
+    ],
+    "distributionPending": [
+      "Signed install/upgrade",
+      "Actual consent UI",
+      "AMO submission and distribution"
     ]
   }
 }

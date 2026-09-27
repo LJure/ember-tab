@@ -256,7 +256,9 @@ export class LayoutManager extends DisposableComponent {
                 this.authorName.textContent = provider === 'wallhaven'
                     ? t('wallhavenUploadedBy', { name: currentBg.username })
                     : currentBg.username + (sourceCredit ? ` · ${sourceCredit}` : '');
-                const candidate = currentBg.userUrl || currentBg.page;
+                const candidate = provider === 'pexels'
+                    ? currentBg.page || currentBg.userUrl
+                    : currentBg.userUrl || currentBg.page;
                 let page = '';
                 try {
                     const url = new URL(candidate);

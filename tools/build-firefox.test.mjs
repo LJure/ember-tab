@@ -10,9 +10,12 @@ test('Firefox package is reproducible, attributed and contains only runtime file
     const upstreamBefore = await readFile(new URL('../manifest.json', import.meta.url), 'utf8');
     const build = () => JSON.parse(execFileSync(process.execPath, ['tools/build-firefox.mjs'], { cwd: root, encoding: 'utf8' }));
     const first = build();
-    assert.throws(() => execFileSync(process.execPath, ['tools/build-firefox.mjs', '--release'], {
+    const project = JSON.parse(await readFile(new URL('../ember.project.json', import.meta.url), 'utf8'));
+    const releaseBuild = () => execFileSync(process.execPath, ['tools/build-firefox.mjs', '--release'], {
         cwd: root, encoding: 'utf8', stdio: 'pipe'
-    }), /Release blocked/);
+    });
+    if (project.releaseBlockers?.length) assert.throws(releaseBuild, /Release blocked/);
+    else assert.equal(JSON.parse(releaseBuild()).sha256, first.sha256);
     const second = build();
     assert.equal(first.sha256, second.sha256);
     assert.equal(await readFile(new URL('../manifest.json', import.meta.url), 'utf8'), upstreamBefore);

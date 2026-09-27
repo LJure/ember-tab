@@ -7,17 +7,20 @@
   "initialVersion": "0.1.0",
   "geckoId": "ember-tab@ljure.github.io",
   "minimumFirefoxVersion": "140.0",
-  "status": "m6-acceptance-in-progress-release-gated",
-  "note": "Build inputs for tools/build-firefox.mjs; the loadable development manifest is generated in dist/firefox. Not yet a release candidate.",
-  "releaseBlockers": [
-    "Wallhaven provider terms and image rights review",
-    "Pexels/Bing and inherited asset provenance review",
-    "Interrupted restore has no global rollback; release recovery strategy required",
-    "Permission revocation and unverified service error-path acceptance",
+  "status": "m6-unsigned-release-candidate",
+  "note": "Candidate build gates resolved within the user-approved scope. The generated package is unsigned; distribution acceptance remains separate and incomplete.",
+  "releaseBlockers": [],
+  "distributionBlockers": [
     "Signed install/upgrade and distribution acceptance"
+  ],
+  "releaseDecisions": [
+    "Retain Bing wallpaper unchanged at user direction; upstream MIT and reported Edge listing are not recorded as an independent image/API authorization grant",
+    "Wallhaven/Pexels integration and shipped-asset review recorded in docs/M6_SOURCE_REVIEW.md"
   ],
   "deferredWork": [
     "User deferred two-device offline Sync conflict merging to a later version; first release does not promise conflict merging",
-    "User deferred long-running wallpaper rotation acceptance to continued user validation after initial release"
+    "User deferred long-running wallpaper rotation acceptance to continued user validation after initial release",
+    "User deferred additional interrupted-restore protection; retain existing upstream-style handling, no global rollback or automatic recovery copy implemented",
+    "User deferred permission revocation acceptance and additional handling; retain existing behavior, not marked verified"
   ]
 }

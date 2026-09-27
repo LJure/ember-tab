@@ -42,6 +42,22 @@ export async function runM5Tests({driver, check, runInExtension, evidence, uuid}
             await driver.wait(async () => await driver.executeScript(`const el=document.getElementById('macSettingsOverlay'); return !el || getComputedStyle(el).display==='none' || getComputedStyle(el).opacity==='0';`),5000);
         });
     }
+    await check('M5 Pexels photo credit remains visible and links to the work', async () => {
+        const credit = await runInExtension(`
+            const { LayoutManager } = await import('./scripts/domains/layout.js');
+            const photo = { username: 'Review fixture', provider: 'pexels',
+                page: 'https://www.pexels.com/photo/123/', userUrl: 'https://www.pexels.com/@fixture/' };
+            const layout = new LayoutManager({ backgroundSystem: {
+                whenReady: async () => {}, getCurrentBackground: () => photo
+            } });
+            layout._applyBackgroundVisibilitySettings({ showPhotoInfo: false });
+            await layout._updatePhotoInfo();
+            return { href: document.getElementById('photoAuthor').getAttribute('href'),
+                name: document.getElementById('authorName').textContent,
+                visible: document.getElementById('cornerTopRight').classList.contains('always-visible') };`);
+        assert.deepEqual(credit, { href: 'https://www.pexels.com/photo/123/',
+            name: 'Review fixture · Pexels', visible: true });
+    });
     await check('M5 local privacy renders with no remote subresources', async () => {
         await driver.get(`moz-extension://${uuid}/privacy.html`);
         assert.match(await driver.findElement(By.css('body')).getText(),/WebDAV/);
