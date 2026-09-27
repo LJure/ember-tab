@@ -1,5 +1,18 @@
 {
   "date": "2026-09-27",
+  "amoSubmission": {
+    "date": "2026-09-27",
+    "status": "awaiting-review",
+    "slug": "ember-tab-firefox",
+    "versionId": 6519175,
+    "fileId": 5063322,
+    "sourceAttached": true,
+    "onlineValidation": { "errors": 0, "warnings": 52 },
+    "signedPackageRetrieved": false,
+    "signedInstallAcceptance": "pending",
+    "details": "docs/AMO_SUBMISSION_STATUS.md",
+    "note": "Submission of the existing candidate; no runtime change or new test run. Earlier distributionPending lists are historical candidate-stage snapshots."
+  },
   "baseCommit": "6bca1ee",
   "note": "Working tree M6 changes; raw disposable-profile evidence is ignored under .local/m6",
   "system": "Microsoft Windows NT 10.0.26200.0",

@@ -1,6 +1,6 @@
 # AMO submission materials — Ember Tab 0.1.0
 
-Prepared 2026-09-27. These are local submission materials, not an AMO submission or approval. The package is unsigned. Listing text is in [RELEASE_HANDOFF.md](RELEASE_HANDOFF.md).
+Prepared 2026-09-27. The runtime and matching source archive have now been submitted to AMO and are awaiting review (version 6519175, slug ember-tab-firefox). No signed package has been retrieved or accepted in installation testing yet. These are the full reference notes; a condensed version under AMO's 3000-character limit was saved online. Current status is in [AMO_SUBMISSION_STATUS.md](AMO_SUBMISSION_STATUS.md), and listing text is in [RELEASE_HANDOFF.md](RELEASE_HANDOFF.md).
 
 ## Identity and scope
 

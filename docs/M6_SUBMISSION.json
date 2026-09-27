@@ -2,7 +2,21 @@
   "version": "0.1.0",
   "commit": "797f7589dee572d0254b95ba9b7d2159bb8ce0c2",
   "signed": false,
-  "submitted": false,
+  "submitted": true,
+  "amo": {
+    "submittedDate": "2026-09-27",
+    "channel": "listed",
+    "slug": "ember-tab-firefox",
+    "versionId": 6519175,
+    "fileId": 5063322,
+    "status": "awaiting-review",
+    "sourceAttached": true,
+    "signedPackageRetrieved": false,
+    "validationErrors": 0,
+    "validationWarnings": 52,
+    "managementUrl": "https://addons.mozilla.org/zh-CN/developers/addon/ember-tab-firefox/versions/6519175",
+    "record": "docs/AMO_SUBMISSION_STATUS.md"
+  },
   "source": {
     "file": "ember-tab-0.1.0-source.zip",
     "sha256": "39ec5002381ec914e2e42e14691dbc11719e9b4f7910f9f8377706852cefed8f",

@@ -1,6 +1,6 @@
 # 开发安装、迁移与分发
 
-当前为 Ember Tab 0.1.0 未签名候选包，不是 AMO 正式发布。固定 ID 为 `ember-tab@ljure.github.io`，目标桌面 Firefox 140+；稳定版 156.0.1 与 ESR 140.16.0 已完成 M6 自动化矩阵，实际范围和剩余门槛见 [M6 验收](M6_ACCEPTANCE.md)。
+Ember Tab 0.1.0 已提交 AMO 公开上架审核，源码已附交，当前等待审核；本地候选包仍未签名，不是已确认的正式发布。固定 ID 为 `ember-tab@ljure.github.io`，目标桌面 Firefox 140+；稳定版 156.0.1 与 ESR 140.16.0 已完成 M6 自动化矩阵，实际范围和剩余门槛见 [M6 验收](M6_ACCEPTANCE.md)，提交状态见 [Mozilla 提交进度](AMO_SUBMISSION_STATUS.md)。
 
 当前来源为本地、Wallhaven、Pexels、Bing；Unsplash／Pixabay 已移除，旧收藏保留。用户确认 Pexels 真实取图、Wallhaven 私有收藏集通过。设置方法见 [Wallhaven 使用](WALLHAVEN.md)，最新构建哈希以 [M6 验收](M6_ACCEPTANCE.md) 为准。
 
@@ -42,6 +42,6 @@ npm run lint:firefox
 
 ## 发布门槛
 
-当前服务／素材复核和用户决定见 [M6 来源审核](M6_SOURCE_REVIEW.md)，审阅资料见 [AMO reviewer notes](AMO_REVIEWER_NOTES.md)。下一步为确认分发渠道、提交签名以及实际签名包验收。商店名称／slug、图标展示、最新政策在实际提交日重新检查。
+当前服务／素材复核和用户决定见 [M6 来源审核](M6_SOURCE_REVIEW.md)，审阅资料见 [AMO reviewer notes](AMO_REVIEWER_NOTES.md)。已完成公开提交，商店名称 Ember Tab、slug `ember-tab-firefox`；下一步等待 Mozilla 审核及签名包，再进行实际签名安装验收。
 
 不启用继承的 Chrome 发布脚本；GitHub Actions 保持用户批准的暂停状态。源根目录 manifest 和上游打包脚本仅保留为 Chromium 历史参考，Firefox 必须使用上述构建入口。

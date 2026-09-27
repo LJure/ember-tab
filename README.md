@@ -4,7 +4,7 @@ An unofficial Firefox port of [Aura Tab by nil-byte](https://github.com/nil-byte
 
 基于 Aura Tab 的非官方 Firefox 新标签页扩展，保留快捷链接、Dock、搜索、书签导入、本地／在线壁纸、照片、备份与 WebDAV。独立维护，名称为 **Ember Tab**。
 
-**状态：0.1.0 未签名候选包已准备。M6 工程检查及用户验收范围已记录，签名安装／升级与正式分发仍待完成；没有 AMO 发布。**
+**状态：0.1.0 已提交 Mozilla 公开上架审核，源码已附交，当前等待审核；尚未确认上架或取得签名包。签名安装／升级验收仍待完成。** 见 [提交进度](docs/AMO_SUBMISSION_STATUS.md)。
 
 ## 安装与迁移
 
