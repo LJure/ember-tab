@@ -98,7 +98,11 @@ SHA-256：`552ba51e5afdb9483dd8b6946a4bbfe7b01890b8d0474ce00c5be8d86cab8aa4`。
 - 本轮未重复 128 MiB、双端同步、图标大小等未受影响套件；既有证据范围保留。
 - 原始报告 `.local/m6/candidate-stable/` 与 `.local/m6/candidate-esr/`；机器摘要 `M6_EVIDENCE.json` 的 `unsignedCandidate`。
 
-英文审阅说明见 [AMO_REVIEWER_NOTES.md](AMO_REVIEWER_NOTES.md)。源码归档使用对应 Git 提交的已跟踪文件，存放在 `dist/ember-tab-0.1.0-source.zip`；不会加入 `.local`、用户备份、密钥或浏览器配置。最终提交及源码校验值见本地 `dist/ember-tab-0.1.0-submission.json`。
+英文审阅说明见 [AMO_REVIEWER_NOTES.md](AMO_REVIEWER_NOTES.md)。源码归档使用提交 `797f7589dee572d0254b95ba9b7d2159bb8ce0c2` 的已跟踪工作树文件，保留实际换行字节，排除不参与构建的 `assets/other/` 与 `docs/images/` 历史宣传截图；不会加入 `.local`、用户备份、密钥或浏览器配置。
+
+源码包 `dist/ember-tab-0.1.0-source.zip`：248 文件，824,700 字节，SHA-256 `39ec5002381ec914e2e42e14691dbc11719e9b4f7910f9f8377706852cefed8f`。已解压到独立目录，仅运行 Node 构建，无需 npm 安装或 Git 仓库，生成的扩展 ZIP 与上述候选包字节一致。此证据针对提供的源码归档；其他 checkout 的换行转换可能改变字节，不能直接把 Git 自动下载 ZIP 当作同一归档。
+
+持久化提交清单见 [M6_SUBMISSION.json](M6_SUBMISSION.json)，本地副本为 `dist/ember-tab-0.1.0-submission.json`。文件中的 commit 指源码包对应提交，后续只更新文档时不改写该来源。
 
 复跑以仓库根目录为工作目录：
 
