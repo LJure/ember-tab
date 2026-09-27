@@ -117,6 +117,16 @@ describe('photos domain', () => {
             setupPhotoInfoDom();
         });
 
+        it('keeps online credits visible and rejects restored script links', async () => {
+            const backgroundSystem = {whenReady: () => Promise.resolve(), getCurrentBackground: () => ({username:'Alice',provider:'unsplash',page:'javascript:alert(1)'})};
+            const layout = new LayoutManager({backgroundSystem});
+            layout._applyBackgroundVisibilitySettings({showPhotoInfo:false});
+            await layout._updatePhotoInfo();
+            expect(document.getElementById('cornerTopRight').classList.contains('always-visible')).toBe(true);
+            expect(document.getElementById('authorName').textContent).toBe('Alice · Unsplash');
+            expect(document.getElementById('photoAuthor').hasAttribute('href')).toBe(false);
+        });
+
         it('does not disable top-right corner based on backgroundSettings.type', async () => {
             const backgroundSystem = {
                 whenReady: () => Promise.resolve(),
@@ -137,7 +147,7 @@ describe('photos domain', () => {
             const photoInfo = document.getElementById('photoInfo');
 
             expect(authorName?.textContent).toBe('Alice');
-            expect(photoAuthor?.getAttribute('href')).toBe('https://example.com');
+            expect(photoAuthor?.getAttribute('href')).toBe('https://example.com/');
             expect(photoInfo?.classList.contains('hidden')).toBe(false);
         });
 

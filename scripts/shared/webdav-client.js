@@ -1,8 +1,10 @@
 
 import { fetchWithRetry, fetchWithTimeout } from './net.js';
+import { isSecureServiceUrl } from './network-policy.js';
 
 export class WebDAVClient {
     constructor({ baseUrl, username, password, remoteDir = 'AuraTabBackups', timeoutMs = 1800000 }) {
+        if (!isSecureServiceUrl(baseUrl)) throw new Error('WebDAV requires an HTTPS URL without embedded credentials');
         this.baseUrl = baseUrl.replace(/\/+$/, ''); // remove trailing slashes
         this.username = username;
         this.password = password;
@@ -14,6 +16,7 @@ export class WebDAVClient {
         try {
             const url = this._buildUrl('/');
             const response = await fetchWithTimeout(url, {
+                credentials: 'omit', redirect: 'error',
                 method: 'PROPFIND',
                 headers: {
                     ...this._buildHeaders(),
@@ -63,6 +66,7 @@ export class WebDAVClient {
         try {
             const url = this._buildUrl(`/${this._encodedRemoteDir()}/${encodeURIComponent(filename)}`);
             const response = await fetchWithRetry(url, {
+                credentials: 'omit', redirect: 'error',
                 method: 'PUT',
                 headers: {
                     ...this._buildHeaders(),
@@ -86,6 +90,7 @@ export class WebDAVClient {
         try {
             const url = this._buildUrl(`/${this._encodedRemoteDir()}/${encodeURIComponent(filename)}`);
             return await fetchWithTimeout(url, {
+                credentials: 'omit', redirect: 'error',
                 method: 'GET',
                 headers: this._buildHeaders()
             }, this.timeoutMs, async response => {
@@ -118,6 +123,7 @@ export class WebDAVClient {
         try {
             const url = this._buildUrl(`/${this._encodedRemoteDir()}/`);
             const xmlText = await fetchWithTimeout(url, {
+                credentials: 'omit', redirect: 'error',
                 method: 'PROPFIND',
                 headers: {
                     ...this._buildHeaders(),
@@ -147,6 +153,7 @@ export class WebDAVClient {
         try {
             const url = this._buildUrl(`/${this._encodedRemoteDir()}/${encodeURIComponent(filename)}`);
             const response = await fetchWithTimeout(url, {
+                credentials: 'omit', redirect: 'error',
                 method: 'DELETE',
                 headers: this._buildHeaders()
             }, 30000);
@@ -204,6 +211,7 @@ export class WebDAVClient {
         try {
             const url = this._buildUrl(path + '/');
             const response = await fetchWithTimeout(url, {
+                credentials: 'omit', redirect: 'error',
                 method: 'PROPFIND',
                 headers: {
                     ...this._buildHeaders(),
@@ -221,6 +229,7 @@ export class WebDAVClient {
         try {
             const url = this._buildUrl(path + '/');
             const response = await fetchWithTimeout(url, {
+                credentials: 'omit', redirect: 'error',
                 method: 'MKCOL',
                 headers: this._buildHeaders()
             }, 10000);

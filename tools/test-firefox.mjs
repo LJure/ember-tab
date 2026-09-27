@@ -14,7 +14,9 @@ const root = fileURLToPath(new URL('../', import.meta.url));
 const includeM3 = process.argv.includes('--m3');
 const includeM4 = process.argv.includes('--m4');
 const includeCustomIcons = process.argv.includes('--custom-icons');
-const evidence = path.join(root, '.local', includeCustomIcons ? 'icon-recovery' : includeM4 ? 'm4' : includeM3 ? 'm3' : 'm2');
+const includeM5 = process.argv.includes('--m5');
+const testHttp = process.argv.includes('--test-http');
+const evidence = path.join(root, '.local', includeM5 ? 'm5' : includeCustomIcons ? 'icon-recovery' : includeM4 ? 'm4' : includeM3 ? 'm3' : 'm2');
 await mkdir(evidence, { recursive: true });
 const project = JSON.parse(await readFile(path.join(root, 'ember.project.json'), 'utf8'));
 const manifest = JSON.parse(await readFile(path.join(root, 'dist/firefox/manifest.json'), 'utf8'));
@@ -40,8 +42,8 @@ const driver = await new Builder().forBrowser('firefox').setFirefoxOptions(optio
         .setStdio(['ignore', logFd, logFd])).build();
 const checks = [];
 const report = { startedAt: new Date().toISOString(), checks };
-report.packageSha256 = createHash('sha256').update(await readFile(path.join(root, `dist/ember-tab-${manifest.version}-firefox.zip`))).digest('hex');
-let installPath=path.join(root, `dist/ember-tab-${manifest.version}-firefox.zip`);
+let installPath=path.join(root, `dist/ember-tab-${manifest.version}-firefox${testHttp ? '-test-http' : ''}.zip`);
+report.packageSha256 = createHash('sha256').update(await readFile(installPath)).digest('hex');
 if(includeM4) {
     // Test-only upstream exporter, never shipped in the development package.
     const entries=unzipSync(await readFile(installPath));
@@ -157,6 +159,10 @@ try {
         assert.equal(await runInExtension('return (await chrome.storage.local.get("m2Local")).m2Local'), 'local');
         assert.equal((await runInExtension('return await chrome.runtime.sendMessage({type:"fetchIcon",url:"file:///invalid"})')).success, false);
     });
+    if (includeM5) {
+        const { runM5Tests } = await import('./test-firefox-m5.mjs');
+        await runM5Tests({driver, check, runInExtension, evidence, uuid});
+    }
     if (includeCustomIcons) {
         const {runCustomIconTests}=await import('./test-firefox-custom-icons.mjs');
         await runCustomIconTests({driver,check,runInExtension,evidence,report});

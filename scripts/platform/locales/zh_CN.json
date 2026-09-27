@@ -349,5 +349,10 @@
     "backupSkippedCache": "恢复完成；部分旧版缓存图标无法恢复。",
     "import_backup_sync_quota_exceeded": "备份数据超出浏览器同步存储容量。",
     "import_invalid_backup_unsafe_path": "备份包含不安全的路径。",
-    "import_invalid_backup_duplicate_path": "备份包含重复文件。"
+    "import_invalid_backup_duplicate_path": "备份包含重复文件。",
+    "emberAttribution": "基于 nil-byte 的 Aura Tab 的非官方 Firefox 移植版，由独立项目维护，与 Mozilla 及原作者无隶属关系。",
+    "emberLicenses": "第三方许可",
+    "emberUpstream": "原项目",
+    "webdavHttpsRequired": "请使用 HTTPS WebDAV 地址，勿在网址中嵌入用户名或密码。",
+    "pixabayPaused": "Pixabay（暂时停用）"
 }

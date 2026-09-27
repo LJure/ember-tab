@@ -249,8 +249,9 @@ export const unsplashProvider = {
         }
 
         // Unsplash API requirement: Trigger download_location for statistics
-        if (data.links?.download_location) {
+        if (isUnsplashApiUrl(data.links?.download_location)) {
             fetch(data.links.download_location, {
+                credentials: 'omit', redirect: 'error',
                 headers: { 'Authorization': `Client-ID ${apiKey.trim()}` }
             }).catch(() => { }); // Fire and forget
         }
@@ -264,7 +265,9 @@ export const unsplashProvider = {
             urls,
             downloadUrl,
             username: data.user?.name,
-            page: data.links?.html,
+            provider: 'unsplash',
+            userUrl: unsplashReferral(data.user?.links?.html),
+            page: unsplashReferral(data.links?.html),
             color: data.color,
             width: Number.isFinite(data.width) ? data.width : undefined,
             height: Number.isFinite(data.height) ? data.height : undefined
@@ -415,6 +418,8 @@ export const pexelsProvider = {
             urls,
             downloadUrl: originalUrl,
             username: randomPhoto.photographer,
+            provider: 'pexels',
+            userUrl: randomPhoto.photographer_url || '',
             page: randomPhoto.url,
             color: randomPhoto.avg_color,
             width: Number.isFinite(randomPhoto.width) ? randomPhoto.width : undefined,
@@ -484,9 +489,28 @@ export const bingProvider = {
 export function getProvider(type) {
     switch (type) {
         case 'unsplash': return unsplashProvider;
-        case 'pixabay': return pixabayProvider;
+        // Paused until API response caching and request policy meet service terms.
+        // Keep stored keys, metadata and already downloaded images intact.
+        case 'pixabay': return null;
         case 'pexels': return pexelsProvider;
         case 'bing': return bingProvider;
         default: return null;
     }
+}
+
+function isUnsplashApiUrl(value) {
+    try {
+        const url = new URL(value);
+        return url.origin === 'https://api.unsplash.com' && !url.username && !url.password;
+    } catch { return false; }
+}
+
+function unsplashReferral(value) {
+    try {
+        const url = new URL(value);
+        if (url.origin !== 'https://unsplash.com' || url.username || url.password) return '';
+        url.searchParams.set('utm_source', 'ember_tab');
+        url.searchParams.set('utm_medium', 'referral');
+        return url.href;
+    } catch { return ''; }
 }

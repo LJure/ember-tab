@@ -1,3 +1,4 @@
+import { isSecureServiceUrl } from '../../shared/network-policy.js';
 import { t } from '../../platform/i18n.js';
 import { confirmDialog } from '../../shared/confirm-dialog.js';
 import { escapeHtml } from '../../shared/text.js';
@@ -377,6 +378,9 @@ function _validateWebDAVConfig(config) {
         const url = new URL(config.baseUrl);
         if (!['http:', 'https:'].includes(url.protocol)) {
             return { valid: false, error: 'webdavInvalidUrl' };
+        }
+        if (!isSecureServiceUrl(config.baseUrl)) {
+            return { valid: false, error: 'webdavHttpsRequired' };
         }
     } catch {
         return { valid: false, error: 'webdavInvalidUrl' };

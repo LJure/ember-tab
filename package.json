@@ -1,7 +1,7 @@
 {
-    "name": "aura-tab",
-    "version": "3.5.3",
-    "description": "A beautiful new tab extension",
+    "name": "ember-tab",
+    "version": "0.1.0",
+    "description": "An unofficial Firefox port of Aura Tab",
     "type": "module",
     "scripts": {
         "build:firefox": "node tools/build-firefox.mjs",
@@ -17,7 +17,8 @@
         "test:coverage": "vitest run --coverage",
         "test:ui": "vitest --ui",
         "lint": "eslint scripts/ background-worker.js tools/",
-        "lint:fix": "eslint scripts/ background-worker.js tools/ --fix"
+        "lint:fix": "eslint scripts/ background-worker.js tools/ --fix",
+        "test:firefox:m5": "node tools/test-firefox.mjs --m5"
     },
     "devDependencies": {
         "@eslint/js": "^10.0.1",

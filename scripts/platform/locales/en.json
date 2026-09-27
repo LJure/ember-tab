@@ -349,5 +349,10 @@
     "backupSkippedCache": "Restored; some legacy cached icons could not be recovered.",
     "import_backup_sync_quota_exceeded": "The backup exceeds the browser sync storage quota.",
     "import_invalid_backup_unsafe_path": "The backup contains an unsafe path.",
-    "import_invalid_backup_duplicate_path": "The backup contains duplicate files."
+    "import_invalid_backup_duplicate_path": "The backup contains duplicate files.",
+    "emberAttribution": "An independent Firefox port of Aura Tab by nil-byte. Not affiliated with Mozilla or the original author.",
+    "emberLicenses": "Third-party licenses",
+    "emberUpstream": "Original project",
+    "webdavHttpsRequired": "Use an HTTPS WebDAV address without a username or password in the URL.",
+    "pixabayPaused": "Pixabay (temporarily unavailable)"
 }

@@ -245,9 +245,19 @@ export class LayoutManager extends DisposableComponent {
                 ? appliedBackground
                 : this.backgroundSystem.getCurrentBackground?.();
 
+            // Required source credit remains visible for online licensed images.
+            const provider = currentBg?.provider || this.backgroundSystem.settings?.type;
+            const sourceCredit = provider === 'unsplash' ? 'Unsplash' : provider === 'pexels' ? 'Pexels' : '';
+            if (sourceCredit && currentBg?.username) this.cornerTopRight?.classList.add('always-visible');
+
             if (currentBg?.username && this.authorName && this.photoAuthor) {
-                this.authorName.textContent = currentBg.username;
-                const page = typeof currentBg.page === 'string' ? currentBg.page.trim() : '';
+                this.authorName.textContent = currentBg.username + (sourceCredit ? ` · ${sourceCredit}` : '');
+                const candidate = currentBg.userUrl || currentBg.page;
+                let page = '';
+                try {
+                    const url = new URL(candidate);
+                    if (url.protocol === 'https:' && !url.username && !url.password) page = url.href;
+                } catch { /* Untrusted restored metadata must not create active URLs. */ }
                 if (page) {
                     this.photoAuthor.setAttribute('href', page);
                     this.photoAuthor.removeAttribute('aria-disabled');

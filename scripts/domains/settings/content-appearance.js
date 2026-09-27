@@ -103,7 +103,7 @@ export function registerAppearanceContent(window) {
                                 <select class="mac-select-input" id="macBgSource">
                                     <option value="files" data-i18n="settingsBgSourceLocal"></option>
                                     <option value="unsplash">Unsplash</option>
-                                    <option value="pixabay">Pixabay</option>
+                                    <option value="pixabay" disabled data-i18n="pixabayPaused">Pixabay (temporarily unavailable)</option>
                                     <option value="pexels">Pexels</option>
                                     <option value="bing" data-i18n="settingsBgSourceBing"></option>
                                 </select>

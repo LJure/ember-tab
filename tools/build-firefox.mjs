@@ -9,6 +9,9 @@ const dist = path.join(root, 'dist');
 const output = path.join(dist, 'firefox');
 const project = JSON.parse(await readFile(path.join(root, 'ember.project.json'), 'utf8'));
 const manifest = JSON.parse(await readFile(path.join(root, 'manifest.json'), 'utf8'));
+if (process.argv.includes('--release') && project.releaseBlockers?.length) {
+    throw new Error('Release blocked:\n- ' + project.releaseBlockers.join('\n- '));
+}
 
 // Only clean the fixed generated directory; never accept a caller-supplied path.
 if (path.dirname(output) !== dist || path.dirname(dist) !== path.resolve(root)) {
@@ -19,7 +22,7 @@ await mkdir(output, { recursive: true });
 
 // Runtime allowlist: keep development files and local browser data out of the ZIP.
 for (const entry of [
-    'newtab.html', 'background-worker.js', 'LICENSE', 'styles', 'scripts', '_locales',
+    'newtab.html', 'privacy.html', 'background-worker.js', 'LICENSE', 'THIRD_PARTY_NOTICES.md', 'licenses', 'styles', 'scripts', '_locales',
     'assets/backgrounds', 'assets/icons', 'assets/changelog.json'
 ]) {
     await cp(path.join(root, entry), path.join(output, entry), {
@@ -38,9 +41,19 @@ manifest.version = project.initialVersion;
 manifest.permissions = manifest.permissions.filter(p => !['favicon', 'offscreen'].includes(p));
 manifest.background = { scripts: ['background-worker.js'], type: 'module' };
 manifest.browser_specific_settings = {
-    gecko: { id: project.geckoId, strict_min_version: project.minimumFirefoxVersion }
+    gecko: {
+        id: project.geckoId, strict_min_version: project.minimumFirefoxVersion,
+        data_collection_permissions: {
+            required: ['authenticationInfo', 'bookmarksInfo', 'browsingActivity', 'searchTerms', 'websiteContent']
+        }
+    }
 };
-// Data transmission declarations are a release gate in M5, not a claim of "none".
+// Network features accept arbitrary HTTPS servers, but not plaintext remote data.
+// Loopback is available only in an explicitly generated local integration-test build.
+const testHttp = process.argv.includes('--test-http');
+manifest.host_permissions = ['https://*/*', ...(testHttp ? ['http://127.0.0.1/*', 'http://localhost/*'] : [])];
+manifest.content_security_policy.extension_pages = "script-src 'self'; object-src 'none'; img-src 'self' data: blob: https:; connect-src 'self' https: data: blob:" +
+    (testHttp ? ' http://127.0.0.1:* http://localhost:*' : '') + ';';
 await writeFile(path.join(output, 'manifest.json'), JSON.stringify(manifest, null, 2) + '\n');
 
 const descriptions = {
@@ -71,7 +84,7 @@ async function collect(directory, prefix = '') {
 }
 await collect(output);
 const zip = zipSync(files, { level: 6 });
-const filename = `ember-tab-${manifest.version}-firefox.zip`;
+const filename = `ember-tab-${manifest.version}-firefox${testHttp ? '-test-http' : ''}.zip`;
 await writeFile(path.join(dist, filename), zip);
 const sha256 = createHash('sha256').update(zip).digest('hex');
 await writeFile(path.join(dist, filename + '.sha256'), `${sha256}  ${filename}\n`);

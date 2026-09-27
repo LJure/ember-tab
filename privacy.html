@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="zh-CN"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Ember Tab · 隐私说明 / Privacy</title>
+<style>body{font:17px/1.8 system-ui,sans-serif;max-width:850px;margin:48px auto;padding:0 24px;background:#242239;color:#f6eee1}a{color:#ffd18c}h1,h2{line-height:1.35}section{margin:40px 0}small,.en{color:#c8c5d4}li{margin:10px 0}</style>
+<h1>Ember Tab 隐私说明<br><small>Privacy notice</small></h1>
+<p>更新：2026-09-27 · 适用于 Ember Tab 0.1.0。Ember Tab 是独立维护的 Aura Tab 非官方 Firefox 移植版。</p>
+<p class="en">Updated September 27, 2026. Applies to Ember Tab 0.1.0, an independently maintained, unofficial Firefox port of Aura Tab.</p>
+<section><h2>数据会去哪里 / Where data goes</h2>
+<p>Ember Tab 没有开发者运营的账号、分析、广告或错误报告服务器。但联网功能会直接向您选择的网站和下列服务传输数据。对方通常能看到您的 IP 地址、请求时间及浏览器网络请求信息；其保存期限由对方决定。</p>
+<p class="en">Ember operates no account, analytics, advertising or crash-report server. Network features contact the destinations below directly. Recipients normally receive your IP address, request time and browser request information; their retention policies apply.</p>
+<ul>
+<li><strong>搜索：</strong>您提交的搜索词发往所选搜索引擎，或交由 Firefox 默认搜索处理。<span class="en">Search terms go to your selected engine, or Firefox's default search service, when you submit a search.</span></li>
+<li><strong>图标：</strong>自动获取图标时访问快捷链接网址、网站声明的图标和清单。回退服务 Vemetric、Google 收到网站域名；您填写的图片地址会直接访问图床。加载可能在打开新标签页或同步后发生；可把链接改为文字图标以避免该链接的图标请求。<span class="en">Automatic icons contact saved websites and their declared icon/manifest URLs. Vemetric and Google fallback services receive the site domain. Custom image URLs contact their hosts, including after startup or sync. Choose a text icon to avoid icon requests for that link.</span></li>
+<li><strong>壁纸：</strong>选用在线来源后，Bing 收到语言／地区参数；Unsplash、Pexels 收到所配置 API 密钥、查询条件与图片请求，Unsplash 还会收到下载事件。定时刷新会重复请求。Pixabay 的新 API 请求已暂停，保留已有图片和设置。默认使用内置本地壁纸；选择“本地文件”可停止在线刷新。<span class="en">Online wallpaper sources receive image requests, locale/region (Bing), API credentials and query parameters (keyed providers). Unsplash also receives download events. Scheduled refresh repeats requests. New Pixabay API requests are paused; existing images and settings are retained. The default is a bundled local image; choose local files to stop online refresh.</span></li>
+<li><strong>书签：</strong>仅在您发起导入时读取；导入后的快捷链接可参与图标加载、Sync 和备份。主动检查链接有效性时会访问所检查的网站。<span class="en">Bookmarks are read on import. Imported links can participate in icon loading, Sync and backup. Explicit link validation contacts the checked websites.</span></li>
+<li><strong>Firefox Sync：</strong>设置、快捷链接、图标地址及壁纸 API 密钥保存在 Firefox 的 sync 存储，启用账号同步时由 Firefox 传输。您上传的本地图片 Blob 不通过 Sync 同步；图片地址可能在另一设备重新下载。通过 Firefox 账号设置管理同步。<span class="en">Settings, links, icon URLs and wallpaper API keys use Firefox sync storage. Firefox transfers them when account sync is enabled. Local image blobs are not synced; remote images may be fetched again on another device. Manage sync in Firefox account settings.</span></li>
+<li><strong>WebDAV：</strong>您点击测试、备份、列出、恢复或删除时，请求发送到所配置的 HTTPS 服务器，并携带认证信息。ZIP 包包含设置、快捷链接、图片及壁纸 API 密钥；不包含 WebDAV 配置。备份没有额外的文件加密。<span class="en">Explicit WebDAV actions send credentials and backup data to your configured HTTPS server. ZIPs include settings, links, images and wallpaper API keys, but exclude WebDAV configuration. Backup files have no additional file encryption.</span></li>
+</ul></section>
+<section><h2>本地保存与控制 / Storage and control</h2>
+<p>WebDAV 用户名和密码保存在扩展本地存储；壁纸 API 密钥保存在 sync 设置中。图标和壁纸缓存保存在 IndexedDB。备份导出仅在您操作时创建，但其中可能含密钥，请妥善保管。浏览器存储不是密码保险库。</p>
+<p class="en">WebDAV credentials are stored in local extension storage; wallpaper keys are in sync settings. IndexedDB holds image caches. Exported backups can contain keys. Browser storage is not a password vault.</p>
+<p>可以删除链接、图片、缓存和所保存凭据，停用在线壁纸与 Firefox 同步，并在服务器删除远端备份。卸载通常移除本地扩展数据，但不会撤回发出的请求，也不会删除您下载的文件或服务器备份；同步数据另由 Firefox 管理。</p>
+<p class="en">Delete links, images, caches and saved credentials, disable online wallpaper and Firefox sync, and remove remote backups on your server. Uninstalling normally removes local extension data, but does not retract requests or delete exported files and server backups. Firefox manages synced data separately.</p></section>
+<section><h2>权限与同意 / Permissions and consent</h2>
+<p>Firefox 140 及以上的安装提示声明认证信息、书签信息、浏览活动、搜索词和网站内容的传输；同意声明不代表每项功能已开启。网络访问权限支持任意 HTTPS 图床和 WebDAV，书签权限用于主动导入，存储权限用于设置与图片，定时权限用于您配置的刷新。本扩展不注入网页、不读取浏览历史数据库，也不采集使用统计。远端 HTTP 请求被阻止，HTTP 快捷链接本身仍可打开。</p>
+<p class="en">Firefox 140+ presents required transmission categories during installation: authentication information, bookmarks, browsing activity, search terms and website content. Consent does not enable every feature. HTTPS host access supports arbitrary image/WebDAV servers; bookmarks are for explicit import; storage is for settings/images; alarms are for configured refresh. Ember injects no website scripts, reads no browser history database and sends no usage analytics. Remote plaintext HTTP requests are blocked; HTTP links can still be opened.</p>
+<p>问题与隐私反馈：<a href="https://github.com/LJure/ember-tab/issues" rel="noreferrer">Ember Tab 项目问题页</a>。请勿公开密码、API 密钥或私人备份。<span class="en">For privacy questions, use the project issue tracker without posting credentials or private backups.</span></p></section>
+<p><a href="LICENSE">上游 MIT 许可证</a> · <a href="THIRD_PARTY_NOTICES.md">第三方声明</a> · <a href="https://github.com/nil-byte/aura-tab" rel="noreferrer">Aura Tab 来源</a></p>
+</html>

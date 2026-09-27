@@ -496,6 +496,7 @@ class BackgroundSystem {
     }
 
     async getProviderBackground(type, { suppressRecoverableErrors = false } = {}) {
+        if (type === 'pixabay') return this.getLocalFileBackground();
         const provider = getProvider(type);
         if (!provider) {
             throw new Error(t('bgUnknownProvider'));

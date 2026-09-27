@@ -24,7 +24,7 @@ describe('settings about/changelog UI', () => {
         vi.clearAllMocks();
         document.body.innerHTML = '';
         chrome.runtime.getManifest = vi.fn(() => ({
-            name: 'Aura Tab',
+            name: 'Ember Tab',
             version: '9.9.9'
         }));
     });
@@ -48,18 +48,18 @@ describe('settings about/changelog UI', () => {
         const links = Array.from(container.querySelectorAll('.mac-about-link-btn'));
         expect(links).toHaveLength(3);
         expect(links.map((link) => link.getAttribute('href'))).toEqual([
+            'https://github.com/LJure/ember-tab',
             'https://github.com/nil-byte/aura-tab',
-            'https://nil-byte.github.io/aura-tab/',
-            'https://nil-byte.github.io/aura-tab-privacy-policy/'
+            'privacy.html'
         ]);
         expect(
             container.querySelector(
-                'a[href="https://nil-byte.github.io/aura-tab/"] .mac-about-link-icon--homepage'
+                'a[href="https://github.com/nil-byte/aura-tab"] .mac-about-link-icon--homepage'
             )
         ).toBeTruthy();
         expect(
             container.querySelector(
-                'a[href="https://nil-byte.github.io/aura-tab-privacy-policy/"] .mac-about-link-icon--privacy'
+                'a[href="privacy.html"] .mac-about-link-icon--privacy'
             )
         ).toBeTruthy();
 

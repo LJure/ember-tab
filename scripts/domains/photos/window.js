@@ -1346,7 +1346,9 @@ export class PhotosWindow extends MacWindowBase {
                         },
                         downloadUrl: remote.downloadUrl || fav.downloadUrl,
                         username: fav.username,
-                        page: fav.userUrl || fav.page,
+                        provider: fav.provider,
+                        userUrl: fav.userUrl,
+                        page: fav.page || fav.userUrl,
                         color: fav.color
                     };
                     break;

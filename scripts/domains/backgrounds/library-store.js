@@ -205,6 +205,9 @@ class LibraryStore {
             id,
             kind: 'remote',
             provider: resolvedProvider,
+            username: safeString(background?.username),
+            userUrl: safeString(background?.userUrl),
+            page: safeString(background?.page),
             remote: {
                 rawUrl: fullCandidate,
                 downloadUrl,
