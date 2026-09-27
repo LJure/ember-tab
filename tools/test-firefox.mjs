@@ -13,7 +13,8 @@ import { unzipSync, zipSync, strToU8 } from '../scripts/libs/fflate.esm.js';
 const root = fileURLToPath(new URL('../', import.meta.url));
 const includeM3 = process.argv.includes('--m3');
 const includeM4 = process.argv.includes('--m4');
-const evidence = path.join(root, '.local', includeM4 ? 'm4' : includeM3 ? 'm3' : 'm2');
+const includeCustomIcons = process.argv.includes('--custom-icons');
+const evidence = path.join(root, '.local', includeCustomIcons ? 'icon-recovery' : includeM4 ? 'm4' : includeM3 ? 'm3' : 'm2');
 await mkdir(evidence, { recursive: true });
 const project = JSON.parse(await readFile(path.join(root, 'ember.project.json'), 'utf8'));
 const manifest = JSON.parse(await readFile(path.join(root, 'dist/firefox/manifest.json'), 'utf8'));
@@ -156,6 +157,10 @@ try {
         assert.equal(await runInExtension('return (await chrome.storage.local.get("m2Local")).m2Local'), 'local');
         assert.equal((await runInExtension('return await chrome.runtime.sendMessage({type:"fetchIcon",url:"file:///invalid"})')).success, false);
     });
+    if (includeCustomIcons) {
+        const {runCustomIconTests}=await import('./test-firefox-custom-icons.mjs');
+        await runCustomIconTests({driver,check,runInExtension,evidence,report});
+    }
     if (includeM3) {
         const { runM3Tests } = await import('./test-firefox-m3.mjs');
         await runM3Tests({driver, check, runInExtension, root, evidence, uuid, report});

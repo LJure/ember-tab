@@ -41,12 +41,12 @@ export function normalizeIconBinaryPayload(data) {
     return null;
 }
 
-export async function fetchIconPayloadViaBackground(url) {
+export async function fetchIconPayloadViaBackground(url, { customIcon = false } = {}) {
     if (!isAllowedIconFetchUrl(url)) return null;
 
     let response;
     try {
-        response = await chrome.runtime.sendMessage({ type: FETCH_ICON_MESSAGE, url });
+        response = await chrome.runtime.sendMessage({ type: FETCH_ICON_MESSAGE, url, ...(customIcon ? { customIcon: true } : {}) });
     } catch {
         return null;
     }
@@ -61,8 +61,8 @@ export async function fetchIconPayloadViaBackground(url) {
     };
 }
 
-export async function fetchIconBlobViaBackground(url) {
-    const payload = await fetchIconPayloadViaBackground(url);
+export async function fetchIconBlobViaBackground(url, options) {
+    const payload = await fetchIconPayloadViaBackground(url, options);
     if (!payload) return null;
 
     const blob = new Blob([payload.bytes], { type: payload.contentType });

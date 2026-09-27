@@ -10,6 +10,7 @@
         "test:firefox:m3": "node tools/test-firefox.mjs --m3",
         "test:firefox:m4": "node tools/test-firefox.mjs --m4",
         "test:firefox:lifecycle": "node tools/test-firefox-lifecycle.mjs",
+        "test:firefox:custom-icons": "node tools/test-firefox.mjs --custom-icons",
         "test:firefox-build": "node --test tools/build-firefox.test.mjs",
         "test": "vitest run",
         "test:watch": "vitest",

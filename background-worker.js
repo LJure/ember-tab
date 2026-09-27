@@ -1,4 +1,5 @@
 import { fetchLimited } from './scripts/platform/icon-network.js';
+import { CUSTOM_ICON_TIMEOUT_MS, requestCustomIcon } from './scripts/platform/custom-icon-request.js';
 import { runFaviconDomTask } from './scripts/platform/favicon-runtime.js';
 import { chromeFaviconUrl, isOwnChromeFaviconUrl } from './scripts/platform/extension-urls.js';
 import { createBackgroundSettingsDefaults } from './scripts/platform/settings-contract.js';
@@ -85,7 +86,9 @@ chrome.alarms.onAlarm.addListener(async (alarm) => {
 
 chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
     const handler = message?.type === FETCH_ICON_MESSAGE
-        ? handleFetchIcon(message.url)
+        ? (message.customIcon === true
+            ? requestCustomIcon(message.url, () => handleFetchIcon(message.url, true))
+            : handleFetchIcon(message.url))
         : message?.type === DISCOVER_ICON_MESSAGE
             ? handleDiscoverIcon(message.url)
             : null;
@@ -101,7 +104,7 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
  * @param {string} url - Icon URL
  * @returns {Promise<{ success: boolean, data?: ArrayBuffer, contentType?: string, error?: string }>}
  */
-async function handleFetchIcon(url) {
+async function handleFetchIcon(url, customIcon = false) {
     // Validate URL parameter
     if (!url || typeof url !== 'string') {
         return { success: false, error: 'Invalid URL parameter' };
@@ -122,7 +125,7 @@ async function handleFetchIcon(url) {
         return { success: false, error: 'Invalid URL format' };
     }
 
-    const result = await fetchLimited(url, 'image/*', MAX_ICON_BYTES);
+    const result = await fetchLimited(url, 'image/*', MAX_ICON_BYTES, customIcon ? CUSTOM_ICON_TIMEOUT_MS : 3000);
     if (!result.ok) return { success: false, error: result.error };
     if (!result.contentType.toLowerCase().startsWith('image/')) return { success: false, error: 'Not an image' };
     const inspection = await runFaviconDomTask({type: OFFSCREEN_INSPECT_IMAGE_MESSAGE, bytes: result.bytes, contentType: result.contentType});

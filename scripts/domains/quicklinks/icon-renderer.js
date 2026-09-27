@@ -69,7 +69,7 @@ function createImageIconContent(item, classPrefix, iconContainer) {
         cacheKey: getCacheKeyForItem(itemUrl, customIconUrl),
         customIconUrl: customIconUrl || undefined,
         pageUrl: customIconUrl ? undefined : itemUrl,
-        onPending: customIconUrl ? undefined : showFallback,
+        onPending: showFallback,
         onResolved: () => {
             fallbackNode?.remove();
             fallbackNode = null;

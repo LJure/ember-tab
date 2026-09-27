@@ -520,7 +520,7 @@ export class LinkManagerComponent {
                 cacheKey,
                 customIconUrl: customIcon || undefined,
                 pageUrl: customIcon ? undefined : url,
-                onPending: customIcon ? undefined : fallbackToInitial,
+                onPending: fallbackToInitial,
                 onResolved: () => {
                     fallbackNode?.remove();
                     fallbackNode = null;

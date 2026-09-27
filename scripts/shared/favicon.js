@@ -2,6 +2,7 @@ import { chromeFaviconUrl } from '../platform/extension-urls.js';
 import { iconCache } from '../platform/icon-cache.js';
 import { discoverIconViaBackground, fetchIconBlobViaBackground } from '../platform/icon-fetch-bridge.js';
 import { normalizeIconCacheUrl } from './text.js';
+import { CUSTOM_ICON_TIMEOUT_MS } from '../platform/custom-icon-request.js';
 
 export { buildIconCacheKey } from './text.js';
 
@@ -66,7 +67,11 @@ export function setImageSrcWithFallback(img, urls, onExhausted, options = {}) {
     });
     return;
   }
-  _loadIconWithFallback(img, urls, onExhausted, { minPx, skipSvg, skipSmall, desiredPx });
+  if (customIconUrl) onPending?.();
+  _loadIconWithFallback(img, customIconUrl ? [customIconUrl] : urls, onExhausted, {
+    minPx, skipSvg, skipSmall, desiredPx,
+    timeoutMs: customIconUrl ? CUSTOM_ICON_TIMEOUT_MS : 3000, onSuccess: onResolved
+  });
 }
 const _loadingTokens = new WeakMap();
 async function _loadIconWithCache(img, urls, onExhausted, { minPx, skipSvg, skipSmall, desiredPx, cacheKey, customIconUrl, cacheMode = 'read-write', pageUrl, onPending, onResolved }) {
@@ -109,13 +114,16 @@ async function _loadIconWithCache(img, urls, onExhausted, { minPx, skipSvg, skip
           }
         }
         if (!isTokenValid()) return;
-        _loadIconWithFallback(img, urls, onExhausted, {
-          minPx, skipSvg, skipSmall, desiredPx,
-          onSuccess: (canWriteCache && !customIconUrl) ? (loadedUrl) => {
-            if (isTokenValid() && loadedUrl) {
+        onPending?.();
+        _loadIconWithFallback(img, customIconUrl ? [customIconUrl] : urls, onExhausted, {
+          minPx, skipSvg, skipSmall, desiredPx, timeoutMs: customIconUrl ? CUSTOM_ICON_TIMEOUT_MS : 3000,
+          onSuccess: (loadedUrl) => {
+            if (!isTokenValid()) return;
+            onResolved?.();
+            if (canWriteCache && !customIconUrl && loadedUrl) {
               _fetchAndCacheIcon(cacheKey, loadedUrl);
             }
-          } : undefined
+          }
         });
       };
       img.addEventListener('error', handleCachedBlobError, { once: true });
@@ -132,21 +140,25 @@ async function _loadIconWithCache(img, urls, onExhausted, { minPx, skipSvg, skip
       }
       return;
     }
-    if (customIconUrl && canWriteCache) {
+    if (customIconUrl) {
+      onPending?.();
       if (!isCacheableCustomIcon) {
-        _loadIconWithFallback(img, urls, onExhausted, {
-          minPx, skipSvg, skipSmall, desiredPx
+        _loadIconWithFallback(img, [customIconUrl], onExhausted, {
+          minPx, skipSvg, skipSmall, desiredPx, timeoutMs: CUSTOM_ICON_TIMEOUT_MS, onSuccess: onResolved
         });
         return;
       }
-      const cachedBlob = await _fetchAndCacheIcon(cacheKey, normalizedCustomIconUrl);
+      const cachedBlob = canWriteCache
+        ? await _fetchAndCacheIcon(cacheKey, normalizedCustomIconUrl, {}, { customIcon: true })
+        : await fetchIconBlobViaBackground(normalizedCustomIconUrl, { customIcon: true });
       if (!isTokenValid()) return;
       if (cachedBlob && _setImageFromBlob(img, cachedBlob)) {
+        onResolved?.();
         return;
       }
       if (!isTokenValid()) return;
-      _loadIconWithFallback(img, urls, onExhausted, {
-        minPx, skipSvg, skipSmall, desiredPx
+      _loadIconWithFallback(img, [customIconUrl], onExhausted, {
+        minPx, skipSvg, skipSmall, desiredPx, timeoutMs: CUSTOM_ICON_TIMEOUT_MS, onSuccess: onResolved
       });
       return;
     }
@@ -184,7 +196,11 @@ async function _loadIconWithCache(img, urls, onExhausted, { minPx, skipSvg, skip
   } catch (error) {
     if (!isTokenValid()) return;
     console.warn('[favicon] Cache error, falling back:', error);
-    _loadIconWithFallback(img, urls, onExhausted, { minPx, skipSvg, skipSmall, desiredPx });
+    if (customIconUrl) onPending?.();
+    _loadIconWithFallback(img, customIconUrl ? [customIconUrl] : urls, onExhausted, {
+      minPx, skipSvg, skipSmall, desiredPx,
+      timeoutMs: customIconUrl ? CUSTOM_ICON_TIMEOUT_MS : 3000, onSuccess: onResolved
+    });
   }
 }
 async function _refreshCacheFromCandidates(cacheKey, urls) {
@@ -349,13 +365,14 @@ function _isValidCacheEntry(entry) {
   }
   return typeof entry.size === 'number' && entry.size > 0;
 }
-async function _fetchAndCacheIcon(cacheKey, url, metadata = {}) {
+async function _fetchAndCacheIcon(cacheKey, url, metadata = {}, options) {
   if (!cacheKey || !url) return null;
   try {
-    const blob = await fetchIconBlobViaBackground(url);
+    const blob = await fetchIconBlobViaBackground(url, options);
     if (!blob) return null;
-    const success = await iconCache.set(cacheKey, blob, url, metadata);
-    return success ? blob : null;
+    // A failed cache write must not hide a successfully downloaded image.
+    try { await iconCache.set(cacheKey, blob, url, metadata); } catch { /* display without caching */ }
+    return blob;
   } catch (error) {
     if (!_isExpectedError(error)) {
       console.warn('[favicon] Failed to cache icon:', error);
@@ -380,7 +397,7 @@ function _isExpectedError(error) {
          msg.includes('Could not establish connection') ||
          msg.includes('Extension context invalidated');
 }
-function _loadIconWithFallback(img, urls, onExhausted, { minPx = 32, skipSvg = false, skipSmall = true, desiredPx, onSuccess, onFailed } = {}) {
+function _loadIconWithFallback(img, urls, onExhausted, { minPx = 32, skipSvg = false, skipSmall = true, desiredPx, onSuccess, onFailed, timeoutMs = 3000 } = {}) {
   if (!img) return;
   const dpr = (typeof window !== 'undefined' && window.devicePixelRatio) || 1;
   let effectiveMinPx = Number(minPx) || 0;
@@ -423,7 +440,7 @@ function _loadIconWithFallback(img, urls, onExhausted, { minPx = 32, skipSvg = f
       if (img.src === next) continue;
       img.style.visibility = 'hidden';
       img.src = next;
-      deadline = setTimeout(loadNext, 3000);
+      deadline = setTimeout(loadNext, timeoutMs);
       return;
     }
     if (index >= list.length && list.length !== list0.length) {
