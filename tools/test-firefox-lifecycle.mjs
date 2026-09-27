@@ -9,7 +9,9 @@ import {download} from 'geckodriver';
 import {unzipSync,zipSync,strFromU8,strToU8} from '../scripts/libs/fflate.esm.js';
 
 const root=fileURLToPath(new URL('../',import.meta.url));
-const evidence=path.join(root,'.local','m4');await mkdir(evidence,{recursive:true});
+const evidence=process.env.FIREFOX_EVIDENCE_DIR
+    ? path.resolve(root,process.env.FIREFOX_EVIDENCE_DIR) : path.join(root,'.local','m4');
+await mkdir(evidence,{recursive:true});
 const profile=path.join(evidence,'restart-profile-'+Date.now());await mkdir(profile);
 const project=JSON.parse(await readFile(path.join(root,'ember.project.json'),'utf8'));
 const uuid='32d367b4-bf14-42d1-b7a9-2aa83f1d80e9';
@@ -34,6 +36,7 @@ const start=async()=>{
     const options=new firefox.Options().addArguments('-headless','-remote-allow-system-access','-profile',profile);
     if(binary)options.setBinary(binary);
     driver=await new Builder().forBrowser('firefox').setFirefoxOptions(options).setFirefoxService(new firefox.ServiceBuilder(gecko)).build();
+    report.browserVersion=(await driver.getCapabilities()).get('browserVersion');
     await driver.manage().setTimeouts({script:30000});
     return (await driver.getCapabilities()).get('moz:processID');
 };

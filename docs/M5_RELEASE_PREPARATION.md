@@ -1,5 +1,7 @@
 # M5 品牌、许可与分发准备结果
 
+> 已进入 M6，最新开发包和验收数字见 [M6 验收报告](M6_ACCEPTANCE.md)。下文保留 M5 初轮历史。
+
 > 后续变更：用户已要求移除 Unsplash 和 Pixabay；现已删除取图入口与 API 适配器，加入 Wallhaven。下文对应两者的实现／门槛是 M5 初轮历史记录，不是当前启用状态。当前使用方法、验证与剩余事项见 [Wallhaven 补充记录](WALLHAVEN.md)。
 
 日期：2026-09-27。分支 `feat/m5-release-preparation`，从 M4 收尾 `a504754` 继续。状态：**工程实现与审计完成；正式上线门槛仍未关闭。** 开发版保持 0.1.0 和固定 Gecko ID，无签名、无 AMO 提交，Actions 保持暂停。

@@ -502,15 +502,6 @@ class Store {
     async _readChunkedItemsMap(rawChunks = null) {
         rawChunks ??= await chrome.storage.sync.get(null);
         const meta = await this._getActiveChunkSetMeta(rawChunks);
-        if (meta.chunkKeys.length === 0) {
-            return {
-                activeSetId: meta.activeSetId,
-                indexKey: meta.indexKey,
-                chunkKeys: [],
-                chunksByKey: {},
-                itemsById: new Map()
-            };
-        }
         const chunksByKey = {};
         const itemsById = new Map();
         for (const key of meta.chunkKeys) {
@@ -524,6 +515,20 @@ class Store {
                 if (typeof id === 'string' && id) {
                     itemsById.set(id, item);
                 }
+            }
+        }
+        // Sync delivers keys independently: an existing index is not enough
+        // when the link order or a folder refers to a different generation.
+        // Validate before replacing memory or allowing a new commit.
+        if (meta.activeSetId && Array.isArray(rawChunks.quicklinksItems)) {
+            const pending = [...rawChunks.quicklinksItems];
+            const visited = new Set();
+            for (const id of pending) {
+                if (id === CONFIG.PAGE_BREAK || this._isSystemItemId(id) || visited.has(id)) continue;
+                visited.add(id);
+                const item = itemsById.get(id);
+                if (!item || item._id !== id) throw new Error('SYNC_SNAPSHOT_INCOMPLETE');
+                if (item.type === 'folder' && Array.isArray(item.children)) pending.push(...item.children);
             }
         }
         return { ...meta, chunksByKey, itemsById };
@@ -693,27 +698,21 @@ class Store {
         };
     }
     async _collectObsoleteStorageKeys(activeSetId, extraKeys = []) {
-        const all = await chrome.storage.sync.get(null);
-        const obsolete = new Set(extraKeys.filter(Boolean));
-        for (const key of Object.keys(all)) {
+        // Only retire the generation this commit explicitly replaced. Other
+        // generations may be remote staging data whose active pointer is late.
+        return Array.from(new Set(extraKeys)).filter((key) => {
             const setId = this._extractChunkSetId(key);
-            if (setId && setId !== activeSetId) {
-                obsolete.add(key);
-            }
-        }
-        if (!activeSetId) {
-            return Array.from(obsolete);
-        }
-        return Array.from(obsolete).filter((key) => {
-            if (key === this._chunkSetIndexKey(activeSetId)) return false;
-            if (this._isChunkSetChunkKey(key, activeSetId)) return false;
-            return true;
+            return setId && setId !== activeSetId;
         });
     }
     async _cleanupObsoleteStorage(activeSetId, extraKeys = []) {
         try {
             const keys = await this._collectObsoleteStorageKeys(activeSetId, extraKeys);
-            await this._removeSyncInBatches(keys);
+            for (let offset = 0; offset < keys.length; offset += 200) {
+                const current = await chrome.storage.sync.get(CONFIG.ACTIVE_SET_KEY);
+                if (current[CONFIG.ACTIVE_SET_KEY] !== activeSetId) return;
+                await chrome.storage.sync.remove(keys.slice(offset, offset + 200));
+            }
         } catch (error) {
             console.warn('[Store] Cleanup obsolete storage failed:', error);
         }

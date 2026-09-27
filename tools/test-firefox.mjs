@@ -15,8 +15,11 @@ const includeM3 = process.argv.includes('--m3');
 const includeM4 = process.argv.includes('--m4');
 const includeCustomIcons = process.argv.includes('--custom-icons');
 const includeM5 = process.argv.includes('--m5');
+const includeM6 = process.argv.includes('--m6');
 const testHttp = process.argv.includes('--test-http');
-const evidence = path.join(root, '.local', includeM5 ? 'm5' : includeCustomIcons ? 'icon-recovery' : includeM4 ? 'm4' : includeM3 ? 'm3' : 'm2');
+const evidence = process.env.FIREFOX_EVIDENCE_DIR
+    ? path.resolve(root, process.env.FIREFOX_EVIDENCE_DIR)
+    : path.join(root, '.local', includeM6 ? 'm6' : includeM5 ? 'm5' : includeCustomIcons ? 'icon-recovery' : includeM4 ? 'm4' : includeM3 ? 'm3' : 'm2');
 await mkdir(evidence, { recursive: true });
 const project = JSON.parse(await readFile(path.join(root, 'ember.project.json'), 'utf8'));
 const manifest = JSON.parse(await readFile(path.join(root, 'dist/firefox/manifest.json'), 'utf8'));
@@ -121,7 +124,7 @@ try {
     await check('settings survive page reload; local and session Promise APIs', async () => {
         await runInExtension('await chrome.storage.local.set({m2Local:"local"}); await chrome.storage.session.set({m2Session:"session"});');
         await driver.navigate().refresh();
-        await driver.wait(async () => (await driver.findElement(By.css('html')).getAttribute('data-theme')) === 'dark', 10000);
+        await driver.wait(async () => driver.executeScript('return document.documentElement?.dataset.theme === "dark"'), 10000);
         assert.equal(await driver.findElement(By.css('html')).getAttribute('lang'), 'en');
         assert.equal(await driver.findElement(By.id('searchInput')).getAttribute('placeholder'), 'Search');
         assert.equal(await runInExtension('return (await chrome.storage.local.get("m2Local")).m2Local'), 'local');
@@ -156,7 +159,7 @@ try {
         await driver.executeScript('BrowserCommands.openTab();');
         await driver.setContext(firefox.Context.CONTENT);
         await driver.switchTo().window((await driver.getAllWindowHandles()).at(-1));
-        await driver.wait(async () => (await driver.findElement(By.css('html')).getAttribute('data-theme')) === 'dark', 10000);
+        await driver.wait(async () => driver.executeScript('return document.documentElement?.dataset.theme === "dark"'), 10000);
         assert.equal(await driver.findElement(By.css('html')).getAttribute('lang'), 'en');
         assert.equal(await runInExtension('return (await chrome.storage.local.get("m2Local")).m2Local'), 'local');
         assert.equal((await runInExtension('return await chrome.runtime.sendMessage({type:"fetchIcon",url:"file:///invalid"})')).success, false);
@@ -178,6 +181,10 @@ try {
     if(includeM4) {
         const {runM4Tests}=await import('./test-firefox-m4.mjs');
         await runM4Tests({driver,check,runInExtension,root,evidence,uuid,report,project,installPath});
+    }
+    if (includeM6) {
+        const { runM6Tests } = await import('./test-firefox-m6.mjs');
+        await runM6Tests({driver, check, runInExtension, report});
     }
     await writeFile(path.join(evidence, 'newtab.png'), await driver.takeScreenshot(), 'base64');
     await driver.setContext(firefox.Context.CHROME);

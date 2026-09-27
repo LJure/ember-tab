@@ -200,20 +200,21 @@ export async function runM4Tests({driver,check,runInExtension:run,evidence,repor
                 return {rejected,absent:!('m4Oversized' in await chrome.storage.sync.get('m4Oversized'))};`);
             assert.deepEqual(result,{rejected:true,absent:true});
         });
-        await check('M4 32 MiB binary library streams through OPFS and restores with matching hashes',async()=>{
+        const largeCount = process.argv.includes('--large-library') ? 16 : 4;
+        await check(`M4 ${largeCount * 8} MiB binary library streams through OPFS and restores with matching hashes`,async()=>{
             await run(`const bytes=new Uint8Array(8*1024*1024);for(let i=0;i<bytes.length;i+=65536)crypto.getRandomValues(bytes.subarray(i,i+65536));
                 window.m4LargeHash=Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256',bytes))).join(',');
                 const blob=new Blob([bytes],{type:'application/octet-stream'});const db=await window.m4Manager._openDatabase('aura-tab-assets',1,'images');
                 await new Promise((r,j)=>{const tx=db.transaction('images','readwrite');tx.oncomplete=r;tx.onerror=()=>j(tx.error);
-                    for(let i=0;i<4;i++)tx.objectStore('images').put({id:'m4-large-'+i,fullBlob:blob,thumbnailBlob:new Blob(['thumb']),isUserPinned:true,status:'ready'});});db.close();`);
+                    for(let i=0;i<arguments[0];i++)tx.objectStore('images').put({id:'m4-large-'+i,fullBlob:blob,thumbnailBlob:new Blob(['thumb']),isUserPinned:true,status:'ready'});});db.close();`, largeCount);
             const pid=(await driver.getCapabilities()).get('moz:processID');
             report.largeBackup=await measureFirefoxMemory(pid,()=>run(`const start=performance.now();const upload=await window.m4Manager.createBackupForUpload();
                 try {const exportedMs=performance.now()-start;const size=upload.blob.size;const restore=await window.m4Manager.restoreFromBackup(upload.blob);
                     const db=await window.m4Manager._openDatabase('aura-tab-assets',1,'images');const rows=await new Promise((r,j)=>{const q=db.transaction('images').objectStore('images').getAll();q.onsuccess=()=>r(q.result);q.onerror=()=>j(q.error);});db.close();
                     const large=rows.filter(r=>r.id.startsWith('m4-large-'));const hashes=await Promise.all(large.map(async r=>Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256',await r.fullBlob.arrayBuffer()))).join(',')));
-                    return {inputBytes:4*8*1024*1024,archiveBytes:size,usedStreaming:upload.usedStreaming,exportedMs,totalMs:performance.now()-start,restore,count:large.length,hashesMatch:hashes.every(h=>h===window.m4LargeHash)};
+                    return {inputBytes:large.length*8*1024*1024,archiveBytes:size,usedStreaming:upload.usedStreaming,exportedMs,totalMs:performance.now()-start,restore,count:large.length,hashesMatch:hashes.every(h=>h===window.m4LargeHash)};
                 } finally {await upload.cleanup?.();}`));
-            assert.equal(report.largeBackup.result.restore.success,true);assert.equal(report.largeBackup.result.count,4);assert.equal(report.largeBackup.result.hashesMatch,true);
+            assert.equal(report.largeBackup.result.restore.success,true);assert.equal(report.largeBackup.result.count,largeCount);assert.equal(report.largeBackup.result.hashesMatch,true);
         });
         await check('M4 disabled and reenabled extension preserves storage and blobs',async()=>{
             const expected=await run('return window.m4LargeHash;');

@@ -297,9 +297,11 @@ export async function runM3Tests({driver, check, runInExtension: run, evidence, 
         }
         await check('M3 default Firefox search, Chinese query and both tab dispositions', async () => {
             await driver.setContext(firefox.Context.CHROME);
-            await run(`const {SearchService}=ChromeUtils.importESModule('moz-src:///toolkit/components/search/SearchService.sys.mjs');
+            await run(`let SearchService;
+                try {({SearchService}=ChromeUtils.importESModule('moz-src:///toolkit/components/search/SearchService.sys.mjs'));}
+                catch {SearchService=Services.search;}
                 const engine=await SearchService.addUserEngine({name:'Ember M3 fixture',url:arguments[0]+'/search?q={searchTerms}'});
-                await SearchService.setDefault(engine,SearchService.CHANGE_REASON.USER);`,origin);
+                await SearchService.setDefault(engine,SearchService.CHANGE_REASON?.USER ?? Ci.nsISearchService.CHANGE_REASON_USER);`,origin);
             await driver.setContext(firefox.Context.CONTENT);
             const query='火狐 test & +?';
             for(const newTab of [false,true]) {
