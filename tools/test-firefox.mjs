@@ -16,6 +16,7 @@ const includeM4 = process.argv.includes('--m4');
 const includeCustomIcons = process.argv.includes('--custom-icons');
 const includeM5 = process.argv.includes('--m5');
 const includeM6 = process.argv.includes('--m6');
+const includeIconSize = process.argv.includes('--icon-size');
 const testHttp = process.argv.includes('--test-http');
 const evidence = process.env.FIREFOX_EVIDENCE_DIR
     ? path.resolve(root, process.env.FIREFOX_EVIDENCE_DIR)
@@ -185,6 +186,10 @@ try {
     if (includeM6) {
         const { runM6Tests } = await import('./test-firefox-m6.mjs');
         await runM6Tests({driver, check, runInExtension, report});
+    }
+    if (includeIconSize) {
+        const { runIconSizeTests } = await import('./test-firefox-icon-size.mjs');
+        await runIconSizeTests({driver, check, runInExtension, report, evidence});
     }
     await writeFile(path.join(evidence, 'newtab.png'), await driver.takeScreenshot(), 'base64');
     await driver.setContext(firefox.Context.CHROME);

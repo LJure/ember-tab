@@ -3,6 +3,7 @@ import { iconCache } from '../platform/icon-cache.js';
 import { discoverIconViaBackground, fetchIconBlobViaBackground } from '../platform/icon-fetch-bridge.js';
 import { normalizeIconCacheUrl } from './text.js';
 import { CUSTOM_ICON_TIMEOUT_MS } from '../platform/custom-icon-request.js';
+import { autoIconDisplayBlob } from './auto-icon-display.js';
 
 export { buildIconCacheKey } from './text.js';
 
@@ -105,6 +106,8 @@ async function _loadIconWithCache(img, urls, onExhausted, { minPx, skipSvg, skip
       }
     }
     if (cacheValid && entry) {
+      const displayBlob = customIconUrl ? entry.blob : await autoIconDisplayBlob(entry.blob);
+      if (!isTokenValid()) return;
       const handleCachedBlobError = async () => {
         if (!isTokenValid()) return;
         if (canWriteCache) {
@@ -127,7 +130,7 @@ async function _loadIconWithCache(img, urls, onExhausted, { minPx, skipSvg, skip
         });
       };
       img.addEventListener('error', handleCachedBlobError, { once: true });
-      const setSuccess = _setImageFromBlob(img, entry.blob);
+      const setSuccess = _setImageFromBlob(img, displayBlob);
       if (!setSuccess) {
         img.removeEventListener('error', handleCachedBlobError);
         handleCachedBlobError();
@@ -167,7 +170,9 @@ async function _loadIconWithCache(img, urls, onExhausted, { minPx, skipSvg, skip
       onPending?.();
       const discovered = await discoverIconViaBackground(pageUrl);
       if (!isTokenValid()) return;
-      if (discovered?.blob && _setImageFromBlob(img, discovered.blob)) {
+      const displayBlob = discovered?.blob ? await autoIconDisplayBlob(discovered.blob) : null;
+      if (!isTokenValid()) return;
+      if (displayBlob && _setImageFromBlob(img, displayBlob)) {
         if (canWriteCache) {
           await iconCache.set(cacheKey, discovered.blob, discovered.meta?.sourceUrl || '', {
             ...discovered.meta,

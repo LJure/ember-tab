@@ -10,11 +10,14 @@
   "status": "m6-acceptance-in-progress-release-gated",
   "note": "Build inputs for tools/build-firefox.mjs; the loadable development manifest is generated in dist/firefox. Not yet a release candidate.",
   "releaseBlockers": [
-    "Wallhaven private collection acceptance; provider terms and image rights review",
+    "Wallhaven provider terms and image rights review",
     "Pexels/Bing and inherited asset provenance review",
-    "Real two-device offline Sync conflicts and cross-generation reconciliation",
     "Interrupted restore has no global rollback; release recovery strategy required",
-    "Long-running wallpaper rotation, real API keys and permission revocation acceptance",
+    "Pexels real API key and permission revocation acceptance",
     "Signed install/upgrade and distribution acceptance"
+  ],
+  "deferredWork": [
+    "User deferred two-device offline Sync conflict merging to a later version; first release does not promise conflict merging",
+    "User deferred long-running wallpaper rotation acceptance to continued user validation after initial release"
   ]
 }

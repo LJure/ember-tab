@@ -426,5 +426,114 @@
       },
       "restartDataPreserved": true
     }
-  ]
+  ],
+  "userFeedback": {
+    "syncConflicts": "Deferred by user to a later version; not implemented",
+    "date": "2026-09-27",
+    "realWebdavNewVersion": "User reports passed; service and error-case details unspecified",
+    "longRunningRotation": "Deferred by user to post-release ongoing validation",
+    "wallhavenPrivateCollection": "User reports passed; version and error-case details unspecified"
+  },
+  "iconSizeFollowup": {
+    "suites": [
+      {
+        "browserVersion": "156.0.1",
+        "iconSize": [
+          {
+            "displayWidth": 64,
+            "height": 108,
+            "name": "Auto Dock",
+            "width": 108
+          },
+          {
+            "displayWidth": 64,
+            "height": 108,
+            "name": "Auto Grid",
+            "width": 108
+          },
+          {
+            "displayWidth": 64,
+            "height": 128,
+            "name": "Custom",
+            "width": 128
+          }
+        ],
+        "packageSha256": "973423ee261bc9cb784a2f8d067e06f91f3d53b0472651e3ae391763c37050c7",
+        "startedAt": "2026-09-27T14:21:12.228Z",
+        "status": "passed",
+        "finishedAt": "2026-09-27T14:21:20.214Z",
+        "name": "stable",
+        "liveIconSize": {
+          "displayHeight": 112,
+          "displayWidth": 112,
+          "originalHeight": 129,
+          "originalWidth": 128,
+          "source": "https://picasso-static.xiaohongshu.com/fe-platform/fbd46ec8a907ca6a8cacc9596f18ff495c639feb.png"
+        },
+        "checks": [
+          "temporary installation and fixed Gecko ID",
+          "new tab boot, localized search and clock",
+          "first-install background defaults",
+          "asynchronous background message reply",
+          "settings UI language and theme changes",
+          "settings survive page reload; local and session Promise APIs",
+          "message wakes suspended module event page",
+          "storage event wakes background and creates hourly alarm",
+          "alarm wakes suspended background and broadcasts refresh",
+          "extension reload preserves settings and restores handlers",
+          "Automatic cached icons fill equal Dock and Launchpad image boxes",
+          "Custom images preserve their original padding",
+          "Display normalization preserves original cache bytes and source",
+          "Live Xiaohongshu automatic icon and cached reload remove transparent padding"
+        ]
+      },
+      {
+        "browserVersion": "140.16.0",
+        "iconSize": [
+          {
+            "displayWidth": 64,
+            "height": 108,
+            "name": "Auto Dock",
+            "width": 108
+          },
+          {
+            "displayWidth": 64,
+            "height": 108,
+            "name": "Auto Grid",
+            "width": 108
+          },
+          {
+            "displayWidth": 64,
+            "height": 128,
+            "name": "Custom",
+            "width": 128
+          }
+        ],
+        "packageSha256": "973423ee261bc9cb784a2f8d067e06f91f3d53b0472651e3ae391763c37050c7",
+        "startedAt": "2026-09-27T14:21:48.697Z",
+        "status": "passed",
+        "finishedAt": "2026-09-27T14:21:55.491Z",
+        "name": "esr140",
+        "checks": [
+          "temporary installation and fixed Gecko ID",
+          "new tab boot, localized search and clock",
+          "first-install background defaults",
+          "asynchronous background message reply",
+          "settings UI language and theme changes",
+          "settings survive page reload; local and session Promise APIs",
+          "message wakes suspended module event page",
+          "storage event wakes background and creates hourly alarm",
+          "alarm wakes suspended background and broadcasts refresh",
+          "extension reload preserves settings and restores handlers",
+          "Automatic cached icons fill equal Dock and Launchpad image boxes",
+          "Custom images preserve their original padding",
+          "Display normalization preserves original cache bytes and source"
+        ]
+      }
+    ],
+    "unitTests": {
+      "passed": 636,
+      "files": 85
+    }
+  }
 }
