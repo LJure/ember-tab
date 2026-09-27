@@ -7,6 +7,6 @@
   "initialVersion": "0.1.0",
   "geckoId": "ember-tab@ljure.github.io",
   "minimumFirefoxVersion": "140.0",
-  "status": "foundation-only",
-  "note": "Project decisions for the future Firefox build; not a loadable extension manifest."
+  "status": "m2-minimum-runtime",
+  "note": "Build inputs for tools/build-firefox.mjs; the loadable development manifest is generated in dist/firefox. Not yet a release candidate."
 }

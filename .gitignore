@@ -8,6 +8,7 @@ node_modules/
 coverage/
 
 # Build artifacts
+dist/
 *.zip
 .alma-snapshots
 .worktrees/

@@ -120,6 +120,16 @@ describe('background-defaults-consistency', () => {
         expect(mocks.restoreToolbarIcon).not.toHaveBeenCalled();
     });
 
+    it('startup reconstructs the refresh alarm from persisted settings', async () => {
+        mocks.syncGet.mockResolvedValue({ backgroundSettings: { type: 'unsplash', frequency: 'hour' } });
+        const listeners = await loadWorker();
+        listeners.onStartup();
+        await vi.waitFor(() => expect(chrome.alarms.create).toHaveBeenCalledWith('refreshBackground', {
+            periodInMinutes: 60, delayInMinutes: 3
+        }));
+        expect(mocks.syncSet).not.toHaveBeenCalled();
+    });
+
     it('local toolbar icon changes should not trigger the removed restore path', async () => {
         const listeners = await loadWorker();
 

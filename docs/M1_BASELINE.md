@@ -80,7 +80,7 @@ node tools/prepare-migration-fixtures.mjs
 
 origin 指向 LJure/ember-tab，upstream 指向 nil-byte/aura-tab。保留上游历史；仅同步 main 与开发分支，不触发上游 v* 标签发布流程。
 
-仓库仍保留上游 CI／Release 定义和 Actions 设置。暂停 Actions 的额外设置操作被自动审批拒绝，未执行。当前 CI 包装的仍是上游 Chrome 产物，不得将它当成 Firefox 发布包；M2 增加 Firefox 构建，M5 调整发布流程。GitHub 托管 CI 的运行结果需与本地基线分开记录。
+M1 时仓库保留上游 CI／Release 定义和 Actions 设置；暂停 Actions 的额外操作当时被自动审批拒绝，未执行。**M2 补记：用户随后明确授权，已暂停 Actions 并读回 `enabled: false`，见 [M2 验收](M2_FIREFOX.md)。** 上游 workflow 包装的仍是 Chrome 产物，不得将它当成 Firefox 发布包；M2 已增加独立 Firefox 构建，M5 再调整发布流程。GitHub 托管 CI 的运行结果需与本地检查分开记录。
 
 ## 资料
 

@@ -20,6 +20,10 @@ export default [
         }
     },
     {
+        files: ['tools/**/*.mjs'],
+        languageOptions: { globals: globals.node }
+    },
+    {
         ignores: [
             'scripts/libs/**',
             'node_modules/**',

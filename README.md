@@ -4,16 +4,19 @@ An unofficial Firefox port of [Aura Tab](https://github.com/nil-byte/aura-tab), 
 
 基于 Aura Tab 的非官方 Firefox 新标签页扩展。本项目独立维护，保留原项目的 MIT 许可证与版权声明。
 
-**Status: M1 foundation complete; Firefox migration has not been implemented yet.**
+**Status: M2 minimum Firefox runtime complete; development build only.**
 
 - [Development plan and progress / 开发计划与进度](DEVELOPMENT_PLAN.md)
 - [M1 environment and baseline / 基线报告](docs/M1_BASELINE.md)
+- [M2 build, temporary installation and verification / 构建与验收](docs/M2_FIREFOX.md)
 - [Project identity and Firefox targets](ember.project.json)
 - Baseline: Aura Tab 3.5.3, commit `a706cee56e43b80777de697dd4462083b1f97ef8`.
-- Local baseline: 75 test files / 577 tests passed; ESLint reports no errors or warnings.
-- Planned first Firefox version: 0.1.0, targeting Firefox 140+ on desktop; browser verification is pending.
+- Current local checks: 75 test files / 578 tests passed, package reproducibility test passed; ESLint reports no errors or warnings.
+- Firefox development version: 0.1.0. Ten smoke checks passed on Windows / Firefox 156.0.1. Firefox 140+ is the intended minimum; ESR verification remains pending.
 
-There is no Ember Tab Firefox release or AMO listing yet. The current runtime and packaging script remain the upstream Chrome implementation. The upstream documentation below is retained for reference; its store links, version badges, and installation instructions refer to **Aura Tab**, not an Ember Tab release.
+Build with `npm ci` then `npm run build:firefox`. In a separate Firefox test profile, open `about:debugging#/runtime/this-firefox`, choose **Load Temporary Add-on**, and select `dist/firefox/manifest.json`. This unsigned development build is removed on browser restart. Website icon discovery, the full feature matrix, privacy declarations, branding and release review remain scheduled for M3–M6. `web-ext lint` currently reports 0 errors and 57 tracked warnings; this is not AMO approval.
+
+There is no Ember Tab Firefox release or AMO listing yet. The original root manifest and `package_extension.sh` remain the upstream Chrome configuration. Repository Actions are paused with the owner's authorization, so inherited release workflows cannot publish a Chrome package as Ember Tab. The upstream documentation below is retained for reference; its store links, version badges, and installation instructions refer to **Aura Tab**, not an Ember Tab release.
 
 ## Upstream Aura Tab documentation (reference)
 
