@@ -1,3 +1,6 @@
+import { fetchLimited } from './scripts/platform/icon-network.js';
+import { runFaviconDomTask } from './scripts/platform/favicon-runtime.js';
+import { chromeFaviconUrl, isOwnChromeFaviconUrl } from './scripts/platform/extension-urls.js';
 import { createBackgroundSettingsDefaults } from './scripts/platform/settings-contract.js';
 import { resolveEffectiveFrequency } from './scripts/domains/backgrounds/refresh-policy.js';
 
@@ -10,10 +13,10 @@ const OFFSCREEN_INSPECT_IMAGE_MESSAGE = 'faviconOffscreenInspectImage';
 const SHOW_CHANGELOG_MESSAGE = 'showChangelog';
 const MAX_ICON_BYTES = 512 * 1024;
 const MAX_PAGE_BYTES = 512 * 1024;
-const FETCH_TIMEOUT_MS = 3000;
+
 const MAX_PRIMARY_CANDIDATES = 12;
 let autoRefreshSyncChain = Promise.resolve();
-let faviconOffscreenPromise = null;
+
 
 chrome.runtime.onInstalled.addListener(async (details) => {
     try {
@@ -110,17 +113,7 @@ async function handleFetchIcon(url) {
         parsedUrl = new URL(url);
 
         const isHttp = parsedUrl.protocol === 'http:' || parsedUrl.protocol === 'https:';
-        const isOwnFaviconApi = (() => {
-            try {
-                const extId = chrome?.runtime?.id;
-                if (!extId || parsedUrl.protocol !== 'chrome-extension:') return false;
-                if (parsedUrl.hostname !== extId) return false;
-                // Only allow extension's own /_favicon/ endpoint
-                return parsedUrl.pathname === '/_favicon/' || parsedUrl.pathname === '/_favicon';
-            } catch {
-                return false;
-            }
-        })();
+        const isOwnFaviconApi = isOwnChromeFaviconUrl(url);
 
         if (!isHttp && !isOwnFaviconApi) {
             return { success: false, error: 'Unsupported URL protocol' };
@@ -129,52 +122,12 @@ async function handleFetchIcon(url) {
         return { success: false, error: 'Invalid URL format' };
     }
 
-    try {
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), FETCH_TIMEOUT_MS);
-        const response = await fetch(url, {
-            method: 'GET',
-            // Cross-origin requests available in extension environment; keep default mode to avoid unnecessary CORS restrictions
-            credentials: 'omit',
-            headers: {
-                'Accept': 'image/*'
-            },
-            signal: controller.signal
-        });
-        clearTimeout(timeoutId);
-
-        if (!response.ok) {
-            return { success: false, error: `HTTP ${response.status}` };
-        }
-
-        // Verify response is image type
-        const contentType = response.headers.get('content-type') || '';
-        if (!contentType.startsWith('image/')) {
-            return { success: false, error: 'Not an image' };
-        }
-
-        const contentLengthHeader = response.headers.get('content-length');
-        if (contentLengthHeader) {
-            const contentLength = Number(contentLengthHeader) || 0;
-            if (contentLength > MAX_ICON_BYTES) {
-                return { success: false, error: 'Image too large' };
-            }
-        }
-
-        const arrayBuffer = await response.arrayBuffer();
-
-        // Important: When transferring binary across contexts, direct ArrayBuffer transfer may cause structured clone exceptions or data corruption in some environments/versions.
-        // Here we uniformly convert to number[] (Uint8Array) to ensure reliability.
-        const bytesView = new Uint8Array(arrayBuffer);
-        if (bytesView.byteLength > MAX_ICON_BYTES) {
-            return { success: false, error: 'Image too large' };
-        }
-        const bytes = Array.from(bytesView);
-
-        return { success: true, data: bytes, contentType };
-    } catch (error) {
-        return { success: false, error: String(error) };
-    }
+    const result = await fetchLimited(url, 'image/*', MAX_ICON_BYTES);
+    if (!result.ok) return { success: false, error: result.error };
+    if (!result.contentType.toLowerCase().startsWith('image/')) return { success: false, error: 'Not an image' };
+    const inspection = await runFaviconDomTask({type: OFFSCREEN_INSPECT_IMAGE_MESSAGE, bytes: result.bytes, contentType: result.contentType});
+    if (!inspection?.valid) return { success: false, error: 'Invalid image' };
+    return { success: true, data: result.bytes, contentType: result.contentType };
 }
 
 function isHttpUrl(value) {
@@ -186,79 +139,21 @@ function isHttpUrl(value) {
     }
 }
 
-async function ensureFaviconOffscreenDocument() {
-    if (faviconOffscreenPromise) return faviconOffscreenPromise;
-    faviconOffscreenPromise = (async () => {
-        if (!chrome.offscreen?.createDocument) {
-            throw new Error('Offscreen API unavailable');
-        }
-        const offscreenUrl = chrome.runtime.getURL('favicon-offscreen.html');
-        const contexts = chrome.runtime.getContexts
-            ? await chrome.runtime.getContexts({ contextTypes: ['OFFSCREEN_DOCUMENT'], documentUrls: [offscreenUrl] })
-            : [];
-        if (!contexts?.length) {
-            await chrome.offscreen.createDocument({
-                url: 'favicon-offscreen.html',
-                reasons: ['DOM_PARSER'],
-                justification: 'Parse site-declared favicon metadata and verify image dimensions.'
-            });
-        }
-    })().catch((error) => {
-        faviconOffscreenPromise = null;
-        throw error;
-    });
-    return faviconOffscreenPromise;
-}
-
-async function sendToFaviconOffscreen(message) {
-    await ensureFaviconOffscreenDocument();
-    return chrome.runtime.sendMessage(message);
-}
-
-async function fetchLimited(url, accept, maxBytes, timeoutMs = FETCH_TIMEOUT_MS) {
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
-    try {
-        const response = await fetch(url, {
-            method: 'GET', credentials: 'omit', headers: { Accept: accept }, signal: controller.signal
-        });
-        if (!response.ok) return { ok: false, error: `HTTP ${response.status}` };
-        const declaredSize = Number(response.headers.get('content-length') || 0);
-        if (declaredSize > maxBytes) return { ok: false, error: 'Response too large' };
-        const data = new Uint8Array(await response.arrayBuffer());
-        if (data.byteLength > maxBytes) return { ok: false, error: 'Response too large' };
-        return {
-            ok: true,
-            bytes: Array.from(data),
-            contentType: response.headers.get('content-type') || '',
-            finalUrl: response.url || url
-        };
-    } catch (error) {
-        return { ok: false, error: String(error) };
-    } finally {
-        clearTimeout(timeoutId);
-    }
-}
-
 function fallbackCandidates(pageUrl) {
     const page = new URL(pageUrl);
     const hostname = page.hostname.replace(/^www\./i, '');
-    const chromeBase = chrome.runtime.getURL('/_favicon/');
-    const chrome128 = new URL(chromeBase);
-    chrome128.searchParams.set('pageUrl', pageUrl);
-    chrome128.searchParams.set('size', '128');
-    const chrome64 = new URL(chromeBase);
-    chrome64.searchParams.set('pageUrl', pageUrl);
-    chrome64.searchParams.set('size', '64');
+    const chromeCandidates = [128, 64].flatMap(size => {
+        const url = chromeFaviconUrl(pageUrl, size);
+        return url ? [{url, sourceKind: 'chrome', sizeHint: size, purpose: ''}] : [];
+    });
     return {
         primary: [
-            { url: chrome128.toString(), sourceKind: 'chrome', sizeHint: 128, purpose: '' },
-            { url: chrome64.toString(), sourceKind: 'chrome', sizeHint: 64, purpose: '' },
+            ...chromeCandidates,
             { url: `${page.origin}/favicon.ico`, sourceKind: 'conventional', sizeHint: 0, purpose: '' },
             { url: `${page.origin}/favicon.png`, sourceKind: 'conventional', sizeHint: 0, purpose: '' },
             { url: `${page.origin}/apple-touch-icon.png`, sourceKind: 'conventional', sizeHint: 0, purpose: '' }
         ],
-        providers: hostname ? [
+        providers: hostname && hostname.includes('.') && !/^[\d.]+$/.test(hostname) && !hostname.includes(':') && !/\.(localhost|local|test|invalid|example)$/i.test(hostname) ? [
             { url: `https://favicon.vemetric.com/${encodeURIComponent(hostname)}?size=128`, sourceKind: 'vemetric', sizeHint: 128, purpose: '' },
             { url: `https://www.google.com/s2/favicons?domain=${encodeURIComponent(hostname)}&sz=128`, sourceKind: 'google', sizeHint: 128, purpose: '' }
         ] : []
@@ -287,10 +182,10 @@ function dedupeCandidates(candidates) {
 }
 
 async function inspectCandidate(candidate) {
-    if (!isHttpUrl(candidate.url) && !candidate.url.startsWith('chrome-extension:')) return null;
+    if (!isHttpUrl(candidate.url) && !isOwnChromeFaviconUrl(candidate.url)) return null;
     const response = await fetchLimited(candidate.url, 'image/*', MAX_ICON_BYTES);
     if (!response.ok || !response.contentType.toLowerCase().startsWith('image/')) return null;
-    const inspection = await sendToFaviconOffscreen({
+    const inspection = await runFaviconDomTask({
         type: OFFSCREEN_INSPECT_IMAGE_MESSAGE, bytes: response.bytes, contentType: response.contentType
     });
     if (!inspection?.valid) return null;
@@ -323,19 +218,17 @@ async function handleDiscoverIcon(pageUrl) {
     try {
         const page = await fetchLimited(pageUrl, 'text/html,application/xhtml+xml', MAX_PAGE_BYTES);
         const parsed = page.ok && /(?:text\/html|application\/xhtml\+xml)/i.test(page.contentType)
-            ? await sendToFaviconOffscreen({ type: OFFSCREEN_PARSE_PAGE_MESSAGE, html: new TextDecoder().decode(Uint8Array.from(page.bytes)), pageUrl: page.finalUrl })
+            ? await runFaviconDomTask({ type: OFFSCREEN_PARSE_PAGE_MESSAGE, html: new TextDecoder().decode(Uint8Array.from(page.bytes)), pageUrl: page.finalUrl })
             : { candidates: [], manifests: [] };
-        const manifestCandidates = [];
-        for (const manifestUrl of parsed?.manifests || []) {
+        const manifestCandidates = (await Promise.all((parsed?.manifests || []).slice(0, 3).map(async manifestUrl => {
             const manifest = await fetchLimited(manifestUrl, 'application/manifest+json,application/json', MAX_PAGE_BYTES);
-            if (!manifest.ok) continue;
-            const candidates = await sendToFaviconOffscreen({
+            if (!manifest.ok) return [];
+            const candidates = await runFaviconDomTask({
                 type: OFFSCREEN_PARSE_MANIFEST_MESSAGE,
-                text: new TextDecoder().decode(Uint8Array.from(manifest.bytes)),
-                manifestUrl: manifest.finalUrl
+                text: new TextDecoder().decode(Uint8Array.from(manifest.bytes)), manifestUrl: manifest.finalUrl
             });
-            manifestCandidates.push(...(Array.isArray(candidates) ? candidates : []));
-        }
+            return Array.isArray(candidates) ? candidates : [];
+        }))).flat();
         const fallback = fallbackCandidates(pageUrl);
         const primary = dedupeCandidates([...(parsed?.candidates || []), ...manifestCandidates, ...fallback.primary])
             .sort((a, b) => (b.sizeHint || 0) - (a.sizeHint || 0)).slice(0, MAX_PRIMARY_CANDIDATES);

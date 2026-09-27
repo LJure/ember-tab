@@ -1,3 +1,4 @@
+import { chromeFaviconUrl } from '../platform/extension-urls.js';
 import { iconCache } from '../platform/icon-cache.js';
 import { discoverIconViaBackground, fetchIconBlobViaBackground } from '../platform/icon-fetch-bridge.js';
 import { normalizeIconCacheUrl } from './text.js';
@@ -18,16 +19,7 @@ function hostnameFromUrl(url) {
 export function getChromeFaviconApiUrl(pageUrl, { size = 64 } = {}) {
   const normalizedUrl = safeUrl(pageUrl);
   if (!normalizedUrl) return '';
-  if (typeof chrome === 'undefined' || !chrome?.runtime?.getURL) return '';
-  const px = String(Number(size) || 64);
-  try {
-    const url = new URL(chrome.runtime.getURL('/_favicon/'));
-    url.searchParams.set('pageUrl', normalizedUrl);
-    url.searchParams.set('size', px);
-    return url.toString();
-  } catch {
-    return '';
-  }
+  return chromeFaviconUrl(normalizedUrl, Number(size) || 64);
 }
 export function getFaviconUrlCandidates(pageUrl, { size = 64 } = {}) {
   const normalizedUrl = safeUrl(pageUrl);
@@ -416,18 +408,22 @@ function _loadIconWithFallback(img, urls, onExhausted, { minPx = 32, skipSvg = f
     return true;
   });
   let index = 0;
+  let deadline;
   img.style.visibility = 'hidden';
   const cleanup = () => {
+    clearTimeout(deadline);
     img.onerror = null;
     img.onload = null;
   };
   let anySuccess = false;
   const loadNext = () => {
+    clearTimeout(deadline);
     while (index < list.length) {
       const next = list[index++];
       if (img.src === next) continue;
       img.style.visibility = 'hidden';
       img.src = next;
+      deadline = setTimeout(loadNext, 3000);
       return;
     }
     if (index >= list.length && list.length !== list0.length) {
@@ -439,6 +435,7 @@ function _loadIconWithFallback(img, urls, onExhausted, { minPx = 32, skipSvg = f
     cleanup();
     img.style.visibility = '';
     if (!anySuccess) {
+      img.removeAttribute?.('src');
       onFailed?.();
     }
     onExhausted?.();

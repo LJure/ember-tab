@@ -4,12 +4,13 @@ import { createHash } from 'node:crypto';
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { Builder, By } from 'selenium-webdriver';
+import { Builder, By, Key } from 'selenium-webdriver';
 import firefox from 'selenium-webdriver/firefox.js';
 import { download } from 'geckodriver';
 
 const root = fileURLToPath(new URL('../', import.meta.url));
-const evidence = path.join(root, '.local', 'm2');
+const includeM3 = process.argv.includes('--m3');
+const evidence = path.join(root, '.local', includeM3 ? 'm3' : 'm2');
 await mkdir(evidence, { recursive: true });
 const project = JSON.parse(await readFile(path.join(root, 'ember.project.json'), 'utf8'));
 const manifest = JSON.parse(await readFile(path.join(root, 'dist/firefox/manifest.json'), 'utf8'));
@@ -31,7 +32,8 @@ const checks = [];
 const report = { startedAt: new Date().toISOString(), checks };
 report.packageSha256 = createHash('sha256').update(await readFile(path.join(root, `dist/ember-tab-${manifest.version}-firefox.zip`))).digest('hex');
 async function check(name, task) {
-    await task();
+    try { await task(); }
+    catch (error) { report.failedCheck = name; throw error; }
     checks.push(name);
     console.log(`PASS ${name}`);
 }
@@ -80,7 +82,9 @@ try {
     await check('settings UI language and theme changes', async () => {
         await driver.findElement(By.id('settingsBtn')).click();
         await driver.wait(async () => (await driver.findElements(By.id('macInterfaceLanguage'))).length > 0, 10000);
-        await driver.findElement(By.css('#macInterfaceLanguage option[value="en"]')).click();
+        await driver.wait(async () => await driver.executeScript(`const el=document.getElementById('macSettingsOverlay');
+            return getComputedStyle(el).opacity==='1' && !el.getAnimations({subtree:true}).some(a=>a.playState==='running' && a.effect.getComputedTiming().iterations!==Infinity);`),5000);
+        await driver.findElement(By.id('macInterfaceLanguage')).sendKeys(Key.END);
         await driver.wait(async () => (await driver.findElement(By.css('html')).getAttribute('lang')) === 'en', 5000);
         await driver.findElement(By.css('[data-menu="appearance"]')).click();
         await driver.wait(async () => (await driver.findElements(By.id('macThemeDark'))).length > 0, 5000);
@@ -133,6 +137,10 @@ try {
         assert.equal(await runInExtension('return (await chrome.storage.local.get("m2Local")).m2Local'), 'local');
         assert.equal((await runInExtension('return await chrome.runtime.sendMessage({type:"fetchIcon",url:"file:///invalid"})')).success, false);
     });
+    if (includeM3) {
+        const { runM3Tests } = await import('./test-firefox-m3.mjs');
+        await runM3Tests({driver, check, runInExtension, root, evidence, uuid, report});
+    }
     await writeFile(path.join(evidence, 'newtab.png'), await driver.takeScreenshot(), 'base64');
     await driver.setContext(firefox.Context.CHROME);
     report.extensionDiagnostics = await driver.executeScript(`return Services.console.getMessageArray()

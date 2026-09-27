@@ -178,7 +178,7 @@ const CONFIG = {
     SYNC_QUOTA_BYTES_FALLBACK: 102400
 };
 const ALLOWED_URL_PROTOCOLS = new Set([
-    'http:', 'https:', 'chrome:', 'chrome-extension:', 'edge:', 'about:'
+    'http:', 'https:', 'chrome:', 'chrome-extension:', 'moz-extension:', 'edge:', 'about:'
 ]);
 const DANGEROUS_PROTOCOLS = ['javascript', 'data', 'vbscript', 'blob'];
 class Store {

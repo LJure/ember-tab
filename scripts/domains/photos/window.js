@@ -1,3 +1,4 @@
+import { isOwnExtensionUrl } from '../../platform/extension-urls.js';
 import { MacWindowBase } from '../../platform/mac-window-base.js';
 import { t, initHtmlI18n } from '../../platform/i18n.js';
 import { toast } from '../../shared/toast.js';
@@ -144,7 +145,7 @@ export class PhotosWindow extends MacWindowBase {
     _isSafeUrl(url, { allowBlob = true, allowExtension = true } = {}) {
         if (!url || typeof url !== 'string') return false;
         if (allowBlob && url.startsWith('blob:')) return true;
-        if (allowExtension && url.startsWith('chrome-extension:')) return true;
+        if (allowExtension && isOwnExtensionUrl(url)) return true;
         try {
             const u = new URL(url);
             return u.protocol === 'http:' || u.protocol === 'https:';

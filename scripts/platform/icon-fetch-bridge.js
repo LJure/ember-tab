@@ -1,17 +1,7 @@
 const FETCH_ICON_MESSAGE = 'fetchIcon';
 const DISCOVER_ICON_MESSAGE = 'discoverIcon';
 
-function _getOwnFaviconApiPrefixes() {
-    if (typeof chrome === 'undefined' || !chrome?.runtime?.getURL) return [];
-
-    try {
-        const withSlash = chrome.runtime.getURL('/_favicon/');
-        const noSlash = withSlash.replace(/\/$/, '');
-        return [withSlash, noSlash];
-    } catch {
-        return [];
-    }
-}
+import { isOwnChromeFaviconUrl } from './extension-urls.js';
 
 export function isAllowedIconFetchUrl(url) {
     if (typeof url !== 'string') return false;
@@ -28,18 +18,7 @@ export function isAllowedIconFetchUrl(url) {
             return true;
         }
 
-        if (parsed.protocol !== 'chrome-extension:') {
-            return false;
-        }
-
-        const ownPrefixes = _getOwnFaviconApiPrefixes();
-        if (ownPrefixes.some((prefix) => value.startsWith(prefix))) {
-            return true;
-        }
-
-        const runtimeId = chrome?.runtime?.id;
-        if (!runtimeId || parsed.hostname !== runtimeId) return false;
-        return parsed.pathname === '/_favicon/' || parsed.pathname === '/_favicon';
+        return isOwnChromeFaviconUrl(value);
     } catch {
         return false;
     }

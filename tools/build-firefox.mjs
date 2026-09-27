@@ -28,6 +28,10 @@ for (const entry of [
     });
 }
 
+// Replace the Chromium offscreen adapter with Firefox's DOM event-page adapter.
+await cp(path.join(root, 'scripts/platform/favicon-runtime-firefox.js'),
+    path.join(output, 'scripts/platform/favicon-runtime.js'));
+
 delete manifest.minimum_chrome_version;
 delete manifest.offline_enabled;
 manifest.version = project.initialVersion;

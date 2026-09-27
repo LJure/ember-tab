@@ -7,6 +7,7 @@
         "build:firefox": "node tools/build-firefox.mjs",
         "lint:firefox": "web-ext lint --source-dir dist/firefox --output json",
         "test:firefox": "node tools/test-firefox.mjs",
+        "test:firefox:m3": "node tools/test-firefox.mjs --m3",
         "test:firefox-build": "node --test tools/build-firefox.test.mjs",
         "test": "vitest run",
         "test:watch": "vitest",

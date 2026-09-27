@@ -33,5 +33,8 @@ test('Firefox package is reproducible, attributed and contains only runtime file
         assert.ok(!/node_modules|\.local\/|\.github\/|assets\/other\//.test(name));
     }
     assert.ok(entries[manifest.chrome_url_overrides.newtab]);
+    assert.equal(strFromU8(entries['scripts/platform/favicon-runtime.js']),
+        await readFile(new URL('../scripts/platform/favicon-runtime-firefox.js', import.meta.url), 'utf8'));
+    assert.ok(!strFromU8(entries['scripts/platform/favicon-runtime.js']).includes('chrome.offscreen'));
     for (const script of manifest.background.scripts) assert.ok(entries[script]);
 });
