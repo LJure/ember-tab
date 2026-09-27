@@ -432,7 +432,9 @@
     "date": "2026-09-27",
     "realWebdavNewVersion": "User reports passed; service and error-case details unspecified",
     "longRunningRotation": "Deferred by user to post-release ongoing validation",
-    "wallhavenPrivateCollection": "User reports passed; version and error-case details unspecified"
+    "wallhavenPrivateCollection": "User reports passed; version and error-case details unspecified",
+    "automaticIconSize": "User reports follow-up fix passed; feedback follows f234abf; exact installed package and browser version unspecified",
+    "pexelsRealApiKey": "User confirms Pexels verified; retain provider, superseding earlier removal choice; browser version and error-case details unspecified"
   },
   "iconSizeFollowup": {
     "suites": [

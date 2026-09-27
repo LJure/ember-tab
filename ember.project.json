@@ -13,7 +13,7 @@
     "Wallhaven provider terms and image rights review",
     "Pexels/Bing and inherited asset provenance review",
     "Interrupted restore has no global rollback; release recovery strategy required",
-    "Pexels real API key and permission revocation acceptance",
+    "Permission revocation and unverified service error-path acceptance",
     "Signed install/upgrade and distribution acceptance"
   ],
   "deferredWork": [

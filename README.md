@@ -8,9 +8,9 @@ An unofficial Firefox port of [Aura Tab by nil-byte](https://github.com/nil-byte
 
 ## 安装与迁移
 
-使用 Node 24，依次运行 `npm ci`、`npm run build:firefox`。在 Firefox 的 `about:debugging#/runtime/this-firefox` 临时载入 `dist/firefox/manifest.json`。临时安装会在重启后移除，长期安装需要签名。目标 Firefox 140+ 桌面版，ESR 验收尚未完成。
+使用 Node 24，依次运行 `npm ci`、`npm run build:firefox`。在 Firefox 的 `about:debugging#/runtime/this-firefox` 临时载入 `dist/firefox/manifest.json`。临时安装会在重启后移除，长期安装需要签名。目标 Firefox 140+ 桌面版；稳定版 156.0.1 与 ESR 140.16.0 已完成自动化验收矩阵，范围及剩余项目见 [M6 验收报告](docs/M6_ACCEPTANCE.md)。
 
-Aura 数据通过 ZIP 导入；用户已验证 Brave／Aura 3.5.3 的 59 链接、37.1 MB 备份、真实 WebDAV、Firefox 账号设置／链接同步及慢图床图标修复。更大容量、跨设备冲突和正式升级仍需验证。恢复不具备跨数据库与 storage 的全局回滚。
+Aura 数据通过 ZIP 导入；用户已验证 Brave／Aura 3.5.3 的 59 链接、37.1 MB 备份、新版真实 WebDAV、Firefox 账号设置／链接同步、慢图床与自动图标尺寸修复，以及 Wallhaven 私有收藏集和 Pexels 真实取图。128 MiB 合成数据备份往返已通过；跨设备冲突合并延期至后续版本，长期轮换留待上线后持续验证，正式签名升级仍待验收。恢复不具备跨数据库与 storage 的全局回滚。
 
 普通包要求图床、在线服务和 WebDAV 使用 HTTPS。仅本机集成测试可以单独生成带 `-test-http` 标记的包。Chromium 历史配置不是 Firefox 安装入口。
 
@@ -24,6 +24,7 @@ Aura 数据通过 ZIP 导入；用户已验证 Brave／Aura 3.5.3 的 59 链接�
 ## 文档
 
 - [开发计划与接续](DEVELOPMENT_PLAN.md)
+- [M6 验收与证据](docs/M6_ACCEPTANCE.md) · [发布交接清单](docs/RELEASE_HANDOFF.md)
 - [M5 结果与验证](docs/M5_RELEASE_PREPARATION.md)
 - [素材、网络和服务条款审计](docs/M5_ASSET_AND_NETWORK_AUDIT.md)
 - [动态 HTML 警告复核](docs/M5_HTML_AUDIT.md)

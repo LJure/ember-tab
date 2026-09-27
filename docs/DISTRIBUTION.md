@@ -1,8 +1,8 @@
 # 开发安装、迁移与分发
 
-当前为 Ember Tab 0.1.0 未签名开发包，不是 AMO 正式发布。固定 ID 为 `ember-tab@ljure.github.io`，目标桌面 Firefox 140+；完整 ESR 验证在 M6。
+当前为 Ember Tab 0.1.0 未签名开发包，不是 AMO 正式发布。固定 ID 为 `ember-tab@ljure.github.io`，目标桌面 Firefox 140+；稳定版 156.0.1 与 ESR 140.16.0 已完成 M6 自动化矩阵，实际范围和剩余门槛见 [M6 验收](M6_ACCEPTANCE.md)。
 
-当前来源为本地、Wallhaven、Pexels、Bing；Unsplash／Pixabay 已移除，旧收藏保留。[Wallhaven 使用与收藏集验收](WALLHAVEN.md)包含设置方法及最新构建哈希。
+当前来源为本地、Wallhaven、Pexels、Bing；Unsplash／Pixabay 已移除，旧收藏保留。用户确认 Pexels 真实取图、Wallhaven 私有收藏集通过。设置方法见 [Wallhaven 使用](WALLHAVEN.md)，最新构建哈希以 [M6 验收](M6_ACCEPTANCE.md) 为准。
 
 ## 复现构建
 
@@ -34,6 +34,7 @@ npm run lint:firefox
 
 - 从 Aura Tab 导出 ZIP，再在 Ember 设置的数据管理中恢复。已获用户验证：Brave／Aura 3.5.3，59 链接、37.1 MB ZIP。
 - 恢复前另存当前 Ember 备份。恢复有单 store 事务，但没有跨数据库与扩展 storage 的全局回滚；中断后可能需重新导入完整备份。
+- 具体预备、失败重试与回到旧备份的步骤见 [发布交接清单](RELEASE_HANDOFF.md#恢复中断的当前处理步骤)。当前没有自动安全副本或自动回滚；恢复策略发布门槛仍保留。
 - Sync 不跨 Chrome／Firefox 账号体系。本地图片 Blob 不走 Firefox Sync；WebDAV 或 ZIP 才带图片。图床图标需要重新下载，慢请求有排队及有限重试。
 - API 密钥可能在备份与 Firefox sync 设置中；WebDAV 配置从 ZIP 排除。不要公开备份或测试凭据。
 - 保存的 WebDAV 目录、数据库名、备份 schema 和 storage 键继续沿用 Aura 标识，以兼容旧数据。Dock 默认背板保持上游行为。
