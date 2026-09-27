@@ -1,24 +1,37 @@
 {
-    "name": "aura-tab",
-    "version": "3.5.3",
-    "description": "A beautiful new tab extension",
+    "name": "ember-tab",
+    "version": "0.1.0",
+    "description": "An unofficial Firefox port of Aura Tab",
     "type": "module",
     "scripts": {
+        "build:firefox": "node tools/build-firefox.mjs",
+        "lint:firefox": "web-ext lint --source-dir dist/firefox --output json",
+        "test:firefox": "node tools/test-firefox.mjs",
+        "test:firefox:m3": "node tools/test-firefox.mjs --m3",
+        "test:firefox:m4": "node tools/test-firefox.mjs --m4",
+        "test:firefox:lifecycle": "node tools/test-firefox-lifecycle.mjs",
+        "test:firefox:custom-icons": "node tools/test-firefox.mjs --custom-icons",
+        "test:firefox-build": "node --test tools/build-firefox.test.mjs",
         "test": "vitest run",
         "test:watch": "vitest",
         "test:coverage": "vitest run --coverage",
         "test:ui": "vitest --ui",
-        "lint": "eslint scripts/ background-worker.js",
-        "lint:fix": "eslint scripts/ background-worker.js --fix"
+        "lint": "eslint scripts/ background-worker.js tools/",
+        "lint:fix": "eslint scripts/ background-worker.js tools/ --fix",
+        "test:firefox:m5": "node tools/test-firefox.mjs --m5",
+        "test:firefox:m6": "node tools/test-firefox.mjs --m6"
     },
     "devDependencies": {
         "@eslint/js": "^10.0.1",
         "@vitest/coverage-v8": "^4.1.10",
         "@vitest/ui": "^4.1.10",
         "eslint": "^10.7.0",
+        "geckodriver": "7.0.0",
         "globals": "^17.7.0",
         "jsdom": "^29.1.1",
-        "vitest": "^4.1.10"
+        "selenium-webdriver": "4.49.0",
+        "vitest": "^4.1.10",
+        "web-ext": "10.7.0"
     },
     "engines": {
         "node": ">=20.19.0"

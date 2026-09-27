@@ -1,3 +1,4 @@
+import { isSecureServiceUrl } from '../../shared/network-policy.js';
 import { t } from '../../platform/i18n.js';
 import { confirmDialog } from '../../shared/confirm-dialog.js';
 import { escapeHtml } from '../../shared/text.js';
@@ -271,7 +272,7 @@ async function _handleImportData(e) {
             const result = await backupManager.restoreFromBackup(file);
 
             if (result.success) {
-                toast(t('settingsImportComplete'));
+                toast(t(result.skippedCacheEntries ? 'backupSkippedCache' : 'settingsImportComplete'));
                 backupManager.triggerReload();
             } else {
                 const errorKey = result.error ? `import_${result.error}` : 'settingsImportFailed';
@@ -378,6 +379,9 @@ function _validateWebDAVConfig(config) {
         if (!['http:', 'https:'].includes(url.protocol)) {
             return { valid: false, error: 'webdavInvalidUrl' };
         }
+        if (!isSecureServiceUrl(config.baseUrl)) {
+            return { valid: false, error: 'webdavHttpsRequired' };
+        }
     } catch {
         return { valid: false, error: 'webdavInvalidUrl' };
     }
@@ -468,13 +472,13 @@ async function _handleWebDAVBackup(container) {
                 }
             });
 
-            const { WebDAVClient, generateBackupFilename } = await import('../../shared/webdav-client.js');
-            const client = new WebDAVClient(config);
-            await client.ensureDir();
-
-            const filename = generateBackupFilename();
+            let client;
             let uploadOk;
             try {
+                const { WebDAVClient, generateBackupFilename } = await import('../../shared/webdav-client.js');
+                client = new WebDAVClient(config);
+                if (!(await client.ensureDir())) throw new Error('webdav_directory_failed');
+                const filename = generateBackupFilename();
                 uploadOk = await client.putFile(filename, zipBlob);
             } finally {
                 await cleanup?.();
@@ -637,7 +641,7 @@ async function _handleWebDAVRestore(container, filename) {
             });
 
             if (result.success) {
-                toast(t('webdavRestoreSuccess') || 'Restore successful, reloading...', { type: 'success' });
+                toast(t(result.skippedCacheEntries ? 'backupSkippedCache' : 'webdavRestoreSuccess'), { type: 'success' });
                 backupManager.triggerReload();
             } else {
                 const errorKey = result.error ? `import_${result.error}` : 'webdavRestoreFailed';

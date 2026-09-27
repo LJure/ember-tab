@@ -493,7 +493,7 @@ class QuickLinksApp extends DisposableComponent {
                 customIconUrl: customIcon || undefined,
                 cacheMode: 'read-only',
                 pageUrl: customIcon ? undefined : normalizedUrl,
-                onPending: customIcon ? undefined : fallbackToInitial,
+                onPending: fallbackToInitial,
                 onResolved: () => {
                     fallbackNode?.remove();
                     fallbackNode = null;
@@ -748,7 +748,7 @@ class QuickLinksApp extends DisposableComponent {
         if (!cacheKey || !url) return false;
 
         try {
-            const blob = await fetchIconBlobViaBackground(url);
+            const blob = await fetchIconBlobViaBackground(url, { customIcon: true });
             if (!blob) return false;
             return await iconCache.set(cacheKey, blob, url);
         } catch {

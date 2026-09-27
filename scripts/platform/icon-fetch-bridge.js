@@ -1,17 +1,7 @@
 const FETCH_ICON_MESSAGE = 'fetchIcon';
 const DISCOVER_ICON_MESSAGE = 'discoverIcon';
 
-function _getOwnFaviconApiPrefixes() {
-    if (typeof chrome === 'undefined' || !chrome?.runtime?.getURL) return [];
-
-    try {
-        const withSlash = chrome.runtime.getURL('/_favicon/');
-        const noSlash = withSlash.replace(/\/$/, '');
-        return [withSlash, noSlash];
-    } catch {
-        return [];
-    }
-}
+import { isOwnChromeFaviconUrl } from './extension-urls.js';
 
 export function isAllowedIconFetchUrl(url) {
     if (typeof url !== 'string') return false;
@@ -28,18 +18,7 @@ export function isAllowedIconFetchUrl(url) {
             return true;
         }
 
-        if (parsed.protocol !== 'chrome-extension:') {
-            return false;
-        }
-
-        const ownPrefixes = _getOwnFaviconApiPrefixes();
-        if (ownPrefixes.some((prefix) => value.startsWith(prefix))) {
-            return true;
-        }
-
-        const runtimeId = chrome?.runtime?.id;
-        if (!runtimeId || parsed.hostname !== runtimeId) return false;
-        return parsed.pathname === '/_favicon/' || parsed.pathname === '/_favicon';
+        return isOwnChromeFaviconUrl(value);
     } catch {
         return false;
     }
@@ -62,12 +41,12 @@ export function normalizeIconBinaryPayload(data) {
     return null;
 }
 
-export async function fetchIconPayloadViaBackground(url) {
+export async function fetchIconPayloadViaBackground(url, { customIcon = false } = {}) {
     if (!isAllowedIconFetchUrl(url)) return null;
 
     let response;
     try {
-        response = await chrome.runtime.sendMessage({ type: FETCH_ICON_MESSAGE, url });
+        response = await chrome.runtime.sendMessage({ type: FETCH_ICON_MESSAGE, url, ...(customIcon ? { customIcon: true } : {}) });
     } catch {
         return null;
     }
@@ -82,8 +61,8 @@ export async function fetchIconPayloadViaBackground(url) {
     };
 }
 
-export async function fetchIconBlobViaBackground(url) {
-    const payload = await fetchIconPayloadViaBackground(url);
+export async function fetchIconBlobViaBackground(url, options) {
+    const payload = await fetchIconPayloadViaBackground(url, options);
     if (!payload) return null;
 
     const blob = new Blob([payload.bytes], { type: payload.contentType });

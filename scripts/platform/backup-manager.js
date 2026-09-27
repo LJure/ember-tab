@@ -2,6 +2,7 @@ import { strToU8, Zip, ZipDeflate, ZipPassThrough, Unzip, UnzipInflate } from '.
 import { idbCursorAll } from '../shared/storage.js';
 import { setStorageInChunks } from '../shared/storage.js';
 import { buildIconCacheKey, normalizeIconCacheUrl } from '../shared/text.js';
+import { validateSyncSnapshot } from './backup-validation.js';
 const SCHEMA_VERSION = 1;
 const SCHEMA_NAME = 'aura-tab-webdav-backup';
 const MAX_IN_MEMORY_BACKUP_SIZE = 500 * 1024 * 1024;
@@ -82,6 +83,14 @@ export class BackupManager {
         return new Blob(chunks, { type: 'application/zip' });
     }
     async restoreFromBackup(zipBlob, options = {}) {
+        // Staging uses a shared database; serialize restores across extension pages.
+        if (globalThis.navigator?.locks?.request) {
+            return navigator.locks.request('aura-tab:restore', () =>
+                navigator.locks.request('aura-tab:store', () => this._restoreFromBackup(zipBlob, options)));
+        }
+        return this._restoreFromBackup(zipBlob, options);
+    }
+    async _restoreFromBackup(zipBlob, options = {}) {
         const { onProgress } = options;
         try {
             if (zipBlob?.size > 2 * 1024 * 1024 * 1024) {
@@ -119,32 +128,29 @@ export class BackupManager {
                 onProgress?.({ stage: 'restoreStorage', percent: 55 });
                 const syncData = await this._parseRequiredStagingJsonObject(stagingDb, 'storage/sync.json');
                 const localData = await this._parseRequiredStagingJsonObject(stagingDb, 'storage/local.json');
+                // _smartRestoreStorage writes before removing obsolete keys. Check
+                // its peak footprint too, so quota rejection cannot leave half a restore.
+                validateSyncSnapshot({ ...await chrome.storage.sync.get(null), ...syncData });
                 const currentWebdavConfig = await this._getCurrentWebdavConfig();
                 if (currentWebdavConfig) {
                     localData.webdavConfig = currentWebdavConfig;
                 }
+                const iconCacheLookup = this._buildIconCacheRestoreLookup(syncData);
+                let skippedCacheEntries = 0;
+                for (const [key, stage, percent] of [
+                    ['iconCache', 'restoreIconCache', 65], ['toolbarIcon', 'restoreToolbarIcon', 70],
+                    ['assets', 'restoreAssets', 75], ['localFiles', 'restoreLocalFiles', 85]
+                ]) {
+                    onProgress?.({ stage, percent });
+                    skippedCacheEntries += await this._importIDBFromStaging(key, stagingDb,
+                        'idb/' + IDB_PATH_MAP[key], null, { iconCacheLookup });
+                }
+                // Publish metadata after its blobs exist; storage listeners may
+                // otherwise prune restored images as missing during the import.
                 await this._smartRestoreStorage('sync', syncData);
                 await this._smartRestoreStorage('local', localData, ['webdavConfig']);
-                const iconCacheLookup = this._buildIconCacheRestoreLookup(syncData);
-                onProgress?.({ stage: 'restoreStorage', percent: 65 });
-                onProgress?.({ stage: 'restoreIconCache', percent: 65 });
-                await this._importIDBFromStaging('iconCache', stagingDb, 'idb/icon-cache', (p) => {
-                    onProgress?.({ stage: 'restoreIconCache', percent: 65 + p * 0.05 });
-                }, { iconCacheLookup });
-                onProgress?.({ stage: 'restoreToolbarIcon', percent: 70 });
-                await this._importIDBFromStaging('toolbarIcon', stagingDb, 'idb/toolbar-icon', (p) => {
-                    onProgress?.({ stage: 'restoreToolbarIcon', percent: 70 + p * 0.05 });
-                });
-                onProgress?.({ stage: 'restoreAssets', percent: 75 });
-                await this._importIDBFromStaging('assets', stagingDb, 'idb/assets', (p) => {
-                    onProgress?.({ stage: 'restoreAssets', percent: 75 + p * 0.1 });
-                });
-                onProgress?.({ stage: 'restoreLocalFiles', percent: 85 });
-                await this._importIDBFromStaging('localFiles', stagingDb, 'idb/local-files', (p) => {
-                    onProgress?.({ stage: 'restoreLocalFiles', percent: 85 + p * 0.1 });
-                });
                 onProgress?.({ stage: 'done', percent: 100 });
-                return { success: true };
+                return { success: true, skippedCacheEntries };
             } finally {
                 stagingDb.close();
                 await this._deleteStagingDb();
@@ -218,6 +224,7 @@ export class BackupManager {
                 if (!chunk || chunk.length === 0) return;
                 writeChain = writeChain.then(() => writableStream.write(chunk));
             });
+            zipper.waitForWrites = () => writeChain;
             await this._appendBackupDataToZipper(zipper, options, 'Local streaming backup (fflate)');
             onProgress?.({ stage: 'zip', percent: 95 });
             zipper.end();
@@ -251,12 +258,18 @@ export class BackupManager {
             return { blob, cleanup: null, usedStreaming: false };
         }
         const { onProgress } = options;
-        const fileName = this._generateLocalFilename();
-        const opfsRoot = await navigator.storage.getDirectory();
-        const tmpDir = await opfsRoot.getDirectoryHandle('aura-tab-tmp', { create: true });
-        const tmpFileName = `${Date.now()}_${Math.random().toString(16).slice(2)}_${fileName}`;
-        const fileHandle = await tmpDir.getFileHandle(tmpFileName, { create: true });
-        const writableStream = await fileHandle.createWritable();
+        let tmpDir, fileHandle, writableStream;
+        const tmpFileName = `${Date.now()}_${Math.random().toString(16).slice(2)}_${this._generateLocalFilename()}`;
+        try {
+            const opfsRoot = await navigator.storage.getDirectory();
+            tmpDir = await opfsRoot.getDirectoryHandle('aura-tab-tmp', { create: true });
+            fileHandle = await tmpDir.getFileHandle(tmpFileName, { create: true });
+            writableStream = await fileHandle.createWritable();
+        } catch (error) {
+            try { await tmpDir?.removeEntry(tmpFileName); } catch { /* best-effort cleanup */ }
+            console.warn('[BackupManager] OPFS unavailable; using bounded memory backup:', error);
+            return { blob: await this.createBackup(options), cleanup: null, usedStreaming: false };
+        }
         let writeChain = Promise.resolve();
         let zipStreamError = null;
         const zipper = new Zip((err, chunk) => {
@@ -267,6 +280,7 @@ export class BackupManager {
             if (!chunk || chunk.length === 0) return;
             writeChain = writeChain.then(() => writableStream.write(chunk));
         });
+        zipper.waitForWrites = () => writeChain;
         try {
             await this._appendBackupDataToZipper(zipper, options, 'WebDAV streaming backup (OPFS)');
             onProgress?.({ stage: 'zip', percent: 95 });
@@ -312,6 +326,7 @@ export class BackupManager {
                 if (done) break;
                 if (value && value.length) {
                     file.push(value, false);
+                    await zipper.waitForWrites?.();
                 }
             }
             file.push(new Uint8Array(0), true);
@@ -347,61 +362,55 @@ export class BackupManager {
         const config = IDB_CONFIGS[configKey];
         const stats = { entries: 0, totalSize: 0 };
         const indexEntries = [];
-        try {
-            let dbNameForExport = config.dbName;
-            if (!config.required) {
-                const exists = await this._pickExistingDatabaseName([config.dbName]);
-                const canCheck = typeof indexedDB?.databases === 'function';
-                if (canCheck && !exists) {
+        let dbNameForExport = config.dbName;
+        if (!config.required) {
+            const exists = await this._pickExistingDatabaseName([config.dbName]);
+            const canCheck = typeof indexedDB?.databases === 'function';
+            if (canCheck && !exists) {
+                this._addFileToZip(zipper, `${basePath}/index.json`, strToU8(JSON.stringify([], null, 2)));
+                onProgress?.(100);
+                return stats;
+            }
+            dbNameForExport = exists || config.dbName;
+            if (canCheck) {
+                const dbExists = await this._databaseExists(dbNameForExport);
+                if (dbExists === false) {
                     this._addFileToZip(zipper, `${basePath}/index.json`, strToU8(JSON.stringify([], null, 2)));
                     onProgress?.(100);
                     return stats;
                 }
-                dbNameForExport = exists || config.dbName;
-                if (canCheck) {
-                    const dbExists = await this._databaseExists(dbNameForExport);
-                    if (dbExists === false) {
-                        this._addFileToZip(zipper, `${basePath}/index.json`, strToU8(JSON.stringify([], null, 2)));
-                        onProgress?.(100);
-                        return stats;
-                    }
+            }
+        }
+        const db = await this._openDatabase(dbNameForExport, config.version, config.storeName);
+        const entries = await idbCursorAll(db, config.storeName);
+        db.close();
+        const total = entries.length;
+        for (let i = 0; i < entries.length; i++) {
+            const entry = entries[i];
+            const indexEntry = { ...entry };
+            // Sanitized/truncated URLs can collide. The index prefix makes
+            // blob paths unique while preserving the existing backup schema.
+            const entryId = `${i}_${this._sanitizeZipPathSegment(entry.id || entry.cacheKey || entry.hostname || 'entry')}`;
+            for (const blobField of config.blobFields) {
+                const blob = entry[blobField];
+                if (blob instanceof Blob && blob.size > 0) {
+                    const blobPath = `${basePath}/blobs/${entryId}/${blobField}.bin`;
+                    await this._addBlobToZip(zipper, blobPath, blob);
+                    stats.totalSize += blob.size;
+                    indexEntry[blobField] = {
+                        _blobRef: `blobs/${entryId}/${blobField}.bin`,
+                        type: blob.type,
+                        size: blob.size
+                    };
+                } else {
+                    delete indexEntry[blobField];
                 }
             }
-            const db = await this._openDatabase(dbNameForExport, config.version, config.storeName);
-            const entries = await idbCursorAll(db, config.storeName);
-            db.close();
-            const total = entries.length;
-            for (let i = 0; i < entries.length; i++) {
-                const entry = entries[i];
-                const indexEntry = { ...entry };
-                const entryId = this._sanitizeZipPathSegment(entry.id || entry.cacheKey || entry.hostname || `entry_${i}`);
-                for (const blobField of config.blobFields) {
-                    const blob = entry[blobField];
-                    if (blob instanceof Blob && blob.size > 0) {
-                        const blobPath = `${basePath}/blobs/${entryId}/${blobField}.bin`;
-                        await this._addBlobToZip(zipper, blobPath, blob);
-                        stats.totalSize += blob.size;
-                        indexEntry[blobField] = {
-                            _blobRef: `blobs/${entryId}/${blobField}.bin`,
-                            type: blob.type,
-                            size: blob.size
-                        };
-                    } else {
-                        delete indexEntry[blobField];
-                    }
-                }
-                indexEntries.push(indexEntry);
-                stats.entries++;
-                if (total > 0) {
-                    onProgress?.(((i + 1) / total) * 100);
-                }
+            indexEntries.push(indexEntry);
+            stats.entries++;
+            if (total > 0) {
+                onProgress?.(((i + 1) / total) * 100);
             }
-        } catch (error) {
-            if (config.required) {
-                throw error;
-            }
-            const errorMsg = error?.message || String(error);
-            console.warn(`[BackupManager] _exportIDBToZipStream ${configKey} error: ${errorMsg}`, error);
         }
         this._addFileToZip(zipper, `${basePath}/index.json`, strToU8(JSON.stringify(indexEntries, null, 2)));
         onProgress?.(100);
@@ -603,6 +612,8 @@ export class BackupManager {
             let finishedReading = false;
             let failed = false;
             let reader = null;
+            let expandedSize = 0;
+            const paths = new Set();
             const fail = async (error) => {
                 if (failed) return;
                 failed = true;
@@ -619,17 +630,27 @@ export class BackupManager {
             };
             const unzipper = new Unzip((file) => {
                 if (!this._isSafeZipPath(file.name)) {
-                    console.warn('[BackupManager] Skipping unsafe path:', file.name);
+                    void fail(new Error('invalid_backup_unsafe_path'));
                     return;
                 }
+                if (paths.has(file.name)) { void fail(new Error('invalid_backup_duplicate_path')); return; }
+                paths.add(file.name);
+                if (paths.size > 50000) { void fail(new Error('backup_too_large')); return; }
                 const chunks = [];
+                let fileSize = 0;
                 file.ondata = (err, chunk, final) => {
+                    if (failed) return;
                     if (err) {
                         console.error('[BackupManager] Unzip file error:', err);
                         fail(err);
                         return;
                     }
                     if (chunk) {
+                        expandedSize += chunk.length;
+                        fileSize += chunk.length;
+                        if (expandedSize > 2 * 1024 * 1024 * 1024 || fileSize > MAX_IN_MEMORY_BACKUP_SIZE) {
+                            void fail(new Error('backup_too_large')); return;
+                        }
                         chunks.push(chunk);
                     }
                     if (final) {
@@ -653,7 +674,7 @@ export class BackupManager {
             reader = zipBlob.stream().getReader();
             const pump = async () => {
                 try {
-                    while (true) {
+                    while (!failed) {
                         const { done, value } = await reader.read();
                         if (done) {
                             unzipper.push(new Uint8Array(0), true);
@@ -676,9 +697,9 @@ export class BackupManager {
         return new Promise((resolve, reject) => {
             const tx = db.transaction(STAGING_DB_CONFIG.storeName, 'readwrite');
             const store = tx.objectStore(STAGING_DB_CONFIG.storeName);
-            const request = store.put({ path, blob });
-            request.onsuccess = () => resolve();
-            request.onerror = () => reject(request.error);
+            store.put({ path, blob });
+            tx.oncomplete = () => resolve();
+            tx.onabort = tx.onerror = () => reject(tx.error || new Error('staging_write_failed'));
         });
     }
     async _getStagingFile(db, path) {
@@ -755,13 +776,21 @@ export class BackupManager {
             try {
                 const index = JSON.parse(await indexData.text());
                 if (!Array.isArray(index)) return false;
+                const ids = new Set();
                 for (const entry of index) {
+                    if (!entry || typeof entry !== 'object' || Array.isArray(entry)) return false;
+                    if (config.required) {
+                        const id = entry[config.keyPath];
+                        if (typeof id !== 'string' || !id || ids.has(id)) return false;
+                        ids.add(id);
+                    }
                     for (const blobField of config.blobFields) {
                         const blobRef = entry[blobField];
                         if (blobRef && typeof blobRef === 'object' && blobRef._blobRef) {
                             const blobPath = `${basePath}/${blobRef._blobRef}`;
+                            if (!this._isSafeZipPath(blobPath)) return false;
                             const blobData = await this._getStagingFile(db, blobPath);
-                            if (!blobData) {
+                            if (!blobData || (typeof blobRef.size === 'number' && blobRef.size !== blobData.size)) {
                                 console.error(`[BackupManager] Integrity check failed: Missing blob ${blobPath}`);
                                 return false;
                             }
@@ -777,106 +806,48 @@ export class BackupManager {
     }
     async _importIDBFromStaging(configKey, stagingDb, basePath, onProgress, legacyCompatOptions = {}) {
         const config = IDB_CONFIGS[configKey];
-        try {
-            const indexData = await this._getStagingFile(stagingDb, `${basePath}/index.json`);
-            if (!indexData) {
-                if (config.required) throw new Error('backup_integrity_check_failed');
-                const db = await this._openDatabase(config.dbName, config.version, config.storeName);
-                try {
-                    await new Promise((resolve, reject) => {
-                        const tx = db.transaction(config.storeName, 'readwrite');
-                        const store = tx.objectStore(config.storeName);
-                        const req = store.clear();
-                        req.onsuccess = () => resolve();
-                        req.onerror = () => reject(req.error);
-                    });
-                } finally {
-                    db.close();
+        const indexData = await this._getStagingFile(stagingDb, basePath + '/index.json');
+        if (!indexData && config.required) throw new Error('backup_integrity_check_failed');
+        const index = indexData ? JSON.parse(await indexData.text()) : [];
+        if (!Array.isArray(index)) throw new Error('backup_integrity_check_failed');
+        const records = [];
+        let skipped = 0;
+        for (const raw of index) {
+            const entry = { ...raw };
+            for (const field of config.blobFields) {
+                const ref = entry[field];
+                if (ref?._blobRef) {
+                    const blob = await this._getStagingFile(stagingDb, basePath + '/' + ref._blobRef);
+                    if (!blob) throw new Error('backup_integrity_check_failed');
+                    entry[field] = new Blob([blob], { type: ref.type || 'application/octet-stream' });
                 }
-                onProgress?.(100);
-                return;
             }
-            const index = JSON.parse(await indexData.text());
-            if (!Array.isArray(index)) throw new Error('backup_integrity_check_failed');
-            const db = await this._openDatabase(config.dbName, config.version, config.storeName);
-            const total = index.length;
-            try {
-                await new Promise((resolve, reject) => {
-                    const tx = db.transaction(config.storeName, 'readwrite');
-                    const store = tx.objectStore(config.storeName);
-                    const req = store.clear();
-                    req.onsuccess = () => resolve();
-                    req.onerror = () => reject(req.error);
-                });
-                if (index.length === 0) {
-                    onProgress?.(100);
-                    return;
-                }
-                let skippedEntries = 0;
-                const skippedReasonCounts = new Map();
-                for (let i = 0; i < index.length; i++) {
-                    const entry = { ...index[i] };
-                    for (const blobField of config.blobFields) {
-                        const blobRef = entry[blobField];
-                        if (blobRef && typeof blobRef === 'object' && blobRef._blobRef) {
-                            const blobPath = `${basePath}/${blobRef._blobRef}`;
-                            const blobData = await this._getStagingFile(stagingDb, blobPath);
-                            if (blobData) {
-                                entry[blobField] = new Blob([blobData], { type: blobRef.type || 'application/octet-stream' });
-                            } else {
-                                delete entry[blobField];
-                            }
-                        }
-                    }
-
-                    const entriesToImport = this._normalizeEntriesForImport(configKey, entry, {
-                        iconCacheLookup: legacyCompatOptions.iconCacheLookup
-                    });
-                    for (const normalizedEntry of entriesToImport) {
-                        try {
-                            await new Promise((resolve, reject) => {
-                                const tx = db.transaction(config.storeName, 'readwrite');
-                                const store = tx.objectStore(config.storeName);
-                                const req = store.put(normalizedEntry);
-                                req.onsuccess = () => resolve();
-                                req.onerror = () => reject(req.error);
-                            });
-                        } catch (entryError) {
-                            if (config.required) {
-                                throw entryError;
-                            }
-                            const entryErrorMsg = entryError?.message || String(entryError);
-                            skippedEntries++;
-                            skippedReasonCounts.set(entryErrorMsg, (skippedReasonCounts.get(entryErrorMsg) || 0) + 1);
-                        }
-                    }
-                    if (total > 0) {
-                        onProgress?.(((i + 1) / total) * 100);
-                    }
-                }
-                if (!config.required && skippedEntries > 0) {
-                    const reasonSummary = [...skippedReasonCounts.entries()]
-                        .sort((a, b) => b[1] - a[1])
-                        .slice(0, 3)
-                        .map(([reason, count]) => `${count}x ${reason}`)
-                        .join('; ');
-                    console.warn(
-                        `[BackupManager] _importIDBFromStaging ${configKey}: skipped ${skippedEntries}/${total} invalid entries` +
-                        (reasonSummary ? ` (${reasonSummary})` : '')
-                    );
-                }
-            } finally {
-                db.close();
+            const normalized = this._normalizeEntriesForImport(configKey, entry, legacyCompatOptions);
+            if (!normalized.length) skipped++;
+            for (const record of normalized) {
+                if (!record[config.keyPath]) {
+                    if (config.required) throw new Error('backup_integrity_check_failed');
+                    skipped++;
+                } else records.push(record);
             }
-            onProgress?.(100);
-        } catch (error) {
-            if (config.required) {
-                throw error;
-            }
-            const errorMsg = error?.message || String(error);
-            console.warn(`[BackupManager] _importIDBFromStaging ${configKey} error: ${errorMsg}`, error);
-            onProgress?.(100);
         }
+        const db = await this._openDatabase(config.dbName, config.version, config.storeName);
+        try {
+            // Clear and replace in one transaction. Request success alone does
+            // not prove commit; abort keeps the previous store intact.
+            await new Promise((resolve, reject) => {
+                const tx = db.transaction(config.storeName, 'readwrite');
+                tx.oncomplete = () => resolve();
+                tx.onabort = tx.onerror = () => reject(tx.error || new Error('restore_transaction_aborted'));
+                try {
+                    const store = tx.objectStore(config.storeName);
+                    store.clear();
+                    for (const record of records) store.put(record);
+                } catch (error) { tx.abort(); reject(error); }
+            });
+        } finally { db.close(); }
+        onProgress?.(100);
+        return skipped;
     }
 
     _normalizeEntriesForImport(configKey, entry, options = {}) {

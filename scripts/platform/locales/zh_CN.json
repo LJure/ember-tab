@@ -345,5 +345,21 @@
     "localBackupSection": "本地备份",
     "webdavBackupSectionDesc": "配置您自己的 WebDAV 服务器，并保留可恢复的备份版本。",
     "webdavCredentialsLocalHint": "凭据将保存在此浏览器的本地存储中。",
-    "linkManagerSectionDesc": "在这里整理当前的快捷链接与文件夹，备份操作已单独收纳到下方。"
+    "linkManagerSectionDesc": "在这里整理当前的快捷链接与文件夹，备份操作已单独收纳到下方。",
+    "backupSkippedCache": "恢复完成；部分旧版缓存图标无法恢复。",
+    "import_backup_sync_quota_exceeded": "备份数据超出浏览器同步存储容量。",
+    "import_invalid_backup_unsafe_path": "备份包含不安全的路径。",
+    "import_invalid_backup_duplicate_path": "备份包含重复文件。",
+    "emberAttribution": "基于 nil-byte 的 Aura Tab 的非官方 Firefox 移植版，由独立项目维护，与 Mozilla 及原作者无隶属关系。",
+    "emberLicenses": "第三方许可",
+    "emberUpstream": "原项目",
+    "webdavHttpsRequired": "请使用 HTTPS WebDAV 地址，勿在网址中嵌入用户名或密码。",
+    "wallhavenUsername": "Wallhaven 用户名",
+    "wallhavenCollectionId": "收藏集 ID",
+    "wallhavenCollectionHint": "两项留空时随机获取 SFW 壁纸。指定收藏集时，填写收藏集所有者的用户名及网址 wallhaven.cc/user/用户名/favorites/数字ID 中的 ID。公开收藏集无需密钥；自己的私有收藏集需要填写上方 API Key。仅获取 SFW 图片。应用后可选择自动更换频率。",
+    "wallhavenApply": "保存并应用",
+    "wallhavenCollectionInvalid": "请同时填写有效的 Wallhaven 用户名和数字收藏集 ID，或将两项都留空。",
+    "wallhavenCollectionUnavailable": "Wallhaven 收藏集或图片不可用，请检查 ID、公开状态和 API Key。",
+    "wallhavenUploadedBy": "上传者：{name}",
+    "wallhavenOptionalKey": "Wallhaven API Key（可选）"
 }

@@ -98,6 +98,7 @@ export function libraryRemoteToWallpaperItem(lib, helpers) {
         downloadUrl: downloadUrl || rawUrl,
         username: lib.username || '',
         userUrl: lib.userUrl || '',
+        page: lib.page || '',
         description: lib.description || '',
         color: lib.color || null,
         width: lib.width || null,

@@ -1,244 +1,37 @@
 # Ember Tab
 
-An unofficial Firefox port of [Aura Tab](https://github.com/nil-byte/aura-tab), originally created by **nil-byte**. Independently maintained by [LJure](https://github.com/LJure).
+An unofficial Firefox port of [Aura Tab by nil-byte](https://github.com/nil-byte/aura-tab), based on version 3.5.3, commit a706cee56e43b80777de697dd4462083b1f97ef8. Independently maintained; not affiliated with Mozilla or the original author. The upstream [MIT license](LICENSE) and copyright are preserved.
 
-基于 Aura Tab 的非官方 Firefox 新标签页扩展。本项目独立维护，保留原项目的 MIT 许可证与版权声明。
+基于 Aura Tab 的非官方 Firefox 新标签页扩展，保留快捷链接、Dock、搜索、书签导入、本地／在线壁纸、照片、备份与 WebDAV。独立维护，名称为 **Ember Tab**。
 
-**Status: M1 foundation complete; Firefox migration has not been implemented yet.**
+**状态：0.1.0 已提交 Mozilla 公开上架审核，源码已附交，当前等待审核；尚未确认上架或取得签名包。签名安装／升级验收仍待完成。** 见 [提交进度](docs/AMO_SUBMISSION_STATUS.md)。
 
-- [Development plan and progress / 开发计划与进度](DEVELOPMENT_PLAN.md)
-- [M1 environment and baseline / 基线报告](docs/M1_BASELINE.md)
-- [Project identity and Firefox targets](ember.project.json)
-- Baseline: Aura Tab 3.5.3, commit `a706cee56e43b80777de697dd4462083b1f97ef8`.
-- Local baseline: 75 test files / 577 tests passed; ESLint reports no errors or warnings.
-- Planned first Firefox version: 0.1.0, targeting Firefox 140+ on desktop; browser verification is pending.
+## 安装与迁移
 
-There is no Ember Tab Firefox release or AMO listing yet. The current runtime and packaging script remain the upstream Chrome implementation. The upstream documentation below is retained for reference; its store links, version badges, and installation instructions refer to **Aura Tab**, not an Ember Tab release.
+使用 Node 24，依次运行 `npm ci`、`npm run build:firefox`。在 Firefox 的 `about:debugging#/runtime/this-firefox` 临时载入 `dist/firefox/manifest.json`。临时安装会在重启后移除，长期安装需要签名。目标 Firefox 140+ 桌面版；稳定版 156.0.1 与 ESR 140.16.0 已完成自动化验收矩阵，范围及剩余项目见 [M6 验收报告](docs/M6_ACCEPTANCE.md)。
 
-## Upstream Aura Tab documentation (reference)
+Aura 数据通过 ZIP 导入；用户已验证 Brave／Aura 3.5.3 的 59 链接、37.1 MB 备份、新版真实 WebDAV、Firefox 账号设置／链接同步、慢图床与自动图标尺寸修复，以及 Wallhaven 私有收藏集和 Pexels 真实取图。128 MiB 合成数据备份往返已通过；跨设备冲突合并延期至后续版本，长期轮换留待上线后持续验证，正式签名升级仍待验收。恢复不具备跨数据库与 storage 的全局回滚。
 
-[![Tests](https://github.com/nil-byte/aura-tab/actions/workflows/ci.yml/badge.svg)](https://github.com/nil-byte/aura-tab/actions)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Version](https://img.shields.io/badge/version-3.5.3-blue.svg)](https://github.com/nil-byte/aura-tab/releases)
-[![Chrome Web Store](https://img.shields.io/badge/Chrome%20Web%20Store-Install-brightgreen)](https://chromewebstore.google.com/detail/adeamimoopnlcflnpjgcfmebboajlkja)
+普通包要求图床、在线服务和 WebDAV 使用 HTTPS。仅本机集成测试可以单独生成带 `-test-http` 标记的包。Chromium 历史配置不是 Firefox 安装入口。
 
-A beautiful, customizable New Tab page for Chrome/Edge browsers with smart backgrounds, quick links management, and immersive photo viewing.
+## M5 变化
 
-[English](#features) | [中文](#功能特性)
+- 独立产品／相册／设置图标与默认壁纸（产品图标主体放大 14%），SVG 源文件随源码提供；Dock 默认行为保持上游一致。
+- 本地隐私页、Firefox 数据传输声明、完整第三方许可与包检查；未接入统计、广告或开发者后端。
+- 已移除 Unsplash／Pixabay 取图来源，保留历史收藏与备份兼容。新增 Wallhaven：随机 SFW 壁纸、指定公开／自己的私有收藏集、自动更换与上传者信息。[设置方法与验证](docs/WALLHAVEN.md)。
+- 保留 Aura 数据键、备份 schema 和已有 WebDAV 目录兼容性；关于页和变更记录明确标注分叉来源。
 
----
+## 文档
 
-## Features
+- [开发计划与接续](DEVELOPMENT_PLAN.md)
+- [M6 验收与证据](docs/M6_ACCEPTANCE.md) · [发布交接清单](docs/RELEASE_HANDOFF.md)
+- [当前服务与素材复核](docs/M6_SOURCE_REVIEW.md) · [AMO 审阅资料](docs/AMO_REVIEWER_NOTES.md)
+- [M5 结果与验证](docs/M5_RELEASE_PREPARATION.md)
+- [素材、网络和服务条款审计](docs/M5_ASSET_AND_NETWORK_AUDIT.md)
+- [动态 HTML 警告复核](docs/M5_HTML_AUDIT.md)
+- [安装、迁移、构建与分发边界](docs/DISTRIBUTION.md)
+- [隐私说明 / Privacy](privacy.html)
+- [第三方许可](THIRD_PARTY_NOTICES.md)
+- [M4 数据可靠性](docs/M4_DATA.md) · [图标恢复](docs/M4_ICON_RECOVERY.md)
 
-- 🎨 **Smart Backgrounds**: Auto-crop based on screen size with focal point detection, smart aspect ratio adaptation
-- 🖼️ **Multiple Sources**: Support for local files, Unsplash, Pixabay, and Pexels with configurable rotation
-- 🔗 **Quick Links Manager**: Folder support, drag-and-drop sorting, instant search, pagination, and pin to dock
-- 📑 **Bookmark Import**: One-click import from Chrome bookmarks with automatic deduplication
-- 🎬 **Smooth Transitions**: Beautiful fade animations when switching backgrounds with configurable interval
-- 🌐 **i18n Support**: Full Chinese (Simplified/Traditional) and English localization
-- ⚡ **Performance First**: First Paint optimization, background caching with TTL, lazy loading
-- 📱 **Responsive Design**: Adapts to different screen sizes, densities, and orientations
-- 🔒 **Privacy Focused**: WebDAV backup support for Nutstore, Synology NAS, etc., no data collection
-- 🖼️ **Immersive Photo Viewer**: Fullscreen browsing with keyboard navigation and EXIF display
-- ⚙️ **Flexible Settings**: Background blur effects, clock styles, search engine customization
-- 📦 **Launchpad Mode**: macOS-style application launcher with folder organization
-- 🔄 **Auto-refresh**: Configurable background refresh with warmup cache strategy
-
-## Screenshots
-
-### Desktop Experience
-
-![Desktop](assets/other/desktop.png)
-
-### Dock & Quick Links
-
-![Dock](assets/other/Dock.png)
-
-### Launchpad Mode
-
-![Launchpad](assets/other/launchpad.png)
-
-### Settings Window
-
-![Settings](assets/other/setting.jpg)
-
-### Photo Viewer
-
-![Photo Viewer](assets/other/photo.jpg)
-
-### More Features
-
-![Features](assets/other/case.jpg)
-
-## Installation
-
-### Chrome Web Store (Recommended)
-
-[![Chrome Web Store Version](https://img.shields.io/chrome-web-store/v/adeamimoopnlcflnpjgcfmebboajlkja.svg?label=Chrome%20Web%20Store&style=for-the-badge&logo=googlechrome&logoColor=white&color=brightgreen)](https://chromewebstore.google.com/detail/adeamimoopnlcflnpjgcfmebboajlkja)
-
-Or install directly from [Chrome Web Store](https://chromewebstore.google.com/detail/adeamimoopnlcflnpjgcfmebboajlkja)
-
-### Manual Installation (Developer Mode)
-
-1. Download the latest release from [Releases](https://github.com/nil-byte/aura-tab/releases)
-2. Unzip the file
-3. Open Chrome/Edge and navigate to `chrome://extensions` or `edge://extensions`
-4. Enable "Developer mode" in the top right
-5. Click "Load unpacked" and select the unzipped folder
-6. Open a new tab to see Aura Tab in action!
-
-## Development
-
-### Prerequisites
-
-- Node.js 20.19+
-- npm or pnpm
-
-### Setup
-
-```bash
-# Clone the repository
-git clone https://github.com/nil-byte/aura-tab.git
-cd aura-tab
-
-# Install dependencies
-npm install
-
-# Run tests
-npm test
-
-# Run tests with coverage
-npm run test:coverage
-
-# Run tests in watch mode
-npm run test:watch
-```
-
-### Project Structure
-
-```
-Aura-Tab/
-├── scripts/
-│   ├── boot/           # First paint optimization
-│   ├── domains/        # Feature modules (DDD architecture)
-│   │   ├── backgrounds/    # Background system
-│   │   ├── quicklinks/     # Quick links & launchpad
-│   │   ├── settings/       # Settings window
-│   │   ├── bookmarks/      # Bookmark import/export
-│   │   ├── photos/         # Immersive photo viewer
-│   │   └── changelog/      # Version changelog
-│   ├── platform/       # Platform abstractions
-│   └── shared/         # Shared utilities
-├── tests/              # Test files (Vitest)
-├── styles/             # CSS styles
-├── assets/             # Icons, backgrounds
-└── _locales/           # i18n translations
-```
-
-### Architecture
-
-This project follows **Domain-Driven Design (DDD)** principles:
-
-- **Domain Layer**: Business logic organized by feature domains
-- **Platform Layer**: Abstracted storage, lifecycle, and messaging
-- **Shared Layer**: Common utilities and helpers
-
-## Contributing
-
-We welcome contributions! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
-
-### Quick Start for Contributors
-
-1. Fork the repository
-2. Create your feature branch: `git checkout -b feature/amazing-feature`
-3. Commit your changes: `git commit -m 'feat: add amazing feature'`
-4. Push to the branch: `git push origin feature/amazing-feature`
-5. Open a Pull Request
-
-### Commit Convention
-
-We follow [Conventional Commits](https://www.conventionalcommits.org/):
-
-- `feat:` New feature
-- `fix:` Bug fix
-- `docs:` Documentation changes
-- `test:` Adding or updating tests
-- `refactor:` Code refactoring
-- `perf:` Performance improvements
-- `chore:` Build process or auxiliary tool changes
-
-## Changelog
-
-See [assets/changelog.json](assets/changelog.json) for detailed version history.
-
-### Latest (v3.4)
-
-- Background System: Multi-source support, smart cropping, smooth transitions
-- Quick Links: Folder support, drag-and-drop, search, bookmark import
-- Photo Viewer: Immersive fullscreen experience
-- i18n: Full Chinese and English localization
-- Toolbar Customization: Custom icon support
-- WebDAV Backup: Privacy-focused data backup
-
-## License
-
-This project is licensed under the MIT License - see [LICENSE](LICENSE) for details.
-
-## Acknowledgments
-
-This project uses the following open-source libraries:
-
-- [Interact.js](https://interactjs.io) - Drag and drop, resizing and multi-touch gestures
-- [SortableJS](https://sortablejs.github.io/Sortable) - Reorderable drag-and-drop lists
-- [fflate](https://github.com/101arrowz/fflate) - High performance compression library
-
-Background image sources:
-
-- [Unsplash](https://unsplash.com) - Beautiful free photos
-- [Pixabay](https://pixabay.com) - Free images and videos
-- [Pexels](https://pexels.com) - Free stock photos
-
----
-
-## 功能特性
-
-- 🎨 **智能背景系统**：根据屏幕尺寸自动裁剪、焦点检测、智能宽高比适配
-- 🖼️ **多源支持**：本地文件、Unsplash、Pixabay、Pexels，可配置轮播
-- 🔗 **快速链接管理器**：文件夹支持、拖拽排序、即时搜索、分页、固定到 Dock
-- 📑 **书签导入**：一键从 Chrome 书签导入，自动去重
-- 🎬 **平滑过渡动画**：切换背景时淡入淡出，可配置切换间隔
-- 🌐 **国际化**：完整的中英文（简/繁）支持
-- ⚡ **性能优先**：首屏优化、背景缓存、TTL 管理、懒加载
-- 🎭 **工具栏图标定制**：上传并应用自定义图标，实时预览
-- 📱 **响应式设计**：适配不同屏幕尺寸、密度和方向
-- 🔒 **隐私保护**：支持 WebDAV 备份（坚果云、群晖等），不收集任何数据
-- 🖼️ **沉浸式照片查看器**：全屏浏览、键盘导航、EXIF 信息显示
-- ⚙️ **灵活设置**：背景模糊效果、时钟样式、搜索引擎自定义
-- 📦 **启动台模式**：macOS 风格的应用启动器，支持文件夹组织
-- 🔄 **自动刷新**：可配置的背景刷新，预热缓存策略
-
-## 安装
-
-### Chrome Web Store（推荐）
-
-[![Chrome Web Store Version](https://img.shields.io/chrome-web-store/v/adeamimoopnlcflnpjgcfmebboajlkja.svg?label=Chrome%20Web%20Store&style=for-the-badge&logo=googlechrome&logoColor=white&color=brightgreen)](https://chromewebstore.google.com/detail/adeamimoopnlcflnpjgcfmebboajlkja)
-
-或直接访问 [Chrome Web Store](https://chromewebstore.google.com/detail/adeamimoopnlcflnpjgcfmebboajlkja) 安装
-
-### 手动安装（开发者模式）
-
-1. 从 [Releases](https://github.com/nil-byte/aura-tab/releases) 下载最新版本
-2. 解压文件
-3. 打开 Chrome/Edge，访问 `chrome://extensions` 或 `edge://extensions`
-4. 开启右上角"开发者模式"
-5. 点击"加载已解压的扩展程序"，选择解压后的文件夹
-6. 打开新标签页即可使用
-
-## 感谢
-
-如果这个项目对你有帮助，请给个 ⭐ Star！
-
-欢迎通过以下方式支持项目：
-- 在 [Chrome Web Store](https://chromewebstore.google.com/detail/adeamimoopnlcflnpjgcfmebboajlkja) 留下评价
-- 向朋友推荐
-- 提交 Issue 或 Pull Request
+GitHub Actions 保持暂停。上游宣传图和历史更新可在 [Aura Tab 仓库](https://github.com/nil-byte/aura-tab) 查看，不代表 Ember 已发布或经商店审核。

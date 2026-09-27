@@ -199,12 +199,15 @@ class LibraryStore {
         const downloadUrl = downloadCandidate || fullCandidate;
         const smallCandidate = safeString(background?.urls?.small, '');
 
-        const resolvedProvider = safeString(provider, '') || safeString(background?.provider, '') || 'unsplash';
+        const resolvedProvider = safeString(provider, '') || safeString(background?.provider, '') || 'remote';
 
         const item = {
             id,
             kind: 'remote',
             provider: resolvedProvider,
+            username: safeString(background?.username),
+            userUrl: safeString(background?.userUrl),
+            page: safeString(background?.page),
             remote: {
                 rawUrl: fullCandidate,
                 downloadUrl,

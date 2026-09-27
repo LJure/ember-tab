@@ -53,7 +53,7 @@ vi.mock('../scripts/domains/backgrounds/source-local.js', () => ({
 
 vi.mock('../scripts/domains/backgrounds/source-remote.js', () => ({
     getProvider: vi.fn(() => ({
-        name: 'Unsplash',
+        name: 'Pexels',
         fetchRandom: providerFetchRandomMock
     }))
 }));
@@ -76,10 +76,10 @@ describe('Background load resilience', () => {
         const { backgroundSystem } = await import('../scripts/domains/backgrounds/controller.js');
         backgroundSystem.settings = {
             ...backgroundSystem.settings,
-            type: 'unsplash',
+            type: 'pexels',
             apiKeys: {
                 ...backgroundSystem.settings.apiKeys,
-                unsplash: 'test-key-1234567890'
+                pexels: 'test-key-1234567890'
             }
         };
 
@@ -111,10 +111,10 @@ describe('Background load resilience', () => {
         const { backgroundSystem } = await import('../scripts/domains/backgrounds/controller.js');
         backgroundSystem.settings = {
             ...backgroundSystem.settings,
-            type: 'unsplash',
+            type: 'pexels',
             apiKeys: {
                 ...backgroundSystem.settings.apiKeys,
-                unsplash: 'test-key-1234567890'
+                pexels: 'test-key-1234567890'
             }
         };
 
@@ -143,8 +143,8 @@ describe('Background load resilience', () => {
         const { backgroundSystem } = await import('../scripts/domains/backgrounds/controller.js');
         backgroundSystem.settings = {
             ...backgroundSystem.settings,
-            type: 'unsplash',
-            apiKeys: { ...backgroundSystem.settings.apiKeys, unsplash: 'test-key' }
+            type: 'pexels',
+            apiKeys: { ...backgroundSystem.settings.apiKeys, pexels: 'test-key' }
         };
 
         const pendingLoad = backgroundSystem.loadBackground(true);
@@ -152,11 +152,11 @@ describe('Background load resilience', () => {
 
         backgroundSystem._handleSettingsChange({
             ...backgroundSystem.settings,
-            type: 'pexels'
+            type: 'wallhaven'
         });
         resolveProvider({
             format: 'image',
-            id: 'stale-unsplash',
+            id: 'stale-pexels',
             urls: {
                 full: 'https://example.com/stale-full.jpg',
                 small: 'https://example.com/stale-small.jpg'
@@ -165,6 +165,24 @@ describe('Background load resilience', () => {
         await pendingLoad;
 
         expect(runBackgroundTransitionMock).not.toHaveBeenCalled();
+    });
+
+    it('discards an in-flight image when the Wallhaven collection changes', async () => {
+        let resolveProvider;
+        providerFetchRandomMock.mockImplementationOnce(() => new Promise(resolve => { resolveProvider = resolve; }));
+        runBackgroundTransitionMock.mockResolvedValue(undefined);
+        const { backgroundSystem } = await import('../scripts/domains/backgrounds/controller.js');
+        backgroundSystem.settings = {
+            ...backgroundSystem.settings, type: 'wallhaven',
+            apiKeys: { wallhaven: 'test-key' }, wallhaven: { username: 'Owner', collectionId: '1' }
+        };
+        const pending = backgroundSystem.loadBackground(true);
+        await vi.waitFor(() => expect(providerFetchRandomMock).toHaveBeenCalledTimes(1));
+        backgroundSystem._handleSettingsChange({ ...backgroundSystem.settings, wallhaven: { username: 'Owner', collectionId: '2' } });
+        resolveProvider({ id: 'stale1', urls: { full: 'https://example.com/image.jpg' } });
+        await pending;
+        expect(runBackgroundTransitionMock).not.toHaveBeenCalled();
+        expect(backgroundSystem.nextBackground).toBeNull();
     });
 
     it('queues the latest load request instead of dropping it while locked', async () => {
@@ -186,8 +204,8 @@ describe('Background load resilience', () => {
         const { backgroundSystem } = await import('../scripts/domains/backgrounds/controller.js');
         backgroundSystem.settings = {
             ...backgroundSystem.settings,
-            type: 'unsplash',
-            apiKeys: { ...backgroundSystem.settings.apiKeys, unsplash: 'test-key' }
+            type: 'pexels',
+            apiKeys: { ...backgroundSystem.settings.apiKeys, pexels: 'test-key' }
         };
 
         const firstLoad = backgroundSystem.loadBackground(true);
@@ -220,10 +238,10 @@ describe('Background load resilience', () => {
             const { backgroundSystem } = await import('../scripts/domains/backgrounds/controller.js');
             backgroundSystem.settings = {
                 ...backgroundSystem.settings,
-                type: 'unsplash',
+                type: 'pexels',
                 apiKeys: {
                     ...backgroundSystem.settings.apiKeys,
-                    unsplash: 'test-key-1234567890'
+                    pexels: 'test-key-1234567890'
                 }
             };
 

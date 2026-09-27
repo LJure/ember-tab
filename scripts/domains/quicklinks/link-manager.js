@@ -253,7 +253,7 @@ export class LinkManagerComponent {
         const customIconAttr = item.icon ? ` data-custom-icon="${escapeHtml(item.icon)}"` : '';
 
         return `
-            <li class="mac-list-item${isSelected ? ' selected' : ''}" data-id="${item._id}">
+            <li class="mac-list-item${isSelected ? ' selected' : ''}" data-id="${escapeHtml(item._id)}">
                 <div class="list-item-checkbox-area">
                     <label class="mac-checkbox">
                         <input type="checkbox" class="item-checkbox" ${isSelected ? 'checked' : ''}${this._isProcessing ? ' disabled' : ''}>
@@ -520,7 +520,7 @@ export class LinkManagerComponent {
                 cacheKey,
                 customIconUrl: customIcon || undefined,
                 pageUrl: customIcon ? undefined : url,
-                onPending: customIcon ? undefined : fallbackToInitial,
+                onPending: fallbackToInitial,
                 onResolved: () => {
                     fallbackNode?.remove();
                     fallbackNode = null;

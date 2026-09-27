@@ -32,7 +32,7 @@ describe('Background smart crop integration', () => {
         setViewport(1600, 900);
         backgroundSystem.settings = {
             ...backgroundSystem.settings,
-            type: 'unsplash',
+            type: 'pexels',
             smartCropEnabled: true
         };
     });
@@ -155,11 +155,11 @@ describe('Background smart crop integration', () => {
     it('should prefer single-stage render mode for online source when smart crop is enabled', () => {
         backgroundSystem.settings = {
             ...backgroundSystem.settings,
-            type: 'unsplash',
+            type: 'pexels',
             smartCropEnabled: true
         };
 
-        expect(backgroundSystem._getApplyOptions('unsplash')).toEqual({ renderMode: 'single-stage' });
+        expect(backgroundSystem._getApplyOptions('pexels')).toEqual({ renderMode: 'single-stage' });
     });
 
     it('should keep progressive render mode for local files even when smart crop is enabled', () => {
@@ -188,7 +188,7 @@ describe('Background smart crop integration', () => {
             }
         };
 
-        backgroundSystem.nextBackground = { background: bg, type: 'unsplash' };
+        backgroundSystem.nextBackground = { background: bg, type: 'pexels' };
         setViewport(3440, 1440);
 
         const prepareSpy = vi.spyOn(backgroundSystem, '_prepareBackgroundForDisplay');

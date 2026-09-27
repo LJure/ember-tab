@@ -1,3 +1,4 @@
+import { escapeHtml } from '../../shared/text.js'
 import { t, initHtmlI18n } from '../../platform/i18n.js'
 
 const cls = {
@@ -75,7 +76,7 @@ export function mount({ title, version, items, moreUrl, onClose, onMore }) {
   titleEl.textContent = title || t('changelog_title') || "What's new"
 
   const verEl = root.querySelector(`.${cls.version}`)
-  verEl.innerHTML = `<span data-i18n="changelog_subtitle">${t('changelog_subtitle') || 'Version'}</span> ${version || ''}`
+  verEl.innerHTML = `<span data-i18n="changelog_subtitle">${t('changelog_subtitle') || 'Version'}</span> ${escapeHtml(version || '')}`
 
   const listEl = root.querySelector(`.${cls.list}`)
   listEl.innerHTML = ''
@@ -121,7 +122,7 @@ export function updateContent({ items, version }) {
   // Update version if needed
   if (version) {
     const verEl = root.querySelector(`.${cls.version}`)
-    verEl.innerHTML = `<span data-i18n="changelog_subtitle">${t('changelog_subtitle') || 'Version'}</span> ${version}`
+    verEl.innerHTML = `<span data-i18n="changelog_subtitle">${t('changelog_subtitle') || 'Version'}</span> ${escapeHtml(version)}`
   }
 
   // Re-run i18n

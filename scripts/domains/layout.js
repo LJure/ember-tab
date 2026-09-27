@@ -1,4 +1,5 @@
 
+import { t } from '../platform/i18n.js';
 import { modalLayer } from '../platform/modal-layer.js';
 import { DisposableComponent } from '../platform/lifecycle.js';
 import { launchpad } from './quicklinks/launchpad.js';
@@ -245,9 +246,24 @@ export class LayoutManager extends DisposableComponent {
                 ? appliedBackground
                 : this.backgroundSystem.getCurrentBackground?.();
 
+            // Required source credit remains visible for online licensed images.
+            const provider = currentBg?.provider || this.backgroundSystem.settings?.type;
+            this.photoAuthor?.querySelector('.author-prefix')?.classList.toggle('hidden', provider === 'wallhaven');
+            const sourceCredit = provider === 'wallhaven' ? 'Wallhaven' : provider === 'pexels' ? 'Pexels' : '';
+            if (sourceCredit && currentBg?.username) this.cornerTopRight?.classList.add('always-visible');
+
             if (currentBg?.username && this.authorName && this.photoAuthor) {
-                this.authorName.textContent = currentBg.username;
-                const page = typeof currentBg.page === 'string' ? currentBg.page.trim() : '';
+                this.authorName.textContent = provider === 'wallhaven'
+                    ? t('wallhavenUploadedBy', { name: currentBg.username })
+                    : currentBg.username + (sourceCredit ? ` · ${sourceCredit}` : '');
+                const candidate = provider === 'pexels'
+                    ? currentBg.page || currentBg.userUrl
+                    : currentBg.userUrl || currentBg.page;
+                let page = '';
+                try {
+                    const url = new URL(candidate);
+                    if (url.protocol === 'https:' && !url.username && !url.password) page = url.href;
+                } catch { /* Untrusted restored metadata must not create active URLs. */ }
                 if (page) {
                     this.photoAuthor.setAttribute('href', page);
                     this.photoAuthor.removeAttribute('aria-disabled');
@@ -501,6 +517,7 @@ export class LayoutManager extends DisposableComponent {
         }
 
         try {
+            await this.backgroundSystem.whenReady?.();
             await this.backgroundSystem.refresh();
         } catch (error) {
             console.error('Failed to refresh background:', error);

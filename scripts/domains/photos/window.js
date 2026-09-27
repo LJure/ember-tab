@@ -1,3 +1,4 @@
+import { isOwnExtensionUrl } from '../../platform/extension-urls.js';
 import { MacWindowBase } from '../../platform/mac-window-base.js';
 import { t, initHtmlI18n } from '../../platform/i18n.js';
 import { toast } from '../../shared/toast.js';
@@ -6,11 +7,10 @@ import { ICONS } from './icons.js';
 import { libraryRemoteToWallpaperItem } from './mappers.js';
 import { ImmersiveViewer } from './immersive-viewer.js';
 
-const REMOTE_PROVIDER_CATEGORIES = ['unsplash', 'pixabay', 'pexels', 'bing'];
+const REMOTE_PROVIDER_CATEGORIES = ['wallhaven', 'pexels', 'bing'];
 const REMOTE_PROVIDER_CATEGORY_SET = new Set(REMOTE_PROVIDER_CATEGORIES);
 const REMOTE_PROVIDER_META = {
-    unsplash: { icon: 'camera', label: 'Unsplash' },
-    pixabay: { icon: 'image', label: 'Pixabay' },
+    wallhaven: { icon: 'image', label: 'Wallhaven' },
     pexels: { icon: 'pexels', label: 'Pexels' },
     bing: { icon: 'bing', label: 'Bing', i18nKey: 'photosBing' }
 };
@@ -144,7 +144,7 @@ export class PhotosWindow extends MacWindowBase {
     _isSafeUrl(url, { allowBlob = true, allowExtension = true } = {}) {
         if (!url || typeof url !== 'string') return false;
         if (allowBlob && url.startsWith('blob:')) return true;
-        if (allowExtension && url.startsWith('chrome-extension:')) return true;
+        if (allowExtension && isOwnExtensionUrl(url)) return true;
         try {
             const u = new URL(url);
             return u.protocol === 'http:' || u.protocol === 'https:';
@@ -683,8 +683,7 @@ export class PhotosWindow extends MacWindowBase {
                 'all': t('photosAll') || 'All',
                 'favorites': t('photosFavorites') || 'Favorites',
                 'local': t('photosLocal') || 'Local',
-                'unsplash': 'Unsplash',
-                'pixabay': 'Pixabay',
+                'wallhaven': 'Wallhaven',
                 'pexels': 'Pexels',
                 'bing': t('photosBing') || 'Bing'
             };
@@ -859,8 +858,7 @@ export class PhotosWindow extends MacWindowBase {
         icon.innerHTML = this._getEmptyStateIcon(category);
         switch (category) {
             case 'favorites':
-            case 'unsplash':
-            case 'pixabay':
+            case 'wallhaven':
             case 'pexels':
             case 'bing':
                 title.dataset.i18n = 'photosNoFavorites';
@@ -889,9 +887,7 @@ export class PhotosWindow extends MacWindowBase {
     }
     _getEmptyStateIcon(category) {
         switch (category) {
-            case 'unsplash':
-                return ICONS.camera;
-            case 'pixabay':
+            case 'wallhaven':
                 return ICONS.image;
             case 'pexels':
                 return ICONS.pexels;
@@ -1178,7 +1174,7 @@ export class PhotosWindow extends MacWindowBase {
         const isFavorited = wallpaper?.isFavorited === true;
         const isLocalPresent = wallpaper?.isLocalPresent !== false;
         const id = String(wallpaper?.id ?? '');
-        const source = String(wallpaper?.source ?? 'unsplash');
+        const source = String(wallpaper?.source ?? 'remote');
         const authorName = String(wallpaper?.username || wallpaper?.favoriteData?.username || '');
         const el = document.createElement('article');
         el.className = `photos-card${isFavorited ? ' is-favorite' : ''}${isLocal ? ' is-local' : ''}`;
@@ -1345,7 +1341,9 @@ export class PhotosWindow extends MacWindowBase {
                         },
                         downloadUrl: remote.downloadUrl || fav.downloadUrl,
                         username: fav.username,
-                        page: fav.userUrl || fav.page,
+                        provider: fav.provider,
+                        userUrl: fav.userUrl,
+                        page: fav.page || fav.userUrl,
                         color: fav.color
                     };
                     break;

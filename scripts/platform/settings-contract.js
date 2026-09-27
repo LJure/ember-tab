@@ -19,6 +19,7 @@ export function createBackgroundSettingsDefaults(overrides = {}) {
     return {
         ...BACKGROUND_DEFAULT_SETTINGS,
         ...safeOverrides,
+        wallhaven: { ...BACKGROUND_DEFAULT_SETTINGS.wallhaven, ...(safeOverrides.wallhaven || {}) },
         texture: {
             ...(BACKGROUND_DEFAULT_SETTINGS.texture || {}),
             ...textureOverrides

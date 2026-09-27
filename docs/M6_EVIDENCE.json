@@ -1,0 +1,774 @@
+{
+  "date": "2026-09-27",
+  "amoSubmission": {
+    "date": "2026-09-27",
+    "status": "awaiting-review",
+    "slug": "ember-tab-firefox",
+    "versionId": 6519175,
+    "fileId": 5063322,
+    "sourceAttached": true,
+    "onlineValidation": { "errors": 0, "warnings": 52 },
+    "signedPackageRetrieved": false,
+    "signedInstallAcceptance": "pending",
+    "details": "docs/AMO_SUBMISSION_STATUS.md",
+    "note": "Submission of the existing candidate; no runtime change or new test run. Earlier distributionPending lists are historical candidate-stage snapshots."
+  },
+  "baseCommit": "6bca1ee",
+  "note": "Working tree M6 changes; raw disposable-profile evidence is ignored under .local/m6",
+  "system": "Microsoft Windows NT 10.0.26200.0",
+  "unitTests": {
+    "passed": 629,
+    "files": 84
+  },
+  "suites": [
+    {
+      "name": "stable-m3",
+      "source": ".local/m6/stable-m3/firefox-smoke.json",
+      "browserVersion": "156.0.1",
+      "packageSha256": "043f2e428bae871900dde08a03b828d6c521b0be5dda7a2bb2839f4be9a3ab11",
+      "startedAt": "2026-09-27T13:55:07.348Z",
+      "finishedAt": "2026-09-27T13:55:28.466Z",
+      "status": "passed",
+      "checks": [
+        "temporary installation and fixed Gecko ID",
+        "new tab boot, localized search and clock",
+        "first-install background defaults",
+        "asynchronous background message reply",
+        "settings UI language and theme changes",
+        "settings survive page reload; local and session Promise APIs",
+        "message wakes suspended module event page",
+        "storage event wakes background and creates hourly alarm",
+        "alarm wakes suspended background and broadcasts refresh",
+        "extension reload preserves settings and restores handlers",
+        "M3 declared SVG, base URL, redirect and manifest icon discovery",
+        "M3 conventional favicon, corrupt image and absent icon fallback",
+        "M3 icon byte limit and stalled response deadline",
+        "M3 manual icon blob cache and offline reuse",
+        "M3 real Firefox bookmark roots, separators, duplicates and import",
+        "M3 add shortcut in UI with custom icon and Dock pin",
+        "M3 folder, edit, reorder, pagination and deletion using real storage",
+        "M3 Dock pointer drag persists order",
+        "M3 launchpad opens, searches and closes with Escape",
+        "M3 local wallpaper upload, selection, crop and reload",
+        "M3 solid wallpaper and missing API-key fallback",
+        "M3 photo thumbnails, expand and window dragging",
+        "M3 offline local wallpaper and viewport sizes",
+        "M3 locales, launchpad shortcut and browser zoom",
+        "M3 default Firefox search, Chinese query and both tab dispositions",
+        "M3 selected Bing engine preserves query and tab preference"
+      ],
+      "diagnosticCount": 174,
+      "liveBing": {
+        "height": 768,
+        "id": "bing-20260926-zh-cn",
+        "status": "passed",
+        "width": 1366
+      }
+    },
+    {
+      "name": "esr140-m3",
+      "source": ".local/m6/esr140-m3/firefox-smoke.json",
+      "browserVersion": "140.16.0",
+      "packageSha256": "043f2e428bae871900dde08a03b828d6c521b0be5dda7a2bb2839f4be9a3ab11",
+      "startedAt": "2026-09-27T13:58:44.11Z",
+      "finishedAt": "2026-09-27T13:59:09.923Z",
+      "status": "passed",
+      "checks": [
+        "temporary installation and fixed Gecko ID",
+        "new tab boot, localized search and clock",
+        "first-install background defaults",
+        "asynchronous background message reply",
+        "settings UI language and theme changes",
+        "settings survive page reload; local and session Promise APIs",
+        "message wakes suspended module event page",
+        "storage event wakes background and creates hourly alarm",
+        "alarm wakes suspended background and broadcasts refresh",
+        "extension reload preserves settings and restores handlers",
+        "M3 declared SVG, base URL, redirect and manifest icon discovery",
+        "M3 conventional favicon, corrupt image and absent icon fallback",
+        "M3 icon byte limit and stalled response deadline",
+        "M3 manual icon blob cache and offline reuse",
+        "M3 real Firefox bookmark roots, separators, duplicates and import",
+        "M3 add shortcut in UI with custom icon and Dock pin",
+        "M3 folder, edit, reorder, pagination and deletion using real storage",
+        "M3 Dock pointer drag persists order",
+        "M3 launchpad opens, searches and closes with Escape",
+        "M3 local wallpaper upload, selection, crop and reload",
+        "M3 solid wallpaper and missing API-key fallback",
+        "M3 photo thumbnails, expand and window dragging",
+        "M3 offline local wallpaper and viewport sizes",
+        "M3 locales, launchpad shortcut and browser zoom",
+        "M3 default Firefox search, Chinese query and both tab dispositions",
+        "M3 selected Bing engine preserves query and tab preference"
+      ],
+      "diagnosticCount": 164
+    },
+    {
+      "name": "stable-m4",
+      "source": ".local/m6/stable-m4/firefox-smoke.json",
+      "browserVersion": "156.0.1",
+      "packageSha256": "043f2e428bae871900dde08a03b828d6c521b0be5dda7a2bb2839f4be9a3ab11",
+      "startedAt": "2026-09-27T13:56:05.626Z",
+      "finishedAt": "2026-09-27T13:56:24.215Z",
+      "status": "passed",
+      "checks": [
+        "temporary installation and fixed Gecko ID",
+        "new tab boot, localized search and clock",
+        "first-install background defaults",
+        "asynchronous background message reply",
+        "settings UI language and theme changes",
+        "settings survive page reload; local and session Promise APIs",
+        "message wakes suspended module event page",
+        "storage event wakes background and creates hourly alarm",
+        "alarm wakes suspended background and broadcasts refresh",
+        "extension reload preserves settings and restores handlers",
+        "M4 seed real storage, image blobs and custom icon cache",
+        "M4 upstream exporter ZIP imports into Ember with image data",
+        "M4 own ZIP round trip preserves settings, links, icons and image bytes",
+        "M4 corrupt, incomplete and oversized-quota archives preserve live data",
+        "M4 Firefox native download fallback produces a readable ZIP",
+        "M4 OPFS upload backup capability and temporary file cleanup",
+        "M4 WebDAV connection, nested directory, PUT, namespace listing, GET and restore",
+        "M4 WebDAV auth, denied listing, stalled body and interrupted transfer fail visibly",
+        "M4 two tabs commit concurrently without losing links or exceeding chunk size",
+        "M4 partial Sync delivery preserves data and recovers when chunks arrive",
+        "M4 Firefox rejects an oversized storage.sync key without writing it",
+        "M4 128 MiB binary library streams through OPFS and restores with matching hashes",
+        "M4 disabled and reenabled extension preserves storage and blobs"
+      ],
+      "diagnosticCount": 0,
+      "largeBackup": {
+        "result": {
+          "archiveBytes": 134242014,
+          "count": 16,
+          "exportedMs": 7092,
+          "hashesMatch": true,
+          "inputBytes": 134217728,
+          "restore": {
+            "skippedCacheEntries": 0,
+            "success": true
+          },
+          "totalMs": 9047,
+          "usedStreaming": true
+        },
+        "memory": {
+          "baselineBytes": 1126649856,
+          "observedPeakBytes": 1337446400,
+          "samples": 12,
+          "intervalMs": 500
+        }
+      }
+    },
+    {
+      "name": "esr140-m4",
+      "source": ".local/m6/esr140-m4/firefox-smoke.json",
+      "browserVersion": "140.16.0",
+      "packageSha256": "043f2e428bae871900dde08a03b828d6c521b0be5dda7a2bb2839f4be9a3ab11",
+      "startedAt": "2026-09-27T13:56:58.628Z",
+      "finishedAt": "2026-09-27T13:57:26.765Z",
+      "status": "passed",
+      "checks": [
+        "temporary installation and fixed Gecko ID",
+        "new tab boot, localized search and clock",
+        "first-install background defaults",
+        "asynchronous background message reply",
+        "settings UI language and theme changes",
+        "settings survive page reload; local and session Promise APIs",
+        "message wakes suspended module event page",
+        "storage event wakes background and creates hourly alarm",
+        "alarm wakes suspended background and broadcasts refresh",
+        "extension reload preserves settings and restores handlers",
+        "M4 seed real storage, image blobs and custom icon cache",
+        "M4 upstream exporter ZIP imports into Ember with image data",
+        "M4 own ZIP round trip preserves settings, links, icons and image bytes",
+        "M4 corrupt, incomplete and oversized-quota archives preserve live data",
+        "M4 Firefox native download fallback produces a readable ZIP",
+        "M4 OPFS upload backup capability and temporary file cleanup",
+        "M4 WebDAV connection, nested directory, PUT, namespace listing, GET and restore",
+        "M4 WebDAV auth, denied listing, stalled body and interrupted transfer fail visibly",
+        "M4 two tabs commit concurrently without losing links or exceeding chunk size",
+        "M4 partial Sync delivery preserves data and recovers when chunks arrive",
+        "M4 Firefox rejects an oversized storage.sync key without writing it",
+        "M4 128 MiB binary library streams through OPFS and restores with matching hashes",
+        "M4 disabled and reenabled extension preserves storage and blobs"
+      ],
+      "diagnosticCount": 0,
+      "largeBackup": {
+        "result": {
+          "archiveBytes": 134254361,
+          "count": 16,
+          "exportedMs": 12215,
+          "hashesMatch": true,
+          "inputBytes": 134217728,
+          "restore": {
+            "skippedCacheEntries": 0,
+            "success": true
+          },
+          "totalMs": 16992,
+          "usedStreaming": true
+        },
+        "memory": {
+          "baselineBytes": 1157939200,
+          "observedPeakBytes": 1162002432,
+          "samples": 20,
+          "intervalMs": 500
+        }
+      }
+    },
+    {
+      "name": "stable-m5",
+      "source": ".local/m6/stable-m5/firefox-smoke.json",
+      "browserVersion": "156.0.1",
+      "packageSha256": "b3e29cab480eadca0de2a2e9aacba25c95dca6458016b6fb9ba309d8aa544eb9",
+      "startedAt": "2026-09-27T13:52:17.161Z",
+      "finishedAt": "2026-09-27T13:52:35.122Z",
+      "status": "passed",
+      "checks": [
+        "temporary installation and fixed Gecko ID",
+        "new tab boot, localized search and clock",
+        "first-install background defaults",
+        "asynchronous background message reply",
+        "settings UI language and theme changes",
+        "settings survive page reload; local and session Promise APIs",
+        "message wakes suspended module event page",
+        "storage event wakes background and creates hourly alarm",
+        "alarm wakes suspended background and broadcasts refresh",
+        "extension reload preserves settings and restores handlers",
+        "M5 normal package declares data and denies plaintext hosts",
+        "M5 packaged icons decode at declared sizes",
+        "M5 about attribution and local privacy in zh-CN",
+        "M5 about attribution and local privacy in zh-TW",
+        "M5 about attribution and local privacy in en",
+        "M5 local privacy renders with no remote subresources",
+        "Wallhaven appearance controls in zh-CN",
+        "Wallhaven appearance controls in zh-TW",
+        "Wallhaven appearance controls in en",
+        "Wallhaven live public collection through UI, uploader and favorite metadata"
+      ],
+      "diagnosticCount": 1
+    },
+    {
+      "name": "esr140-m5",
+      "source": ".local/m6/esr140-m5/firefox-smoke.json",
+      "browserVersion": "140.16.0",
+      "packageSha256": "b3e29cab480eadca0de2a2e9aacba25c95dca6458016b6fb9ba309d8aa544eb9",
+      "startedAt": "2026-09-27T13:52:30.392Z",
+      "finishedAt": "2026-09-27T13:52:44.827Z",
+      "status": "passed",
+      "checks": [
+        "temporary installation and fixed Gecko ID",
+        "new tab boot, localized search and clock",
+        "first-install background defaults",
+        "asynchronous background message reply",
+        "settings UI language and theme changes",
+        "settings survive page reload; local and session Promise APIs",
+        "message wakes suspended module event page",
+        "storage event wakes background and creates hourly alarm",
+        "alarm wakes suspended background and broadcasts refresh",
+        "extension reload preserves settings and restores handlers",
+        "M5 normal package declares data and denies plaintext hosts",
+        "M5 packaged icons decode at declared sizes",
+        "M5 about attribution and local privacy in zh-CN",
+        "M5 about attribution and local privacy in zh-TW",
+        "M5 about attribution and local privacy in en",
+        "M5 local privacy renders with no remote subresources",
+        "Wallhaven appearance controls in zh-CN",
+        "Wallhaven appearance controls in zh-TW",
+        "Wallhaven appearance controls in en"
+      ],
+      "diagnosticCount": 1
+    },
+    {
+      "name": "stable-stress",
+      "source": ".local/m6/stable-stress/firefox-smoke.json",
+      "browserVersion": "156.0.1",
+      "packageSha256": "b3e29cab480eadca0de2a2e9aacba25c95dca6458016b6fb9ba309d8aa544eb9",
+      "startedAt": "2026-09-27T14:04:29.587Z",
+      "finishedAt": "2026-09-27T14:04:41.339Z",
+      "status": "passed",
+      "checks": [
+        "temporary installation and fixed Gecko ID",
+        "new tab boot, localized search and clock",
+        "first-install background defaults",
+        "asynchronous background message reply",
+        "settings UI language and theme changes",
+        "settings survive page reload; local and session Promise APIs",
+        "message wakes suspended module event page",
+        "storage event wakes background and creates hourly alarm",
+        "alarm wakes suspended background and broadcasts refresh",
+        "extension reload preserves settings and restores handlers",
+        "M6 remote staging survives local commit and late active pointer",
+        "M6 link order arriving before matching chunks keeps the last complete view",
+        "M6 interrupted restore reports failure and a retry completes",
+        "M6 repeated tab teardown leaves background messaging and storage usable",
+        "M6 Bing refresh immediately after new-tab navigation completes"
+      ],
+      "diagnosticCount": 6,
+      "syncStaging": {
+        "recovered": true,
+        "retained": true,
+        "stillPresent": true
+      },
+      "syncOrder": {
+        "blocked": true,
+        "preserved": true,
+        "recovered": true
+      },
+      "restoreInterruption": {
+        "blob": "archive",
+        "interrupted": {
+          "error": "M6_INJECTED_INTERRUPTION",
+          "success": false
+        },
+        "marker": "archive",
+        "partial": {
+          "blob": "archive",
+          "marker": "live"
+        },
+        "retry": {
+          "skippedCacheEntries": 0,
+          "success": true
+        }
+      },
+      "contextPressure": {
+        "allReplied": true,
+        "marker": "retained",
+        "replies": 20,
+        "closedTabs": 20
+      },
+      "startupBing": {
+        "height": 768,
+        "id": "bing-20260926-zh-cn",
+        "width": 1366,
+        "clickAtMs": 69
+      }
+    },
+    {
+      "name": "esr140-stress",
+      "source": ".local/m6/esr140-stress/firefox-smoke.json",
+      "browserVersion": "140.16.0",
+      "packageSha256": "b3e29cab480eadca0de2a2e9aacba25c95dca6458016b6fb9ba309d8aa544eb9",
+      "startedAt": "2026-09-27T13:54:32.959Z",
+      "finishedAt": "2026-09-27T13:54:41.348Z",
+      "status": "passed",
+      "checks": [
+        "temporary installation and fixed Gecko ID",
+        "new tab boot, localized search and clock",
+        "first-install background defaults",
+        "asynchronous background message reply",
+        "settings UI language and theme changes",
+        "settings survive page reload; local and session Promise APIs",
+        "message wakes suspended module event page",
+        "storage event wakes background and creates hourly alarm",
+        "alarm wakes suspended background and broadcasts refresh",
+        "extension reload preserves settings and restores handlers",
+        "M6 remote staging survives local commit and late active pointer",
+        "M6 link order arriving before matching chunks keeps the last complete view",
+        "M6 interrupted restore reports failure and a retry completes",
+        "M6 repeated tab teardown leaves background messaging and storage usable"
+      ],
+      "diagnosticCount": 2,
+      "syncStaging": {
+        "recovered": true,
+        "retained": true,
+        "stillPresent": true
+      },
+      "syncOrder": {
+        "blocked": true,
+        "preserved": true,
+        "recovered": true
+      },
+      "restoreInterruption": {
+        "blob": "archive",
+        "interrupted": {
+          "error": "M6_INJECTED_INTERRUPTION",
+          "success": false
+        },
+        "marker": "archive",
+        "partial": {
+          "blob": "archive",
+          "marker": "live"
+        },
+        "retry": {
+          "skippedCacheEntries": 0,
+          "success": true
+        }
+      },
+      "contextPressure": {
+        "allReplied": true,
+        "marker": "retained",
+        "replies": 20,
+        "closedTabs": 20
+      }
+    }
+  ],
+  "lifecycle": [
+    {
+      "name": "stable-lifecycle",
+      "browserVersion": "156.0.1",
+      "packageSha256": "b3e29cab480eadca0de2a2e9aacba25c95dca6458016b6fb9ba309d8aa544eb9",
+      "status": "passed",
+      "testOnlyVersion": "0.1.1",
+      "upgrade": {
+        "blob": "restart-image-bytes",
+        "marker": "persisted",
+        "version": "0.1.1"
+      },
+      "restart": {
+        "blob": "restart-image-bytes",
+        "marker": "persisted",
+        "version": "0.1.1"
+      },
+      "restartDataPreserved": true
+    },
+    {
+      "name": "esr140-lifecycle",
+      "browserVersion": "140.16.0",
+      "packageSha256": "b3e29cab480eadca0de2a2e9aacba25c95dca6458016b6fb9ba309d8aa544eb9",
+      "status": "passed",
+      "testOnlyVersion": "0.1.1",
+      "upgrade": {
+        "blob": "restart-image-bytes",
+        "marker": "persisted",
+        "version": "0.1.1"
+      },
+      "restart": {
+        "blob": "restart-image-bytes",
+        "marker": "persisted",
+        "version": "0.1.1"
+      },
+      "restartDataPreserved": true
+    }
+  ],
+  "userFeedback": {
+    "syncConflicts": "Deferred by user to a later version; not implemented",
+    "date": "2026-09-27",
+    "realWebdavNewVersion": "User reports passed; service and error-case details unspecified",
+    "longRunningRotation": "Deferred by user to post-release ongoing validation",
+    "wallhavenPrivateCollection": "User reports passed; version and error-case details unspecified",
+    "automaticIconSize": "User reports follow-up fix passed; feedback follows f234abf; exact installed package and browser version unspecified",
+    "pexelsRealApiKey": "User confirms Pexels verified; retain provider, superseding earlier removal choice; browser version and error-case details unspecified",
+    "interruptedRestoreProtection": "Deferred by user to later versions; retain existing handling; no automatic safety copy or global rollback; not a first-release gate",
+    "permissionRevocation": "Deferred by user to later versions; retain existing handling; not verified and not a first-release gate",
+    "bingWallpaper": "User explicitly retains Bing unchanged; scope decision, not an independently verified authorization grant"
+  },
+  "iconSizeFollowup": {
+    "suites": [
+      {
+        "browserVersion": "156.0.1",
+        "iconSize": [
+          {
+            "displayWidth": 64,
+            "height": 108,
+            "name": "Auto Dock",
+            "width": 108
+          },
+          {
+            "displayWidth": 64,
+            "height": 108,
+            "name": "Auto Grid",
+            "width": 108
+          },
+          {
+            "displayWidth": 64,
+            "height": 128,
+            "name": "Custom",
+            "width": 128
+          }
+        ],
+        "packageSha256": "973423ee261bc9cb784a2f8d067e06f91f3d53b0472651e3ae391763c37050c7",
+        "startedAt": "2026-09-27T14:21:12.228Z",
+        "status": "passed",
+        "finishedAt": "2026-09-27T14:21:20.214Z",
+        "name": "stable",
+        "liveIconSize": {
+          "displayHeight": 112,
+          "displayWidth": 112,
+          "originalHeight": 129,
+          "originalWidth": 128,
+          "source": "https://picasso-static.xiaohongshu.com/fe-platform/fbd46ec8a907ca6a8cacc9596f18ff495c639feb.png"
+        },
+        "checks": [
+          "temporary installation and fixed Gecko ID",
+          "new tab boot, localized search and clock",
+          "first-install background defaults",
+          "asynchronous background message reply",
+          "settings UI language and theme changes",
+          "settings survive page reload; local and session Promise APIs",
+          "message wakes suspended module event page",
+          "storage event wakes background and creates hourly alarm",
+          "alarm wakes suspended background and broadcasts refresh",
+          "extension reload preserves settings and restores handlers",
+          "Automatic cached icons fill equal Dock and Launchpad image boxes",
+          "Custom images preserve their original padding",
+          "Display normalization preserves original cache bytes and source",
+          "Live Xiaohongshu automatic icon and cached reload remove transparent padding"
+        ]
+      },
+      {
+        "browserVersion": "140.16.0",
+        "iconSize": [
+          {
+            "displayWidth": 64,
+            "height": 108,
+            "name": "Auto Dock",
+            "width": 108
+          },
+          {
+            "displayWidth": 64,
+            "height": 108,
+            "name": "Auto Grid",
+            "width": 108
+          },
+          {
+            "displayWidth": 64,
+            "height": 128,
+            "name": "Custom",
+            "width": 128
+          }
+        ],
+        "packageSha256": "973423ee261bc9cb784a2f8d067e06f91f3d53b0472651e3ae391763c37050c7",
+        "startedAt": "2026-09-27T14:21:48.697Z",
+        "status": "passed",
+        "finishedAt": "2026-09-27T14:21:55.491Z",
+        "name": "esr140",
+        "checks": [
+          "temporary installation and fixed Gecko ID",
+          "new tab boot, localized search and clock",
+          "first-install background defaults",
+          "asynchronous background message reply",
+          "settings UI language and theme changes",
+          "settings survive page reload; local and session Promise APIs",
+          "message wakes suspended module event page",
+          "storage event wakes background and creates hourly alarm",
+          "alarm wakes suspended background and broadcasts refresh",
+          "extension reload preserves settings and restores handlers",
+          "Automatic cached icons fill equal Dock and Launchpad image boxes",
+          "Custom images preserve their original padding",
+          "Display normalization preserves original cache bytes and source"
+        ]
+      }
+    ],
+    "unitTests": {
+      "passed": 636,
+      "files": 85
+    }
+  },
+  "iconSizeBackupFollowup": {
+    "backupFinding": {
+      "sourceHost": "favicon.vemetric.com",
+      "opaqueCanvas": true,
+      "height": 128,
+      "mode": "auto",
+      "width": 128
+    },
+    "unitTests": {
+      "files": 85,
+      "passed": 637
+    },
+    "suites": [
+      {
+        "name": "stable",
+        "finishedAt": "2026-09-27T14:33:34.395Z",
+        "liveIconSize": {
+          "displayHeight": 107,
+          "displayWidth": 107,
+          "originalHeight": 129,
+          "originalWidth": 128,
+          "source": "https://picasso-static.xiaohongshu.com/fe-platform/fbd46ec8a907ca6a8cacc9596f18ff495c639feb.png",
+          "visibleHeightRatio": 1,
+          "visibleWidthRatio": 1
+        },
+        "startedAt": "2026-09-27T14:33:26.667Z",
+        "iconSize": [
+          {
+            "displayWidth": 64,
+            "height": 108,
+            "name": "Auto Dock",
+            "width": 108
+          },
+          {
+            "displayWidth": 64,
+            "height": 108,
+            "name": "Auto Grid",
+            "width": 108
+          },
+          {
+            "displayWidth": 64,
+            "height": 128,
+            "name": "Custom",
+            "width": 128
+          }
+        ],
+        "checks": [
+          "temporary installation and fixed Gecko ID",
+          "new tab boot, localized search and clock",
+          "first-install background defaults",
+          "asynchronous background message reply",
+          "settings UI language and theme changes",
+          "settings survive page reload; local and session Promise APIs",
+          "message wakes suspended module event page",
+          "storage event wakes background and creates hourly alarm",
+          "alarm wakes suspended background and broadcasts refresh",
+          "extension reload preserves settings and restores handlers",
+          "Automatic cached icons fill equal Dock and Launchpad image boxes",
+          "Custom images preserve their original padding",
+          "Display normalization preserves original cache bytes and source",
+          "Live Xiaohongshu automatic icon and cached reload remove transparent padding"
+        ],
+        "status": "passed",
+        "packageSha256": "b77c803f3a7d6d3716208afb0de8e1f9d1c629a78b16f4795314e2c021811c19",
+        "browserVersion": "156.0.1"
+      },
+      {
+        "name": "esr140",
+        "finishedAt": "2026-09-27T14:34:33.726Z",
+        "liveIconSize": {
+          "displayHeight": 107,
+          "displayWidth": 107,
+          "originalHeight": 129,
+          "originalWidth": 128,
+          "source": "https://picasso-static.xiaohongshu.com/fe-platform/fbd46ec8a907ca6a8cacc9596f18ff495c639feb.png",
+          "visibleHeightRatio": 1,
+          "visibleWidthRatio": 1
+        },
+        "startedAt": "2026-09-27T14:34:24.912Z",
+        "iconSize": [
+          {
+            "displayWidth": 64,
+            "height": 108,
+            "name": "Auto Dock",
+            "width": 108
+          },
+          {
+            "displayWidth": 64,
+            "height": 108,
+            "name": "Auto Grid",
+            "width": 108
+          },
+          {
+            "displayWidth": 64,
+            "height": 128,
+            "name": "Custom",
+            "width": 128
+          }
+        ],
+        "checks": [
+          "temporary installation and fixed Gecko ID",
+          "new tab boot, localized search and clock",
+          "first-install background defaults",
+          "asynchronous background message reply",
+          "settings UI language and theme changes",
+          "settings survive page reload; local and session Promise APIs",
+          "message wakes suspended module event page",
+          "storage event wakes background and creates hourly alarm",
+          "alarm wakes suspended background and broadcasts refresh",
+          "extension reload preserves settings and restores handlers",
+          "Automatic cached icons fill equal Dock and Launchpad image boxes",
+          "Custom images preserve their original padding",
+          "Display normalization preserves original cache bytes and source",
+          "Live Xiaohongshu automatic icon and cached reload remove transparent padding"
+        ],
+        "status": "passed",
+        "packageSha256": "b77c803f3a7d6d3716208afb0de8e1f9d1c629a78b16f4795314e2c021811c19",
+        "browserVersion": "140.16.0"
+      }
+    ]
+  },
+  "unsignedCandidate": {
+    "date": "2026-09-27",
+    "version": "0.1.0",
+    "signed": false,
+    "packageSha256": "552ba51e5afdb9483dd8b6946a4bbfe7b01890b8d0474ce00c5be8d86cab8aa4",
+    "bytes": 471981,
+    "files": 110,
+    "unitTests": {
+      "files": 85,
+      "passed": 638
+    },
+    "lint": {
+      "errors": 0,
+      "warnings": 0
+    },
+    "reproducibleBuild": "passed",
+    "webExt": {
+      "errors": 0,
+      "warnings": 52,
+      "notices": 0
+    },
+    "runtimeChange": "Pexels attribution prefers the current photo page over the photographer profile",
+    "suites": [
+      {
+        "source": ".local/m6/candidate-stable/firefox-smoke.json",
+        "browserVersion": "156.0.1",
+        "status": "passed",
+        "checks": [
+          "temporary installation and fixed Gecko ID",
+          "new tab boot, localized search and clock",
+          "first-install background defaults",
+          "asynchronous background message reply",
+          "settings UI language and theme changes",
+          "settings survive page reload; local and session Promise APIs",
+          "message wakes suspended module event page",
+          "storage event wakes background and creates hourly alarm",
+          "alarm wakes suspended background and broadcasts refresh",
+          "extension reload preserves settings and restores handlers",
+          "M5 normal package declares data and denies plaintext hosts",
+          "M5 packaged icons decode at declared sizes",
+          "M5 about attribution and local privacy in zh-CN",
+          "M5 about attribution and local privacy in zh-TW",
+          "M5 about attribution and local privacy in en",
+          "M5 Pexels photo credit remains visible and links to the work",
+          "M5 local privacy renders with no remote subresources",
+          "Wallhaven appearance controls in zh-CN",
+          "Wallhaven appearance controls in zh-TW",
+          "Wallhaven appearance controls in en"
+        ],
+        "packageSha256": "552ba51e5afdb9483dd8b6946a4bbfe7b01890b8d0474ce00c5be8d86cab8aa4",
+        "startedAt": "2026-09-27T14:59:57.146Z",
+        "finishedAt": "2026-09-27T15:00:11.739Z"
+      },
+      {
+        "source": ".local/m6/candidate-esr/firefox-smoke.json",
+        "browserVersion": "140.16.0",
+        "status": "passed",
+        "checks": [
+          "temporary installation and fixed Gecko ID",
+          "new tab boot, localized search and clock",
+          "first-install background defaults",
+          "asynchronous background message reply",
+          "settings UI language and theme changes",
+          "settings survive page reload; local and session Promise APIs",
+          "message wakes suspended module event page",
+          "storage event wakes background and creates hourly alarm",
+          "alarm wakes suspended background and broadcasts refresh",
+          "extension reload preserves settings and restores handlers",
+          "M5 normal package declares data and denies plaintext hosts",
+          "M5 packaged icons decode at declared sizes",
+          "M5 about attribution and local privacy in zh-CN",
+          "M5 about attribution and local privacy in zh-TW",
+          "M5 about attribution and local privacy in en",
+          "M5 Pexels photo credit remains visible and links to the work",
+          "M5 local privacy renders with no remote subresources",
+          "Wallhaven appearance controls in zh-CN",
+          "Wallhaven appearance controls in zh-TW",
+          "Wallhaven appearance controls in en"
+        ],
+        "packageSha256": "552ba51e5afdb9483dd8b6946a4bbfe7b01890b8d0474ce00c5be8d86cab8aa4",
+        "startedAt": "2026-09-27T14:59:59.456Z",
+        "finishedAt": "2026-09-27T15:00:15.505Z"
+      }
+    ],
+    "deferred": [
+      "Additional interrupted-restore protection",
+      "Permission revocation acceptance",
+      "Two-device conflict merging",
+      "Long-running rotation"
+    ],
+    "distributionPending": [
+      "Signed install/upgrade",
+      "Actual consent UI",
+      "AMO submission and distribution"
+    ]
+  }
+}

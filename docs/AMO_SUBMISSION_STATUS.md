@@ -1,0 +1,20 @@
+# Mozilla 提交进度
+
+更新：2026-09-27。
+
+- 用户已登录 Mozilla，并明确授权接受《Firefox 附加组件分发协议》和《审核政策及规则》；已完成接受。
+- 已选择 AMO 公开上架流程，只勾选桌面 Firefox；Android 未选。
+- 已上传 0.1.0 候选包，文件与 [候选清单](M6_SUBMISSION.json) 一致。
+- Mozilla 在线验证通过：0 错误、52 警告，与本地结果一致。主要提示为 innerHTML，既有逐项审计见 M5_HTML_AUDIT.md。
+- 用户明确确认公开提交并继续源码／签名包验收。已完成提交向导，AMO 显示“已提交的版本”；版本管理当前显示“等待审核”。
+- `ember-tab` slug 被 AMO 提示已占用，已成功保存为 `ember-tab-firefox`；名称仍为 Ember Tab，固定 Gecko ID 不变。
+- 已填写名称、双语介绍、标签页分类、GitHub 支持入口、MIT、隐私政策和审核备注。未填写私人支持邮箱。
+- 介绍页提交后出现源码步骤，已选择“是”并上传候选清单中的源码 ZIP。版本管理显示源码“查看当前”链接，确认源码已附交。
+- 审核备注已精简到 3000 字以内，包含复现命令、双包哈希、权限／测试边界、库来源；另已保存中英版本说明。完整版审阅说明保留在仓库和已附交源码中。
+- AMO 版本 ID：`6519175`；文件 ID：`5063322`。
+- [管理版本 0.1.0](https://addons.mozilla.org/zh-CN/developers/addon/ember-tab-firefox/versions/6519175)。预定公开地址为 `https://addons.mozilla.org/zh-CN/firefox/addon/ember-tab-firefox/`，目前不声称公开页面已可安装。
+- 当前文件仍显示 ZIP、状态“等待审核”；尚未取得可用于验收的签名包，未进行正式签名安装／升级或数据同意界面验收。
+
+下一步：Mozilla 完成审核／提供签名包后，下载并记录签名包哈希，验证正式安装、同 ID 升级、重启数据保留及权限／数据同意界面。现有公开提交和源码授权已完成，不需重复请求相同确认。不要因提交成功或在线校验通过就记为已签名或已上架。未设置自动监控。
+
+本机交接截图为 `.local/m6/amo-submitted.png` 和 `.local/m6/amo-waiting-review.png`，表单副本为 `.local/m6/amo-reviewer-notes-submitted.txt`。不提交账户页面截图或凭据。运行包及源码包保持不变，本轮仅更新发布记录；GitHub Actions 继续暂停，未创建 GitHub Release。

@@ -1,3 +1,4 @@
+import { validateWallhavenCollection } from '../backgrounds/source-wallhaven.js';
 import { t } from "../../platform/i18n.js";
 import { backgroundSystem } from "../backgrounds/controller.js";
 import { toast } from "../../shared/toast.js";
@@ -57,14 +58,13 @@ function _ensureAppearanceGlobalListeners() {
 }
 
 const API_KEY_MAX_LENGTH = 256;
-const API_KEY_SOURCES = ["unsplash", "pixabay", "pexels"];
+const API_KEY_SOURCES = ["wallhaven", "pexels"];
 const ONLINE_SOURCES = [...API_KEY_SOURCES, "bing"];
 const BACKGROUND_APPEARANCE_DEFAULTS = createBackgroundSettingsDefaults();
 const LEGACY_HIDDEN_BACKGROUND_SOURCES = new Set(["color"]);
 
 const API_LINKS = {
-  unsplash: "https://unsplash.com/developers",
-  pixabay: "https://pixabay.com/api/docs/",
+  wallhaven: "https://wallhaven.cc/settings/account",
   pexels: "https://www.pexels.com/api/",
 };
 
@@ -99,11 +99,10 @@ export function registerAppearanceContent(window) {
                             <span class="mac-settings-row-title" data-i18n="settingsBgSource"></span>
                         </div>
                         <div class="mac-settings-row-control">
-                            <div class="mac-select">
+                            <div class="mac-select" style="width: 140px;">
                                 <select class="mac-select-input" id="macBgSource">
                                     <option value="files" data-i18n="settingsBgSourceLocal"></option>
-                                    <option value="unsplash">Unsplash</option>
-                                    <option value="pixabay">Pixabay</option>
+                                    <option value="wallhaven">Wallhaven</option>
                                     <option value="pexels">Pexels</option>
                                     <option value="bing" data-i18n="settingsBgSourceBing"></option>
                                 </select>
@@ -151,16 +150,16 @@ export function registerAppearanceContent(window) {
                     </div>
 
                     <!-- API Key inputs (shown for online sources) -->
-                    <!-- Unsplash API Key -->
-                    <div class="mac-settings-row hidden" id="macUnsplashApiRow">
+                    <!-- Wallhaven API Key -->
+                    <div class="mac-settings-row hidden" id="macWallhavenApiRow">
                         <div class="mac-settings-row-label">
-                            <span class="mac-settings-row-title">Unsplash <span data-i18n="settingsBgApiKey"></span></span>
-                            <a href="${API_LINKS.unsplash}" target="_blank" class="mac-api-link" data-i18n="settingsBgApiKeyGet"></a>
+                            <span class="mac-settings-row-title" data-i18n="wallhavenOptionalKey"></span>
+                            <a href="${API_LINKS.wallhaven}" target="_blank" class="mac-api-link" data-i18n="settingsBgApiKeyGet"></a>
                         </div>
                         <div class="mac-settings-row-control" style="flex: 1; max-width: 240px;">
                             <div class="mac-api-input-container">
-                                <input type="password" class="mac-api-input" id="macUnsplashApiKey" data-api="unsplash" placeholder="">
-                                <button class="mac-api-toggle-btn" id="macUnsplashApiToggle" type="button">
+                                <input type="password" class="mac-api-input" id="macWallhavenApiKey" data-api="wallhaven" placeholder="">
+                                <button class="mac-api-toggle-btn" id="macWallhavenApiToggle" type="button">
                                     <svg class="eye-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
                                         <path class="eye-open" d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
                                         <circle class="eye-open" cx="12" cy="12" r="3"/>
@@ -170,25 +169,12 @@ export function registerAppearanceContent(window) {
                         </div>
                     </div>
 
-                    <!-- Pixabay API Key -->
-                    <div class="mac-settings-row hidden" id="macPixabayApiRow">
-                        <div class="mac-settings-row-label">
-                            <span class="mac-settings-row-title">Pixabay <span data-i18n="settingsBgApiKey"></span></span>
-                            <a href="${API_LINKS.pixabay}" target="_blank" class="mac-api-link" data-i18n="settingsBgApiKeyGet"></a>
-                        </div>
-                        <div class="mac-settings-row-control" style="flex: 1; max-width: 240px;">
-                            <div class="mac-api-input-container">
-                                <input type="password" class="mac-api-input" id="macPixabayApiKey" data-api="pixabay" placeholder="">
-                                <button class="mac-api-toggle-btn" id="macPixabayApiToggle" type="button">
-                                    <svg class="eye-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-                                        <path class="eye-open" d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
-                                        <circle class="eye-open" cx="12" cy="12" r="3"/>
-                                    </svg>
-                                </button>
-                            </div>
-                        </div>
+                    <div class="mac-settings-row hidden" id="macWallhavenCollectionRow" style="flex-direction: column; align-items: stretch; gap: 12px;">
+                        <label style="display: flex; align-items: center; justify-content: space-between; gap: 12px;"><span class="mac-settings-row-title" data-i18n="wallhavenUsername"></span><input class="mac-api-input" style="width: 240px; max-width: 55%;" id="macWallhavenUsername" maxlength="64" autocomplete="off"></label>
+                        <label style="display: flex; align-items: center; justify-content: space-between; gap: 12px;"><span class="mac-settings-row-title" data-i18n="wallhavenCollectionId"></span><input class="mac-api-input" style="width: 240px; max-width: 55%;" id="macWallhavenCollectionId" maxlength="12" inputmode="numeric" autocomplete="off"></label>
+                        <p class="mac-settings-row-desc" style="color: var(--mac-text-primary); line-height: 1.6; overflow-wrap: anywhere;" data-i18n="wallhavenCollectionHint"></p>
+                        <button type="button" class="mac-button mac-button--primary" style="align-self: flex-end;" id="macWallhavenApply" data-i18n="wallhavenApply"></button>
                     </div>
-
                     <!-- Pexels API Key -->
                     <div class="mac-settings-row hidden" id="macPexelsApiRow">
                         <div class="mac-settings-row-label">
@@ -326,6 +312,23 @@ function _bindAppearanceEvents(container) {
   }
 
   _bindApiKeyEvents(container);
+  container.querySelector('#macWallhavenApply')?.addEventListener('click', async () => {
+    const button = container.querySelector('#macWallhavenApply');
+    const wallhaven = {
+      username: container.querySelector('#macWallhavenUsername').value.trim(),
+      collectionId: container.querySelector('#macWallhavenCollectionId').value.trim(),
+    };
+    try { validateWallhavenCollection(wallhaven); }
+    catch (error) { toast(error.message); return; }
+    button.disabled = true;
+    try {
+      const saved = await patchBackgroundSettings({ type: 'wallhaven', wallhaven });
+      if (saved) {
+        backgroundSystem._handleSettingsChange(saved);
+        await backgroundSystem.loadBackground(true);
+      }
+    } finally { button.disabled = false; }
+  });
 
   _bindLocalFilesEvents(container);
 
@@ -364,7 +367,7 @@ function _bindAppearanceEvents(container) {
 }
 
 function _bindApiKeyEvents(container) {
-  const apiInputs = container.querySelectorAll(".mac-api-input");
+  const apiInputs = container.querySelectorAll(".mac-api-input[data-api]");
   const toggleButtons = container.querySelectorAll(".mac-api-toggle-btn");
 
   apiInputs.forEach((input) => {
@@ -641,19 +644,10 @@ function _updateSourceUI(container, source) {
     localFilesRow.classList.toggle("hidden", isLegacyHiddenSource || !isLocalSource);
   }
 
-  const unsplashRow = container.querySelector("#macUnsplashApiRow");
-  const pixabayRow = container.querySelector("#macPixabayApiRow");
-  const pexelsRow = container.querySelector("#macPexelsApiRow");
-
-  if (unsplashRow) {
-    unsplashRow.classList.toggle("hidden", isLegacyHiddenSource || source !== "unsplash");
+  for (const provider of API_KEY_SOURCES) {
+    container.querySelector('#mac' + _capitalize(provider) + 'ApiRow')?.classList.toggle('hidden', source !== provider);
   }
-  if (pixabayRow) {
-    pixabayRow.classList.toggle("hidden", isLegacyHiddenSource || source !== "pixabay");
-  }
-  if (pexelsRow) {
-    pexelsRow.classList.toggle("hidden", isLegacyHiddenSource || source !== "pexels");
-  }
+  container.querySelector('#macWallhavenCollectionRow')?.classList.toggle('hidden', source !== 'wallhaven');
 
   const autoRefreshSelect = container.querySelector("#macAutoRefresh");
   if (autoRefreshSelect) {
@@ -678,6 +672,7 @@ async function _loadAppearanceSettings(container) {
 
     const bgSourceSelect = container.querySelector("#macBgSource");
     const currentSource =
+      ["unsplash", "pixabay"].includes(backgroundSettings.type) ? "files" :
       backgroundSettings.type || BACKGROUND_APPEARANCE_DEFAULTS.type;
     if (bgSourceSelect) {
       if (!LEGACY_HIDDEN_BACKGROUND_SOURCES.has(currentSource)) {
@@ -697,6 +692,8 @@ async function _loadAppearanceSettings(container) {
     }
 
     _loadApiKeys(container, backgroundSettings.apiKeys || {});
+    container.querySelector('#macWallhavenUsername').value = backgroundSettings.wallhaven?.username || '';
+    container.querySelector('#macWallhavenCollectionId').value = backgroundSettings.wallhaven?.collectionId || '';
 
     if (currentSource === "files") {
       await _loadLocalFiles(container);

@@ -178,7 +178,7 @@ const CONFIG = {
     SYNC_QUOTA_BYTES_FALLBACK: 102400
 };
 const ALLOWED_URL_PROTOCOLS = new Set([
-    'http:', 'https:', 'chrome:', 'chrome-extension:', 'edge:', 'about:'
+    'http:', 'https:', 'chrome:', 'chrome-extension:', 'moz-extension:', 'edge:', 'about:'
 ]);
 const DANGEROUS_PROTOCOLS = ['javascript', 'data', 'vbscript', 'blob'];
 class Store {
@@ -361,7 +361,7 @@ class Store {
         this._pageSizeHint = safe;
         this._rebuildPagesCache();
     }
-    async _loadItemsData(itemIds) {
+    async _loadItemsData(itemIds, snapshot) {
         const normalizedIds = this._normalizeItems(itemIds);
         const idsToLoad = normalizedIds.filter(entry =>
             typeof entry === 'string' && entry !== CONFIG.PAGE_BREAK && !this._isSystemItemId(entry)
@@ -379,7 +379,7 @@ class Store {
             this._rebuildPagesCache();
             return;
         }
-        const { itemsById } = await this._readItemsByIds(idsToLoad);
+        const { itemsById } = await this._readItemsByIds(idsToLoad, snapshot);
         this._itemsCache.clear();
         for (const sysId of SYSTEM_ITEM_IDS) {
             this._itemsCache.set(sysId, this._getSystemItem(sysId));
@@ -394,7 +394,7 @@ class Store {
         // Second pass: load folder children not yet in cache
         const missingChildIds = this._collectMissingFolderChildIds();
         if (missingChildIds.length > 0) {
-            const { itemsById: childItemsById } = await this._readItemsByIds(missingChildIds);
+            const { itemsById: childItemsById } = await this._readItemsByIds(missingChildIds, snapshot);
             for (const childId of missingChildIds) {
                 const rawChild = childItemsById[childId];
                 const child = this._normalizeItemData(rawChild);
@@ -472,11 +472,12 @@ class Store {
         }
         return null;
     }
-    async _getActiveChunkSetMeta() {
-        const activeData = await chrome.storage.sync.get({ [CONFIG.ACTIVE_SET_KEY]: null });
+    async _getActiveChunkSetMeta(activeData = null) {
+        activeData ??= await chrome.storage.sync.get(null);
         const activeSetId = typeof activeData?.[CONFIG.ACTIVE_SET_KEY] === 'string'
             ? activeData[CONFIG.ACTIVE_SET_KEY]
             : null;
+        this._observedActiveSetId = activeSetId;
         if (!activeSetId) {
             return {
                 activeSetId: null,
@@ -485,9 +486,10 @@ class Store {
             };
         }
         const indexKey = this._chunkSetIndexKey(activeSetId);
-        const indexData = await chrome.storage.sync.get({ [indexKey]: [] });
-        const rawChunkKeys = Array.isArray(indexData?.[indexKey]) ? indexData[indexKey] : [];
+        const rawChunkKeys = activeData[indexKey];
+        if (!Array.isArray(rawChunkKeys)) throw new Error('SYNC_SNAPSHOT_INCOMPLETE');
         const chunkKeys = rawChunkKeys.filter((key) => this._isChunkSetChunkKey(key, activeSetId));
+        if (chunkKeys.length !== rawChunkKeys.length) throw new Error('SYNC_SNAPSHOT_INCOMPLETE');
         return { activeSetId, indexKey, chunkKeys };
     }
     async _removeSyncInBatches(keys, batchSize = 200) {
@@ -497,29 +499,36 @@ class Store {
             await chrome.storage.sync.remove(safe.slice(i, i + batchSize));
         }
     }
-    async _readChunkedItemsMap() {
-        const meta = await this._getActiveChunkSetMeta();
-        if (meta.chunkKeys.length === 0) {
-            return {
-                activeSetId: meta.activeSetId,
-                indexKey: meta.indexKey,
-                chunkKeys: [],
-                chunksByKey: {},
-                itemsById: new Map()
-            };
-        }
-        const defaultsForChunks = Object.fromEntries(meta.chunkKeys.map(key => [key, {}]));
-        const rawChunks = await chrome.storage.sync.get(defaultsForChunks);
+    async _readChunkedItemsMap(rawChunks = null) {
+        rawChunks ??= await chrome.storage.sync.get(null);
+        const meta = await this._getActiveChunkSetMeta(rawChunks);
         const chunksByKey = {};
         const itemsById = new Map();
         for (const key of meta.chunkKeys) {
             const obj = rawChunks?.[key];
-            const safeObj = obj && typeof obj === 'object' ? obj : {};
+            if (!obj || typeof obj !== 'object' || Array.isArray(obj)) {
+                throw new Error('SYNC_SNAPSHOT_INCOMPLETE');
+            }
+            const safeObj = obj;
             chunksByKey[key] = safeObj;
             for (const [id, item] of Object.entries(safeObj)) {
                 if (typeof id === 'string' && id) {
                     itemsById.set(id, item);
                 }
+            }
+        }
+        // Sync delivers keys independently: an existing index is not enough
+        // when the link order or a folder refers to a different generation.
+        // Validate before replacing memory or allowing a new commit.
+        if (meta.activeSetId && Array.isArray(rawChunks.quicklinksItems)) {
+            const pending = [...rawChunks.quicklinksItems];
+            const visited = new Set();
+            for (const id of pending) {
+                if (id === CONFIG.PAGE_BREAK || this._isSystemItemId(id) || visited.has(id)) continue;
+                visited.add(id);
+                const item = itemsById.get(id);
+                if (!item || item._id !== id) throw new Error('SYNC_SNAPSHOT_INCOMPLETE');
+                if (item.type === 'folder' && Array.isArray(item.children)) pending.push(...item.children);
             }
         }
         return { ...meta, chunksByKey, itemsById };
@@ -555,23 +564,12 @@ class Store {
             chunksByKey
         };
     }
-    async _readItemsByIds(ids) {
+    async _readItemsByIds(ids, snapshot = null) {
         const idsToRead = Array.isArray(ids) ? ids.filter(Boolean) : [];
         const itemsById = {};
-        const { chunkKeys } = await this._getActiveChunkSetMeta();
-        if (chunkKeys.length > 0) {
-            const defaultsForChunks = Object.fromEntries(chunkKeys.map(key => [key, {}]));
-            const chunks = await chrome.storage.sync.get(defaultsForChunks);
-            for (const key of chunkKeys) {
-                const obj = chunks?.[key];
-                if (!obj || typeof obj !== 'object') continue;
-                for (const id of idsToRead) {
-                    if (typeof itemsById[id] !== 'undefined') continue;
-                    if (Object.prototype.hasOwnProperty.call(obj, id)) {
-                        itemsById[id] = obj[id];
-                    }
-                }
-            }
+        const source = snapshot ?? await this._readChunkedItemsMap();
+        for (const id of idsToRead) {
+            if (source.itemsById.has(id)) itemsById[id] = source.itemsById.get(id);
         }
         return { itemsById };
     }
@@ -700,27 +698,21 @@ class Store {
         };
     }
     async _collectObsoleteStorageKeys(activeSetId, extraKeys = []) {
-        const all = await chrome.storage.sync.get(null);
-        const obsolete = new Set(extraKeys.filter(Boolean));
-        for (const key of Object.keys(all)) {
+        // Only retire the generation this commit explicitly replaced. Other
+        // generations may be remote staging data whose active pointer is late.
+        return Array.from(new Set(extraKeys)).filter((key) => {
             const setId = this._extractChunkSetId(key);
-            if (setId && setId !== activeSetId) {
-                obsolete.add(key);
-            }
-        }
-        if (!activeSetId) {
-            return Array.from(obsolete);
-        }
-        return Array.from(obsolete).filter((key) => {
-            if (key === this._chunkSetIndexKey(activeSetId)) return false;
-            if (this._isChunkSetChunkKey(key, activeSetId)) return false;
-            return true;
+            return setId && setId !== activeSetId;
         });
     }
     async _cleanupObsoleteStorage(activeSetId, extraKeys = []) {
         try {
             const keys = await this._collectObsoleteStorageKeys(activeSetId, extraKeys);
-            await this._removeSyncInBatches(keys);
+            for (let offset = 0; offset < keys.length; offset += 200) {
+                const current = await chrome.storage.sync.get(CONFIG.ACTIVE_SET_KEY);
+                if (current[CONFIG.ACTIVE_SET_KEY] !== activeSetId) return;
+                await chrome.storage.sync.remove(keys.slice(offset, offset + 200));
+            }
         } catch (error) {
             console.warn('[Store] Cleanup obsolete storage failed:', error);
         }
@@ -807,22 +799,21 @@ class Store {
     async _commit({ apply, itemsToSet = null, itemIdsToRemove = null, includeItemsMap = false, _retryCount = 0 }) {
         this._assertNotDestroyed();
         try {
-            const base = await chrome.storage.sync.get({
-                quicklinksItems: [],
-                quicklinksDockPins: [],
-                quicklinksTags: [],
-                [CONFIG.STORAGE_REVISION_KEY]: null,
-                [CONFIG.ACTIVE_SET_KEY]: null
-            });
+            // Read metadata and immutable chunks together. Sync can deliver the
+            // active pointer before its chunks; never commit over that gap.
+            const base = await chrome.storage.sync.get(null);
+            if (base[CONFIG.ACTIVE_SET_KEY] && !Array.isArray(base.quicklinksItems)) {
+                throw new Error('SYNC_SNAPSHOT_INCOMPLETE');
+            }
             const baseItems = this._normalizeItems(base.quicklinksItems);
             const baseDockPins = this._normalizeDockPins(base.quicklinksDockPins);
             const baseTags = this._normalizeTagLibrary(base.quicklinksTags);
-            const chunkSnapshot = includeItemsMap ? await this._readChunkedItemsMap() : null;
+            const chunkSnapshot = await this._readChunkedItemsMap(base);
             const next = apply({
                 items: baseItems,
                 dockPins: baseDockPins,
                 tags: baseTags,
-                itemsById: chunkSnapshot?.itemsById ?? null
+                itemsById: includeItemsMap ? chunkSnapshot.itemsById : null
             });
             const { nextItems, nextDockPins } = this._normalizeCommitItemsAndDock(next);
             const nextTags = this._normalizeTagLibrary(next?.tags ?? baseTags);
@@ -925,6 +916,10 @@ class Store {
         this._assertNotDestroyed();
         await this.loadSettings();
         await this.loadData();
+        if (this._syncSnapshotIncomplete) {
+            this._initStorageListener();
+            return;
+        }
         await this._ensureSystemItemsPersisted();
         const { quicklinksTags } = await chrome.storage.sync.get({ quicklinksTags: [] });
         this.tags = this._normalizeTagLibrary(quicklinksTags);
@@ -956,11 +951,11 @@ class Store {
         const itemsStructureChanged = Boolean(changes.quicklinksItems);
         const dockPinsChanged = Boolean(changes.quicklinksDockPins);
         const tagsChanged = Boolean(changes.quicklinksTags);
-        // Chunk sets are immutable staging data. A new snapshot becomes visible
-        // only when ACTIVE_SET_KEY changes; reacting to individual chunk writes
-        // can reload the previous active set in the middle of our own commit.
+        // Ignore unpublished staging data, but retry when the observed active
+        // set's missing index/chunks arrive later from Firefox Sync.
         const itemDataChanged = changeKeys.some(key =>
-            key.startsWith(CONFIG.LINK_PREFIX) || key === CONFIG.ACTIVE_SET_KEY
+            key.startsWith(CONFIG.LINK_PREFIX) || key === CONFIG.ACTIVE_SET_KEY ||
+            (this._observedActiveSetId && this._extractChunkSetId(key) === this._observedActiveSetId)
         );
         if (!itemsStructureChanged && !dockPinsChanged && !itemDataChanged && !tagsChanged) return;
         if (tagsChanged) {
@@ -1086,12 +1081,14 @@ class Store {
         this._assertNotDestroyed();
         try {
             const syncData = await chrome.storage.sync.get(null);
+            const snapshot = await this._readChunkedItemsMap(syncData);
             let persisted = {
                 quicklinksItems: syncData.quicklinksItems,
                 quicklinksDockPins: syncData.quicklinksDockPins
             };
             const hasQuicklinksItemsKey = Object.prototype.hasOwnProperty.call(syncData, 'quicklinksItems');
             if (!hasQuicklinksItemsKey || !Array.isArray(persisted.quicklinksItems)) {
+                if (snapshot.activeSetId) throw new Error('SYNC_SNAPSHOT_INCOMPLETE');
                 persisted = await this._enqueueWrite(async () => this._initializeLatestSchema());
             }
             this.dockPins = Array.isArray(persisted.quicklinksDockPins)
@@ -1101,8 +1098,13 @@ class Store {
             const quicklinksItems = Array.isArray(persisted.quicklinksItems)
                 ? persisted.quicklinksItems
                 : [];
-            await this._loadItemsData(quicklinksItems);
+            await this._loadItemsData(quicklinksItems, snapshot);
+            this._syncSnapshotIncomplete = false;
         } catch (error) {
+            if (error.message === 'SYNC_SNAPSHOT_INCOMPLETE') {
+                this._syncSnapshotIncomplete = true;
+                return; // Keep the last complete view; mutations fail closed.
+            }
             console.error('[Store] loadData failed:', error);
             this._items = [];
             this._itemsCache.clear();

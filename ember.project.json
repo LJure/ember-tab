@@ -7,6 +7,20 @@
   "initialVersion": "0.1.0",
   "geckoId": "ember-tab@ljure.github.io",
   "minimumFirefoxVersion": "140.0",
-  "status": "foundation-only",
-  "note": "Project decisions for the future Firefox build; not a loadable extension manifest."
+  "status": "m6-unsigned-release-candidate",
+  "note": "Candidate build gates resolved within the user-approved scope. The generated package is unsigned; distribution acceptance remains separate and incomplete.",
+  "releaseBlockers": [],
+  "distributionBlockers": [
+    "Signed install/upgrade and distribution acceptance"
+  ],
+  "releaseDecisions": [
+    "Retain Bing wallpaper unchanged at user direction; upstream MIT and reported Edge listing are not recorded as an independent image/API authorization grant",
+    "Wallhaven/Pexels integration and shipped-asset review recorded in docs/M6_SOURCE_REVIEW.md"
+  ],
+  "deferredWork": [
+    "User deferred two-device offline Sync conflict merging to a later version; first release does not promise conflict merging",
+    "User deferred long-running wallpaper rotation acceptance to continued user validation after initial release",
+    "User deferred additional interrupted-restore protection; retain existing upstream-style handling, no global rollback or automatic recovery copy implemented",
+    "User deferred permission revocation acceptance and additional handling; retain existing behavior, not marked verified"
+  ]
 }

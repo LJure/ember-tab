@@ -345,5 +345,21 @@
     "localBackupSection": "本地備份",
     "webdavBackupSectionDesc": "配置您自己的 WebDAV 伺服器，並保留可還原的備份版本。",
     "webdavCredentialsLocalHint": "憑據將保存在此瀏覽器的本機儲存中。",
-    "linkManagerSectionDesc": "在這裡整理目前的快捷連結與資料夾，備份操作已集中到下方。"
+    "linkManagerSectionDesc": "在這裡整理目前的快捷連結與資料夾，備份操作已集中到下方。",
+    "backupSkippedCache": "還原完成；部分舊版快取圖示無法還原。",
+    "import_backup_sync_quota_exceeded": "備份資料超出瀏覽器同步儲存容量。",
+    "import_invalid_backup_unsafe_path": "備份包含不安全的路徑。",
+    "import_invalid_backup_duplicate_path": "備份包含重複檔案。",
+    "emberAttribution": "基於 nil-byte 的 Aura Tab 的非官方 Firefox 移植版，由獨立專案維護，與 Mozilla 及原作者無隸屬關係。",
+    "emberLicenses": "第三方授權",
+    "emberUpstream": "原專案",
+    "webdavHttpsRequired": "請使用 HTTPS WebDAV 位址，勿在網址中嵌入使用者名稱或密碼。",
+    "wallhavenUsername": "Wallhaven 使用者名稱",
+    "wallhavenCollectionId": "收藏集 ID",
+    "wallhavenCollectionHint": "兩項留空時隨機取得 SFW 桌布。指定收藏集時，填入收藏集擁有者的使用者名稱及網址 wallhaven.cc/user/使用者名稱/favorites/數字ID 中的 ID。公開收藏集不需金鑰；自己的私人收藏集需填寫上方 API Key。僅取得 SFW 圖片。套用後可選擇自動更換頻率。",
+    "wallhavenApply": "儲存並套用",
+    "wallhavenCollectionInvalid": "請同時填入有效的 Wallhaven 使用者名稱及數字收藏集 ID，或將兩項都留空。",
+    "wallhavenCollectionUnavailable": "Wallhaven 收藏集或圖片無法使用，請檢查 ID、公開狀態及 API Key。",
+    "wallhavenUploadedBy": "上傳者：{name}",
+    "wallhavenOptionalKey": "Wallhaven API Key（選填）"
 }

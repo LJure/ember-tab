@@ -22,6 +22,7 @@ class BookmarkImporter {
         this._looseBookmarks = [];
 
         this._existingUrls = new Set();
+        this._seenBookmarkUrls = new Set();
 
         this._duplicateCount = 0;
 
@@ -36,6 +37,7 @@ class BookmarkImporter {
         this._existingUrls = new Set(
             store.getAllItems().map(item => this._normalizeUrl(item.url))
         );
+        this._seenBookmarkUrls.clear();
 
         const tree = await chrome.bookmarks.getTree();
 
@@ -166,6 +168,7 @@ class BookmarkImporter {
     }
 
     _parseNode(node, topLevelFolder, depth) {
+        if (node.type === 'separator') return;
         if (depth === 0) {
             for (const child of node.children || []) {
                 this._parseNode(child, null, 1);
@@ -187,10 +190,12 @@ class BookmarkImporter {
                 icon: ''
             };
 
-            if (this._isDuplicate(node.url)) {
+            const normalizedUrl = this._normalizeUrl(node.url);
+            if (this._isDuplicate(node.url) || this._seenBookmarkUrls.has(normalizedUrl)) {
                 this._duplicateCount++;
                 return;
             }
+            this._seenBookmarkUrls.add(normalizedUrl);
 
             if (topLevelFolder) {
                 if (!this._parsedFolders.has(topLevelFolder)) {

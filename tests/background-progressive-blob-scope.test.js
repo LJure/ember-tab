@@ -149,7 +149,7 @@ describe('Background progressive blob scope safety', () => {
         backgroundSystem.createDOMStructure();
         backgroundSystem.settings = {
             ...backgroundSystem.settings,
-            type: 'unsplash',
+            type: 'pexels',
             fadein: 1
         };
     });

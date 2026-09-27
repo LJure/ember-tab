@@ -64,7 +64,7 @@ describe('Background startup warm render path', () => {
     function seedTabsWarmStorage() {
         setStorageData({
             backgroundSettings: {
-                type: 'unsplash',
+                type: 'pexels',
                 frequency: 'tabs',
                 texture: { type: 'none' },
                 apiKeys: {}
@@ -99,6 +99,18 @@ describe('Background startup warm render path', () => {
 
         expect(refreshMock).toHaveBeenCalledTimes(1);
 
+        backgroundSystem.destroy();
+    });
+
+    it('reconciles settings changed while the startup image was still decoding', async () => {
+        seedTabsWarmStorage();
+        runBackgroundTransitionMock.mockImplementationOnce(async () => {
+            setStorageData({backgroundSettings:{type:'pexels',frequency:'never',texture:{type:'none'},apiKeys:{}}},'sync');
+        });
+        const {backgroundSystem}=await import('../scripts/domains/backgrounds/controller.js');
+        await backgroundSystem.init();
+        expect(backgroundSystem.settings.type).toBe('pexels');
+        expect(backgroundSystem.settings.frequency).toBe('never');
         backgroundSystem.destroy();
     });
 
@@ -180,7 +192,7 @@ describe('Background startup warm render path', () => {
     it('skips pending startup refresh when a hidden tab receives fresh synced background', async () => {
         setStorageData({
             backgroundSettings: {
-                type: 'unsplash',
+                type: 'pexels',
                 frequency: 'hour',
                 texture: { type: 'none' },
                 apiKeys: {}
@@ -249,7 +261,7 @@ describe('Background startup warm render path', () => {
     it('keeps visibility auto-refresh for time-based frequencies', async () => {
         setStorageData({
             backgroundSettings: {
-                type: 'unsplash',
+                type: 'pexels',
                 frequency: 'hour',
                 texture: { type: 'none' },
                 apiKeys: {}

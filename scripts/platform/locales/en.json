@@ -345,5 +345,21 @@
     "localBackupSection": "Local Backup",
     "webdavBackupSectionDesc": "Configure your own WebDAV server and keep restorable backup versions available.",
     "webdavCredentialsLocalHint": "Credentials are stored locally in this browser.",
-    "linkManagerSectionDesc": "Organize your current quick links and folders here. Backup actions are grouped below."
+    "linkManagerSectionDesc": "Organize your current quick links and folders here. Backup actions are grouped below.",
+    "backupSkippedCache": "Restored; some legacy cached icons could not be recovered.",
+    "import_backup_sync_quota_exceeded": "The backup exceeds the browser sync storage quota.",
+    "import_invalid_backup_unsafe_path": "The backup contains an unsafe path.",
+    "import_invalid_backup_duplicate_path": "The backup contains duplicate files.",
+    "emberAttribution": "An independent Firefox port of Aura Tab by nil-byte. Not affiliated with Mozilla or the original author.",
+    "emberLicenses": "Third-party licenses",
+    "emberUpstream": "Original project",
+    "webdavHttpsRequired": "Use an HTTPS WebDAV address without a username or password in the URL.",
+    "wallhavenUsername": "Wallhaven username",
+    "wallhavenCollectionId": "Collection ID",
+    "wallhavenCollectionHint": "Leave both fields empty for random SFW wallpapers. To use a collection, enter its owner’s username and numeric ID from wallhaven.cc/user/USERNAME/favorites/ID. Public collections need no key; your private collections need your API key above. Only SFW images are used. Apply, then choose the automatic refresh frequency.",
+    "wallhavenApply": "Save and apply",
+    "wallhavenCollectionInvalid": "Enter both a valid Wallhaven username and numeric collection ID, or leave both empty.",
+    "wallhavenCollectionUnavailable": "Wallhaven collection or image is unavailable. Check its ID, visibility and API key.",
+    "wallhavenUploadedBy": "Uploaded by {name}",
+    "wallhavenOptionalKey": "Wallhaven API Key (optional)"
 }

@@ -14,12 +14,11 @@ describe('Background metadata prefetch source lock', () => {
 
         backgroundSystem.settings = {
             ...backgroundSystem.settings,
-            type: 'unsplash',
+            type: 'pexels',
             frequency: 'day',
             apiKeys: {
                 ...backgroundSystem.settings.apiKeys,
-                unsplash: '1234567890abcdef',
-                pexels: 'abcdef1234567890'
+                pexels: '1234567890abcdef'
             }
         };
     });
@@ -42,15 +41,15 @@ describe('Background metadata prefetch source lock', () => {
 
         backgroundSystem.settings = {
             ...backgroundSystem.settings,
-            type: 'pexels'
+            type: 'bing'
         };
 
         scheduledIdleTask({ didTimeout: false, timeRemaining: () => 50 });
 
         expect(prefetchSpy).toHaveBeenCalledTimes(1);
         const [source, provider, apiKey, count] = prefetchSpy.mock.calls[0];
-        expect(source).toBe('unsplash');
-        expect(provider?.name).toBe('Unsplash');
+        expect(source).toBe('pexels');
+        expect(provider?.name).toBe('Pexels');
         expect(apiKey).toBe('1234567890abcdef');
         expect(count).toBe(2);
     });
@@ -63,7 +62,7 @@ describe('Background metadata prefetch source lock', () => {
         backgroundSystem.settings = {
             ...backgroundSystem.settings,
             frequency: 'tabs',
-            type: 'unsplash'
+            type: 'pexels'
         };
 
         await backgroundSystem._refillMetadataCache();

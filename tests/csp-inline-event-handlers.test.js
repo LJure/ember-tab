@@ -18,7 +18,7 @@ async function listFilesRecursively(rootDir) {
         for (const entry of entries) {
             const fullPath = path.join(current, entry.name);
             if (entry.isDirectory()) {
-                if (entry.name === 'node_modules' || entry.name === '.git' || entry.name === 'coverage' || entry.name === 'dist') {
+                if (entry.name === 'node_modules' || entry.name === '.git' || entry.name === '.local' || entry.name === 'coverage' || entry.name === 'dist') {
                     continue;
                 }
                 stack.push(fullPath);

@@ -117,6 +117,42 @@ describe('photos domain', () => {
             setupPhotoInfoDom();
         });
 
+        it('keeps online credits visible and rejects restored script links', async () => {
+            const backgroundSystem = {whenReady: () => Promise.resolve(), getCurrentBackground: () => ({username:'Alice',provider:'pexels',page:'javascript:alert(1)'})};
+            const layout = new LayoutManager({backgroundSystem});
+            layout._applyBackgroundVisibilitySettings({showPhotoInfo:false});
+            await layout._updatePhotoInfo();
+            expect(document.getElementById('cornerTopRight').classList.contains('always-visible')).toBe(true);
+            expect(document.getElementById('authorName').textContent).toBe('Alice · Pexels');
+            expect(document.getElementById('photoAuthor').hasAttribute('href')).toBe(false);
+        });
+
+        it('links Pexels credit to the displayed photo and keeps it visible when info is disabled', async () => {
+            const photo = {
+                username: 'Photographer', provider: 'pexels',
+                page: 'https://www.pexels.com/photo/123/',
+                userUrl: 'https://www.pexels.com/@photographer/'
+            };
+            const layout = new LayoutManager({ backgroundSystem: {
+                whenReady: async () => {}, getCurrentBackground: () => photo
+            } });
+            layout._applyBackgroundVisibilitySettings({ showPhotoInfo: false });
+            await layout._updatePhotoInfo();
+            expect(document.getElementById('photoAuthor').getAttribute('href')).toBe(photo.page);
+            expect(document.getElementById('authorName').textContent).toBe('Photographer · Pexels');
+            expect(document.getElementById('cornerTopRight').classList.contains('always-visible')).toBe(true);
+        });
+
+        it('replaces the photographer prefix for Wallhaven and restores it for other sources', async () => {
+            let photo = { username: 'Uploader', provider: 'wallhaven' };
+            const layout = new LayoutManager({ backgroundSystem: { whenReady: async () => {}, getCurrentBackground: () => photo } });
+            await layout._updatePhotoInfo();
+            expect(document.querySelector('.author-prefix').classList.contains('hidden')).toBe(true);
+            photo = { username: 'Photographer', provider: 'pexels' };
+            await layout._updatePhotoInfo();
+            expect(document.querySelector('.author-prefix').classList.contains('hidden')).toBe(false);
+        });
+
         it('does not disable top-right corner based on backgroundSettings.type', async () => {
             const backgroundSystem = {
                 whenReady: () => Promise.resolve(),
@@ -137,7 +173,7 @@ describe('photos domain', () => {
             const photoInfo = document.getElementById('photoInfo');
 
             expect(authorName?.textContent).toBe('Alice');
-            expect(photoAuthor?.getAttribute('href')).toBe('https://example.com');
+            expect(photoAuthor?.getAttribute('href')).toBe('https://example.com/');
             expect(photoInfo?.classList.contains('hidden')).toBe(false);
         });
 

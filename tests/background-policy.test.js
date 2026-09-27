@@ -9,37 +9,43 @@ import {
 
 describe('background policy', () => {
     it('should detect online source types', () => {
-        expect(isOnlineBackgroundType('unsplash')).toBe(true);
-        expect(isOnlineBackgroundType('pixabay')).toBe(true);
+        expect(isOnlineBackgroundType('unsplash')).toBe(false);
+        expect(isOnlineBackgroundType('pixabay')).toBe(false);
+        expect(isOnlineBackgroundType('wallhaven')).toBe(true);
         expect(isOnlineBackgroundType('pexels')).toBe(true);
         expect(isOnlineBackgroundType('bing')).toBe(true);
         expect(isOnlineBackgroundType('files')).toBe(false);
     });
 
     it('should increase prepare timeout for online source when smart crop is enabled', () => {
-        const settings = { type: 'unsplash', smartCropEnabled: true };
-        expect(getPrepareTimeoutMs(settings, 140, 'unsplash')).toBe(360);
-        expect(getPrepareTimeoutMs(settings, 700, 'unsplash')).toBe(700);
+        const settings = { type: 'pexels', smartCropEnabled: true };
+        expect(getPrepareTimeoutMs(settings, 140, 'pexels')).toBe(360);
+        expect(getPrepareTimeoutMs(settings, 700, 'pexels')).toBe(700);
     });
 
     it('should keep timeout unchanged when smart crop is disabled or source is local', () => {
-        expect(getPrepareTimeoutMs({ type: 'unsplash', smartCropEnabled: false }, 140, 'unsplash')).toBe(140);
+        expect(getPrepareTimeoutMs({ type: 'pexels', smartCropEnabled: false }, 140, 'pexels')).toBe(140);
         expect(getPrepareTimeoutMs({ type: 'files', smartCropEnabled: true }, 140, 'files')).toBe(140);
     });
 
     it('should resolve render mode and apply options consistently', () => {
-        expect(resolveRenderMode({ type: 'unsplash', smartCropEnabled: true }, 'unsplash')).toBe('single-stage');
+        expect(resolveRenderMode({ type: 'pexels', smartCropEnabled: true }, 'pexels')).toBe('single-stage');
         expect(resolveRenderMode({ type: 'files', smartCropEnabled: true }, 'files')).toBe('progressive');
-        expect(getApplyOptions({ type: 'unsplash', smartCropEnabled: true }, 'unsplash')).toEqual({
+        expect(getApplyOptions({ type: 'pexels', smartCropEnabled: true }, 'pexels')).toEqual({
             renderMode: 'single-stage'
         });
     });
 
     it('should disable preload only for tabs frequency on online sources', () => {
-        expect(shouldPreloadNextBackground({ type: 'unsplash', frequency: 'tabs' }, 'unsplash')).toBe(false);
-        expect(shouldPreloadNextBackground({ type: 'pixabay', frequency: 'tabs' }, 'pixabay')).toBe(false);
+        expect(shouldPreloadNextBackground({ type: 'pexels', frequency: 'tabs' }, 'pexels')).toBe(false);
+        expect(shouldPreloadNextBackground({ type: 'wallhaven', frequency: 'tabs' }, 'wallhaven')).toBe(false);
         expect(shouldPreloadNextBackground({ type: 'bing', frequency: 'tabs' }, 'bing')).toBe(false);
         expect(shouldPreloadNextBackground({ type: 'files', frequency: 'tabs' }, 'files')).toBe(true);
-        expect(shouldPreloadNextBackground({ type: 'unsplash', frequency: 'hour' }, 'unsplash')).toBe(true);
+        expect(shouldPreloadNextBackground({ type: 'pexels', frequency: 'hour' }, 'pexels')).toBe(true);
+    });
+    it('never speculatively prefetches Wallhaven collection images', () => {
+        for (const frequency of ['never', 'tabs', 'hour', 'day']) {
+            expect(shouldPreloadNextBackground({ type: 'wallhaven', frequency })).toBe(false);
+        }
     });
 });

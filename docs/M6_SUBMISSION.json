@@ -1,0 +1,49 @@
+{
+  "version": "0.1.0",
+  "commit": "797f7589dee572d0254b95ba9b7d2159bb8ce0c2",
+  "signed": false,
+  "submitted": true,
+  "amo": {
+    "submittedDate": "2026-09-27",
+    "channel": "listed",
+    "slug": "ember-tab-firefox",
+    "versionId": 6519175,
+    "fileId": 5063322,
+    "status": "awaiting-review",
+    "sourceAttached": true,
+    "signedPackageRetrieved": false,
+    "validationErrors": 0,
+    "validationWarnings": 52,
+    "managementUrl": "https://addons.mozilla.org/zh-CN/developers/addon/ember-tab-firefox/versions/6519175",
+    "record": "docs/AMO_SUBMISSION_STATUS.md"
+  },
+  "source": {
+    "file": "ember-tab-0.1.0-source.zip",
+    "sha256": "39ec5002381ec914e2e42e14691dbc11719e9b4f7910f9f8377706852cefed8f",
+    "bytes": 824700,
+    "files": 248,
+    "excludedHistoricalScreenshots": [
+      "assets/other/Dock.png",
+      "assets/other/case.jpg",
+      "assets/other/desktop.png",
+      "assets/other/launchpad.png",
+      "assets/other/photo.jpg",
+      "assets/other/setting.jpg",
+      "docs/images/desktop.png",
+      "docs/images/dock.png",
+      "docs/images/icon128.png",
+      "docs/images/launchpad.png",
+      "docs/images/photo.jpg",
+      "docs/images/setting.jpg"
+    ]
+  },
+  "runtime": {
+    "file": "ember-tab-0.1.0-firefox.zip",
+    "sha256": "552ba51e5afdb9483dd8b6946a4bbfe7b01890b8d0474ce00c5be8d86cab8aa4",
+    "bytes": 471981,
+    "files": 110
+  },
+  "sourceRebuild": "byte-identical using Node 24.14.1 with no npm install or Git checkout",
+  "sourcePackaging": "Committed tracked working-tree files, preserving checkout bytes and line endings",
+  "reviewerNotes": "docs/AMO_REVIEWER_NOTES.md"
+}

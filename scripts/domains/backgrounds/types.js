@@ -1,7 +1,7 @@
 export { DEFAULT_SETTINGS } from './defaults.js';
 
 /**
- * @typedef {'files' | 'unsplash' | 'pixabay' | 'pexels' | 'bing' | 'color'} BackgroundType
+ * @typedef {'files' | 'wallhaven' | 'pexels' | 'bing' | 'color'} BackgroundType
  */
 
 /**
@@ -48,6 +48,7 @@ export { DEFAULT_SETTINGS } from './defaults.js';
  * @property {string} color
  * @property {TextureSettings} texture
  * @property {ApiKeys} apiKeys
+ * @property {{username: string, collectionId: string}} [wallhaven]
  * @property {boolean} showRefreshButton
  * @property {boolean} [smartCropEnabled]
  */
@@ -62,8 +63,7 @@ export { DEFAULT_SETTINGS } from './defaults.js';
 
 /**
  * @typedef {Object} ApiKeys
- * @property {string} unsplash
- * @property {string} pixabay
+ * @property {string} wallhaven
  * @property {string} pexels
  */
 
