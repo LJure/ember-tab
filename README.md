@@ -1,4 +1,21 @@
-# Aura Tab
+# Ember Tab
+
+An unofficial Firefox port of [Aura Tab](https://github.com/nil-byte/aura-tab), originally created by **nil-byte**. Independently maintained by [LJure](https://github.com/LJure).
+
+基于 Aura Tab 的非官方 Firefox 新标签页扩展。本项目独立维护，保留原项目的 MIT 许可证与版权声明。
+
+**Status: M1 foundation complete; Firefox migration has not been implemented yet.**
+
+- [Development plan and progress / 开发计划与进度](DEVELOPMENT_PLAN.md)
+- [M1 environment and baseline / 基线报告](docs/M1_BASELINE.md)
+- [Project identity and Firefox targets](ember.project.json)
+- Baseline: Aura Tab 3.5.3, commit `a706cee56e43b80777de697dd4462083b1f97ef8`.
+- Local baseline: 75 test files / 577 tests passed; ESLint reports no errors or warnings.
+- Planned first Firefox version: 0.1.0, targeting Firefox 140+ on desktop; browser verification is pending.
+
+There is no Ember Tab Firefox release or AMO listing yet. The current runtime and packaging script remain the upstream Chrome implementation. The upstream documentation below is retained for reference; its store links, version badges, and installation instructions refer to **Aura Tab**, not an Ember Tab release.
+
+## Upstream Aura Tab documentation (reference)
 
 [![Tests](https://github.com/nil-byte/aura-tab/actions/workflows/ci.yml/badge.svg)](https://github.com/nil-byte/aura-tab/actions)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)

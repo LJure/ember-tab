@@ -11,3 +11,6 @@ coverage/
 *.zip
 .alma-snapshots
 .worktrees/
+
+# Local migration evidence and isolated browser profiles
+.local/

@@ -1,0 +1,12 @@
+{
+  "name": "Ember Tab",
+  "repository": "https://github.com/LJure/ember-tab",
+  "upstream": "https://github.com/nil-byte/aura-tab",
+  "upstreamCommit": "a706cee56e43b80777de697dd4462083b1f97ef8",
+  "upstreamVersion": "3.5.3",
+  "initialVersion": "0.1.0",
+  "geckoId": "ember-tab@ljure.github.io",
+  "minimumFirefoxVersion": "140.0",
+  "status": "foundation-only",
+  "note": "Project decisions for the future Firefox build; not a loadable extension manifest."
+}
