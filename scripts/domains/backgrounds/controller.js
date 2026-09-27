@@ -141,6 +141,11 @@ class BackgroundSystem {
         this.initVisibilityListener();
         this.initStorageListener();
 
+        // Startup image decoding can outlast the first interactive frame.
+        // Reconcile changes made before the storage listener was attached.
+        const { backgroundSettings } = await chrome.storage.sync.get('backgroundSettings');
+        if (backgroundSettings) this._handleSettingsChange(backgroundSettings);
+
         this.initialized = true;
         if (this._readyResolve) {
             this._readyResolve();

@@ -501,6 +501,7 @@ export class LayoutManager extends DisposableComponent {
         }
 
         try {
+            await this.backgroundSystem.whenReady?.();
             await this.backgroundSystem.refresh();
         } catch (error) {
             console.error('Failed to refresh background:', error);

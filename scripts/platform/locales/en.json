@@ -345,5 +345,9 @@
     "localBackupSection": "Local Backup",
     "webdavBackupSectionDesc": "Configure your own WebDAV server and keep restorable backup versions available.",
     "webdavCredentialsLocalHint": "Credentials are stored locally in this browser.",
-    "linkManagerSectionDesc": "Organize your current quick links and folders here. Backup actions are grouped below."
+    "linkManagerSectionDesc": "Organize your current quick links and folders here. Backup actions are grouped below.",
+    "backupSkippedCache": "Restored; some legacy cached icons could not be recovered.",
+    "import_backup_sync_quota_exceeded": "The backup exceeds the browser sync storage quota.",
+    "import_invalid_backup_unsafe_path": "The backup contains an unsafe path.",
+    "import_invalid_backup_duplicate_path": "The backup contains duplicate files."
 }

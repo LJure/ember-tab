@@ -345,5 +345,9 @@
     "localBackupSection": "本地备份",
     "webdavBackupSectionDesc": "配置您自己的 WebDAV 服务器，并保留可恢复的备份版本。",
     "webdavCredentialsLocalHint": "凭据将保存在此浏览器的本地存储中。",
-    "linkManagerSectionDesc": "在这里整理当前的快捷链接与文件夹，备份操作已单独收纳到下方。"
+    "linkManagerSectionDesc": "在这里整理当前的快捷链接与文件夹，备份操作已单独收纳到下方。",
+    "backupSkippedCache": "恢复完成；部分旧版缓存图标无法恢复。",
+    "import_backup_sync_quota_exceeded": "备份数据超出浏览器同步存储容量。",
+    "import_invalid_backup_unsafe_path": "备份包含不安全的路径。",
+    "import_invalid_backup_duplicate_path": "备份包含重复文件。"
 }

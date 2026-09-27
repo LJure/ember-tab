@@ -7,10 +7,13 @@ import { fileURLToPath } from 'node:url';
 import { Builder, By, Key } from 'selenium-webdriver';
 import firefox from 'selenium-webdriver/firefox.js';
 import { download } from 'geckodriver';
+import { execFileSync } from 'node:child_process';
+import { unzipSync, zipSync, strToU8 } from '../scripts/libs/fflate.esm.js';
 
 const root = fileURLToPath(new URL('../', import.meta.url));
 const includeM3 = process.argv.includes('--m3');
-const evidence = path.join(root, '.local', includeM3 ? 'm3' : 'm2');
+const includeM4 = process.argv.includes('--m4');
+const evidence = path.join(root, '.local', includeM4 ? 'm4' : includeM3 ? 'm3' : 'm2');
 await mkdir(evidence, { recursive: true });
 const project = JSON.parse(await readFile(path.join(root, 'ember.project.json'), 'utf8'));
 const manifest = JSON.parse(await readFile(path.join(root, 'dist/firefox/manifest.json'), 'utf8'));
@@ -23,6 +26,12 @@ const options = new firefox.Options()
     .setPreference('app.shield.optoutstudies.enabled', false)
     .setPreference('browser.newtabpage.activity-stream.asrouter.userprefs.cfr.addons', false);
 if (process.env.FIREFOX_BINARY) options.setBinary(process.env.FIREFOX_BINARY);
+if (includeM4) {
+    options.setPreference('browser.download.folderList', 2)
+        .setPreference('browser.download.dir', evidence)
+        .setPreference('browser.helperApps.neverAsk.saveToDisk', 'application/zip')
+        .setPreference('browser.download.alwaysOpenPanel', false);
+}
 // Selenium creates a disposable profile. Never attach to the user's Firefox.
 const logFd = openSync(path.join(evidence, 'geckodriver.log'), 'w');
 const driver = await new Builder().forBrowser('firefox').setFirefoxOptions(options)
@@ -31,6 +40,16 @@ const driver = await new Builder().forBrowser('firefox').setFirefoxOptions(optio
 const checks = [];
 const report = { startedAt: new Date().toISOString(), checks };
 report.packageSha256 = createHash('sha256').update(await readFile(path.join(root, `dist/ember-tab-${manifest.version}-firefox.zip`))).digest('hex');
+let installPath=path.join(root, `dist/ember-tab-${manifest.version}-firefox.zip`);
+if(includeM4) {
+    // Test-only upstream exporter, never shipped in the development package.
+    const entries=unzipSync(await readFile(installPath));
+    entries['scripts/platform/backup-manager-upstream.js']=strToU8(execFileSync('git',
+        ['show',`${project.upstreamCommit}:scripts/platform/backup-manager.js`],{cwd:root,encoding:'utf8'}));
+    installPath=path.join(evidence,'test-with-upstream-exporter.zip');
+    await writeFile(installPath,zipSync(entries));
+    report.testFixture='Unmodified upstream exporter module in a Firefox test package; not a Chrome-origin export';
+}
 async function check(name, task) {
     try { await task(); }
     catch (error) { report.failedCheck = name; throw error; }
@@ -56,7 +75,7 @@ try {
     await driver.manage().setTimeouts({ script: 15000, pageLoad: 30000 });
     await driver.manage().window().setRect({ width: 1440, height: 1000 });
     await check('temporary installation and fixed Gecko ID', async () => {
-        assert.equal(await driver.installAddon(path.join(root, `dist/ember-tab-${manifest.version}-firefox.zip`), true), project.geckoId);
+        assert.equal(await driver.installAddon(installPath, true), project.geckoId);
     });
     await driver.setContext(firefox.Context.CHROME);
     await driver.executeScript('BrowserCommands.openTab();');
@@ -141,6 +160,10 @@ try {
         const { runM3Tests } = await import('./test-firefox-m3.mjs');
         await runM3Tests({driver, check, runInExtension, root, evidence, uuid, report});
     }
+    if(includeM4) {
+        const {runM4Tests}=await import('./test-firefox-m4.mjs');
+        await runM4Tests({driver,check,runInExtension,root,evidence,uuid,report,project,installPath});
+    }
     await writeFile(path.join(evidence, 'newtab.png'), await driver.takeScreenshot(), 'base64');
     await driver.setContext(firefox.Context.CHROME);
     report.extensionDiagnostics = await driver.executeScript(`return Services.console.getMessageArray()
@@ -151,7 +174,7 @@ try {
 } catch (error) {
     report.status = 'failed';
     report.error = error.stack;
-    await writeFile(path.join(evidence, 'failure.png'), await driver.takeScreenshot(), 'base64').catch(() => {});
+    try { await writeFile(path.join(evidence, 'failure.png'), await driver.takeScreenshot(), 'base64'); } catch { /* page may have unloaded */ }
     throw error;
 } finally {
     await writeFile(path.join(evidence, 'firefox-smoke.json'), JSON.stringify(report, null, 2) + '\n');

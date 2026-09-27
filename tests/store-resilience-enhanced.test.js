@@ -75,6 +75,48 @@ describe('Store latest-only schema', () => {
 });
 
 describe('Storage change handling', () => {
+    it('preserves the last complete view and blocks edits until active Sync chunks arrive', async () => {
+        seedV6Items(['qlink_stable']);
+        const store = await freshStore();
+        await store.init();
+        const next = createChunkSet(['qlink_remote'], 'remote');
+        setStorageData({...getStorageData('sync'), quicklinksActiveSet: next.setId,
+            quicklinksItems: ['qlink_remote']}, 'sync');
+        triggerStorageChange({quicklinksActiveSet: {newValue: next.setId}}, 'sync');
+        await store._reloadQueue;
+        expect(store.getItem('qlink_stable')).toBeTruthy();
+        const before = getStorageData('sync');
+        await expect(store._commit({apply: ({items}) => ({items, dockPins: []})}))
+            .rejects.toThrow('SYNC_SNAPSHOT_INCOMPLETE');
+        expect(getStorageData('sync')).toEqual(before);
+        await chrome.storage.sync.set({[next.indexKey]: [next.chunkKey]});
+        triggerStorageChange({[next.indexKey]: {newValue: [next.chunkKey]}}, 'sync');
+        await store._reloadQueue;
+        expect(store.getItem('qlink_stable')).toBeTruthy();
+        await chrome.storage.sync.set({[next.chunkKey]: next.chunk});
+        triggerStorageChange({[next.chunkKey]: {newValue: next.chunk}}, 'sync');
+        await store._reloadQueue;
+        expect(store.getItem('qlink_remote')).toBeTruthy();
+        expect(store._syncSnapshotIncomplete).toBe(false);
+        store.destroy();
+    });
+
+    it('does not initialize or overwrite a partially synced profile on first load', async () => {
+        setStorageData({quicklinksActiveSet: 'remote', quicklinksChunkSet_remote_index: []}, 'sync');
+        const before = getStorageData('sync');
+        const store = await freshStore();
+        await store.init();
+        expect(getStorageData('sync')).toEqual(before);
+        expect(store._syncSnapshotIncomplete).toBe(true);
+        await expect(store._commit({apply: ({items}) => ({items, dockPins: []})}))
+            .rejects.toThrow('SYNC_SNAPSHOT_INCOMPLETE');
+        await chrome.storage.sync.set({quicklinksItems: ['__SYSTEM_PHOTOS__', '__SYSTEM_SETTINGS__']});
+        triggerStorageChange({quicklinksItems: {newValue: ['__SYSTEM_PHOTOS__', '__SYSTEM_SETTINGS__']}}, 'sync');
+        await store._reloadQueue;
+        expect(store.getAllItems()).toHaveLength(2);
+        store.destroy();
+    });
+
     it('storage_change_structure_detects_quicklinksItems_only', async () => {
         const id1 = 'qlink_structure_detect';
         seedV6Items([id1], { setId: 'seedset_detect' });

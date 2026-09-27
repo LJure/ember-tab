@@ -102,6 +102,18 @@ describe('Background startup warm render path', () => {
         backgroundSystem.destroy();
     });
 
+    it('reconciles settings changed while the startup image was still decoding', async () => {
+        seedTabsWarmStorage();
+        runBackgroundTransitionMock.mockImplementationOnce(async () => {
+            setStorageData({backgroundSettings:{type:'pexels',frequency:'never',texture:{type:'none'},apiKeys:{}}},'sync');
+        });
+        const {backgroundSystem}=await import('../scripts/domains/backgrounds/controller.js');
+        await backgroundSystem.init();
+        expect(backgroundSystem.settings.type).toBe('pexels');
+        expect(backgroundSystem.settings.frequency).toBe('never');
+        backgroundSystem.destroy();
+    });
+
     it('does not auto-load on visibility regain for tabs frequency', async () => {
         seedTabsWarmStorage();
         const hiddenSpy = vi.spyOn(document, 'hidden', 'get').mockReturnValue(false);

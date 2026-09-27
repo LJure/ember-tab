@@ -2,11 +2,12 @@
 import { fetchWithRetry, fetchWithTimeout } from './net.js';
 
 export class WebDAVClient {
-    constructor({ baseUrl, username, password, remoteDir = 'AuraTabBackups' }) {
+    constructor({ baseUrl, username, password, remoteDir = 'AuraTabBackups', timeoutMs = 1800000 }) {
         this.baseUrl = baseUrl.replace(/\/+$/, ''); // remove trailing slashes
         this.username = username;
         this.password = password;
         this.remoteDir = this._sanitizeRemoteDir(remoteDir);
+        this.timeoutMs = timeoutMs;
     }
 
     async testConnection() {
@@ -40,7 +41,7 @@ export class WebDAVClient {
     }
 
     async ensureDir() {
-        const parts = this.remoteDir.split('/').filter(Boolean);
+        const parts = this.remoteDir.split('/').filter(Boolean).map(encodeURIComponent);
         let currentPath = '';
 
         for (const part of parts) {
@@ -60,7 +61,7 @@ export class WebDAVClient {
 
     async putFile(filename, blob) {
         try {
-            const url = this._buildUrl(`/${this.remoteDir}/${encodeURIComponent(filename)}`);
+            const url = this._buildUrl(`/${this._encodedRemoteDir()}/${encodeURIComponent(filename)}`);
             const response = await fetchWithRetry(url, {
                 method: 'PUT',
                 headers: {
@@ -69,7 +70,7 @@ export class WebDAVClient {
                 },
                 body: blob
             }, {
-                timeoutMs: 1800000, // 30 min timeout: supports 2GB backup upload on slow network (~1MB/s)
+                timeoutMs: this.timeoutMs,
                 retryCount: 2,
                 retryDelayMs: 1000
             });
@@ -83,22 +84,30 @@ export class WebDAVClient {
 
     async getFile(filename) {
         try {
-            const url = this._buildUrl(`/${this.remoteDir}/${encodeURIComponent(filename)}`);
-            const response = await fetchWithRetry(url, {
+            const url = this._buildUrl(`/${this._encodedRemoteDir()}/${encodeURIComponent(filename)}`);
+            return await fetchWithTimeout(url, {
                 method: 'GET',
                 headers: this._buildHeaders()
-            }, {
-                timeoutMs: 1800000, // 30 min timeout: supports 2GB backup download on slow network (~1MB/s)
-                retryCount: 2,
-                retryDelayMs: 1000
+            }, this.timeoutMs, async response => {
+                if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                const max = 2 * 1024 * 1024 * 1024;
+                if (Number(response.headers.get('content-length')) > max) {
+                    await response.body?.cancel();
+                    throw new Error('backup_too_large');
+                }
+                const chunks = []; let size = 0;
+                const reader = response.body.getReader();
+                try {
+                    while (true) {
+                        const {done, value} = await reader.read();
+                        if (done) break;
+                        size += value.length;
+                        if (size > max) { await reader.cancel(); throw new Error('backup_too_large'); }
+                        chunks.push(value);
+                    }
+                } finally { reader.releaseLock(); }
+                return new Blob(chunks, {type:'application/zip'});
             });
-
-            if (!response.ok) {
-                console.error(`[WebDAVClient] getFile failed: ${response.status}`);
-                return null;
-            }
-
-            return await response.blob();
         } catch (error) {
             console.error('[WebDAVClient] getFile error:', error);
             return null;
@@ -107,8 +116,8 @@ export class WebDAVClient {
 
     async listFiles() {
         try {
-            const url = this._buildUrl(`/${this.remoteDir}/`);
-            const response = await fetchWithTimeout(url, {
+            const url = this._buildUrl(`/${this._encodedRemoteDir()}/`);
+            const xmlText = await fetchWithTimeout(url, {
                 method: 'PROPFIND',
                 headers: {
                     ...this._buildHeaders(),
@@ -123,24 +132,20 @@ export class WebDAVClient {
     <D:resourcetype/>
   </D:prop>
 </D:propfind>`
-            }, 30000);
-
-            if (response.status !== 207 && response.status !== 200) {
-                console.error(`[WebDAVClient] listFiles failed: ${response.status}`);
-                return [];
-            }
-
-            const xmlText = await response.text();
+            }, Math.min(this.timeoutMs, 30000), async response => {
+                if (response.status !== 207 && response.status !== 200) throw new Error(`HTTP ${response.status}`);
+                return response.text();
+            });
             return this._parseListResponse(xmlText);
         } catch (error) {
             console.error('[WebDAVClient] listFiles error:', error);
-            return [];
+            throw error;
         }
     }
 
     async deleteFile(filename) {
         try {
-            const url = this._buildUrl(`/${this.remoteDir}/${encodeURIComponent(filename)}`);
+            const url = this._buildUrl(`/${this._encodedRemoteDir()}/${encodeURIComponent(filename)}`);
             const response = await fetchWithTimeout(url, {
                 method: 'DELETE',
                 headers: this._buildHeaders()
@@ -171,6 +176,10 @@ export class WebDAVClient {
     _buildUrl(path) {
         const normalizedPath = path.replace(/^\/+/, '/');
         return this.baseUrl + normalizedPath;
+    }
+
+    _encodedRemoteDir() {
+        return this.remoteDir.split('/').map(encodeURIComponent).join('/');
     }
 
     _sanitizeRemoteDir(dir) {
@@ -234,19 +243,20 @@ export class WebDAVClient {
             const parseError = doc.querySelector('parsererror');
             if (parseError) {
                 console.error('[WebDAVClient] XML parse error:', parseError.textContent);
-                return [];
+                throw new Error('Invalid WebDAV XML');
             }
 
             const files = [];
 
-            const responses = doc.querySelectorAll('response, D\\:response, d\\:response');
+            const responses = doc.getElementsByTagNameNS('DAV:', 'response');
+            const element = (parent, name) => parent.getElementsByTagNameNS('DAV:', name)[0];
 
             for (const response of responses) {
-                const hrefEl = response.querySelector('href, D\\:href, d\\:href');
+                const hrefEl = element(response, 'href');
                 const href = hrefEl?.textContent || '';
 
-                const resourceType = response.querySelector('resourcetype, D\\:resourcetype, d\\:resourcetype');
-                const isCollection = resourceType?.querySelector('collection, D\\:collection, d\\:collection') !== null;
+                const resourceType = element(response, 'resourcetype');
+                const isCollection = Boolean(resourceType && element(resourceType, 'collection'));
 
                 if (isCollection) continue;
 
@@ -255,10 +265,10 @@ export class WebDAVClient {
                 const decodedHref = decodeURIComponent(href);
                 const filename = decodedHref.split('/').filter(Boolean).pop() || '';
 
-                const lastModifiedEl = response.querySelector('getlastmodified, D\\:getlastmodified, d\\:getlastmodified');
+                const lastModifiedEl = element(response, 'getlastmodified');
                 const lastModified = lastModifiedEl?.textContent || '';
 
-                const contentLengthEl = response.querySelector('getcontentlength, D\\:getcontentlength, d\\:getcontentlength');
+                const contentLengthEl = element(response, 'getcontentlength');
                 const contentLength = parseInt(contentLengthEl?.textContent || '0', 10);
 
                 files.push({
@@ -278,7 +288,7 @@ export class WebDAVClient {
             return files;
         } catch (error) {
             console.error('[WebDAVClient] _parseListResponse error:', error);
-            return [];
+            throw error;
         }
     }
 }

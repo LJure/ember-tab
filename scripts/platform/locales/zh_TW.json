@@ -345,5 +345,9 @@
     "localBackupSection": "本地備份",
     "webdavBackupSectionDesc": "配置您自己的 WebDAV 伺服器，並保留可還原的備份版本。",
     "webdavCredentialsLocalHint": "憑據將保存在此瀏覽器的本機儲存中。",
-    "linkManagerSectionDesc": "在這裡整理目前的快捷連結與資料夾，備份操作已集中到下方。"
+    "linkManagerSectionDesc": "在這裡整理目前的快捷連結與資料夾，備份操作已集中到下方。",
+    "backupSkippedCache": "還原完成；部分舊版快取圖示無法還原。",
+    "import_backup_sync_quota_exceeded": "備份資料超出瀏覽器同步儲存容量。",
+    "import_invalid_backup_unsafe_path": "備份包含不安全的路徑。",
+    "import_invalid_backup_duplicate_path": "備份包含重複檔案。"
 }
