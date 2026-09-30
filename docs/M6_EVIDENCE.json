@@ -2,7 +2,9 @@
   "date": "2026-09-27",
   "amoSubmission": {
     "date": "2026-09-27",
-    "status": "awaiting-review",
+    "status": "approved-listed",
+    "listingVerifiedDate": "2026-10-01",
+    "listingMediaVerified": true,
     "slug": "ember-tab-firefox",
     "versionId": 6519175,
     "fileId": 5063322,

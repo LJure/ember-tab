@@ -1,5 +1,7 @@
 # Ember Tab 首版发布交接
 
+2026-10-01 更新：AMO 0.1.0 已通过审核并[公开上架](https://addons.mozilla.org/zh-CN/firefox/addon/ember-tab-firefox/)，商店图标和三张截图已完善，展示素材见 [商店素材](store/README.md)。已审核 XPI 未修改；签名 XPI 的实际安装／升级验收尚未记录完成。下方 2026-09-27 状态是提交时的历史记录。
+
 更新：2026-09-27。0.1.0 已提交 AMO 公开上架审核，源码已附交，当前等待审核。尚未取得签名包或创建 GitHub Release；签名安装和分发验收仍未完成。提交信息见 [Mozilla 提交进度](AMO_SUBMISSION_STATUS.md)，包和证据以 [M6 报告](M6_ACCEPTANCE.md) 为准。
 
 ## 已确认的首版范围

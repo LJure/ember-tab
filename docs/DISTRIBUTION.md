@@ -1,5 +1,7 @@
 # 开发安装、迁移与分发
 
+2026-10-01 更新：[Ember Tab 0.1.0 已在 Firefox 附加组件商店上架](https://addons.mozilla.org/zh-CN/firefox/addon/ember-tab-firefox/)。普通用户应使用商店安装；下方“未签名候选包”仅指开发者本地构建物。正式签名 XPI 的安装／升级验收仍待记录，见 [当前进度](AMO_SUBMISSION_STATUS.md)。
+
 Ember Tab 0.1.0 已提交 AMO 公开上架审核，源码已附交，当前等待审核；本地候选包仍未签名，不是已确认的正式发布。固定 ID 为 `ember-tab@ljure.github.io`，目标桌面 Firefox 140+；稳定版 156.0.1 与 ESR 140.16.0 已完成 M6 自动化矩阵，实际范围和剩余门槛见 [M6 验收](M6_ACCEPTANCE.md)，提交状态见 [Mozilla 提交进度](AMO_SUBMISSION_STATUS.md)。
 
 当前来源为本地、Wallhaven、Pexels、Bing；Unsplash／Pixabay 已移除，旧收藏保留。用户确认 Pexels 真实取图、Wallhaven 私有收藏集通过。设置方法见 [Wallhaven 使用](WALLHAVEN.md)，最新构建哈希以 [M6 验收](M6_ACCEPTANCE.md) 为准。

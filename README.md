@@ -4,11 +4,15 @@ An unofficial Firefox port of [Aura Tab by nil-byte](https://github.com/nil-byte
 
 基于 Aura Tab 的非官方 Firefox 新标签页扩展，保留快捷链接、Dock、搜索、书签导入、本地／在线壁纸、照片、备份与 WebDAV。独立维护，名称为 **Ember Tab**。
 
-**状态：0.1.0 已提交 Mozilla 公开上架审核，源码已附交，当前等待审核；尚未确认上架或取得签名包。签名安装／升级验收仍待完成。** 见 [提交进度](docs/AMO_SUBMISSION_STATUS.md)。
+**Ember Tab 0.1.0 已通过 Mozilla 审核并在 [Firefox 附加组件商店](https://addons.mozilla.org/zh-CN/firefox/addon/ember-tab-firefox/)公开上架。** 本地候选 ZIP 仍是未签名原始包；正式签名包的安装／升级验收尚未记录完成。详见 [上架进度](docs/AMO_SUBMISSION_STATUS.md)。
+
+![Ember Tab 新标签页演示](docs/store/01-newtab.png)
+
+商店展示图：[Wallhaven 设置](docs/store/02-wallhaven-settings.png) · [关于及来源说明](docs/store/03-about.png)。这些画面来自隔离测试配置，不含个人收藏、密钥或 WebDAV 凭据。
 
 ## 安装与迁移
 
-使用 Node 24，依次运行 `npm ci`、`npm run build:firefox`。在 Firefox 的 `about:debugging#/runtime/this-firefox` 临时载入 `dist/firefox/manifest.json`。临时安装会在重启后移除，长期安装需要签名。目标 Firefox 140+ 桌面版；稳定版 156.0.1 与 ESR 140.16.0 已完成自动化验收矩阵，范围及剩余项目见 [M6 验收报告](docs/M6_ACCEPTANCE.md)。
+普通用户可从 [Firefox 附加组件商店](https://addons.mozilla.org/zh-CN/firefox/addon/ember-tab-firefox/)安装。开发者可使用 Node 24，依次运行 `npm ci`、`npm run build:firefox`，然后在 Firefox 的 `about:debugging#/runtime/this-firefox` 临时载入 `dist/firefox/manifest.json`；临时安装会在重启后移除。目标 Firefox 140+ 桌面版；稳定版 156.0.1 与 ESR 140.16.0 已完成自动化验收矩阵，范围及剩余项目见 [M6 验收报告](docs/M6_ACCEPTANCE.md)。
 
 Aura 数据通过 ZIP 导入；用户已验证 Brave／Aura 3.5.3 的 59 链接、37.1 MB 备份、新版真实 WebDAV、Firefox 账号设置／链接同步、慢图床与自动图标尺寸修复，以及 Wallhaven 私有收藏集和 Pexels 真实取图。128 MiB 合成数据备份往返已通过；跨设备冲突合并延期至后续版本，长期轮换留待上线后持续验证，正式签名升级仍待验收。恢复不具备跨数据库与 storage 的全局回滚。
 
@@ -34,4 +38,4 @@ Aura 数据通过 ZIP 导入；用户已验证 Brave／Aura 3.5.3 的 59 链接�
 - [第三方许可](THIRD_PARTY_NOTICES.md)
 - [M4 数据可靠性](docs/M4_DATA.md) · [图标恢复](docs/M4_ICON_RECOVERY.md)
 
-GitHub Actions 保持暂停。上游宣传图和历史更新可在 [Aura Tab 仓库](https://github.com/nil-byte/aura-tab) 查看，不代表 Ember 已发布或经商店审核。
+GitHub Actions 保持暂停。上游宣传图和历史更新可在 [Aura Tab 仓库](https://github.com/nil-byte/aura-tab) 查看，独立于 Ember Tab 的商店页面与版本。

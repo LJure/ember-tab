@@ -7,8 +7,8 @@
   "initialVersion": "0.1.0",
   "geckoId": "ember-tab@ljure.github.io",
   "minimumFirefoxVersion": "140.0",
-  "status": "m6-unsigned-release-candidate",
-  "note": "Candidate build gates resolved within the user-approved scope. The generated package is unsigned; distribution acceptance remains separate and incomplete.",
+  "status": "m6-listed-signed-install-pending",
+  "note": "AMO 0.1.0 is approved and publicly listed. The local source-generated ZIP remains unsigned; actual signed XPI installation and upgrade acceptance remains separate and incomplete.",
   "releaseBlockers": [],
   "distributionBlockers": [
     "Signed install/upgrade and distribution acceptance"
