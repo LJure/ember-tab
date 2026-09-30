@@ -4,11 +4,10 @@ An unofficial Firefox port of [Aura Tab by nil-byte](https://github.com/nil-byte
 
 基于 Aura Tab 的非官方 Firefox 新标签页扩展，保留快捷链接、Dock、搜索、书签导入、本地／在线壁纸、照片、备份与 WebDAV。独立维护，名称为 **Ember Tab**。
 
-**Ember Tab 0.1.0 已通过 Mozilla 审核并在 [Firefox 附加组件商店](https://addons.mozilla.org/zh-CN/firefox/addon/ember-tab-firefox/)公开上架。** 本地候选 ZIP 仍是未签名原始包；正式签名包的安装／升级验收尚未记录完成。详见 [上架进度](docs/AMO_SUBMISSION_STATUS.md)。
-
+**Ember Tab 0.1.0 已通过 Mozilla 审核并在 [Firefox 附加组件商店](https://addons.mozilla.org/zh-CN/firefox/addon/ember-tab-firefox/)公开上架。** 
 ![Ember Tab 新标签页演示](docs/store/01-newtab.png)
 
-商店展示图：[Wallhaven 设置](docs/store/02-wallhaven-settings.png) · [关于及来源说明](docs/store/03-about.png)。这些画面来自隔离测试配置，不含个人收藏、密钥或 WebDAV 凭据。
+商店展示图：[Wallhaven 设置](docs/store/02-wallhaven-settings.png) · [关于及来源说明](docs/store/03-about.png)。
 
 ## 安装与迁移
 
@@ -27,10 +26,6 @@ Aura 数据通过 ZIP 导入；用户已验证 Brave／Aura 3.5.3 的 59 链接�
 
 ## 文档
 
-- [开发计划与接续](DEVELOPMENT_PLAN.md)
-- [M6 验收与证据](docs/M6_ACCEPTANCE.md) · [发布交接清单](docs/RELEASE_HANDOFF.md)
-- [当前服务与素材复核](docs/M6_SOURCE_REVIEW.md) · [AMO 审阅资料](docs/AMO_REVIEWER_NOTES.md)
-- [M5 结果与验证](docs/M5_RELEASE_PREPARATION.md)
 - [素材、网络和服务条款审计](docs/M5_ASSET_AND_NETWORK_AUDIT.md)
 - [动态 HTML 警告复核](docs/M5_HTML_AUDIT.md)
 - [安装、迁移、构建与分发边界](docs/DISTRIBUTION.md)
@@ -38,4 +33,3 @@ Aura 数据通过 ZIP 导入；用户已验证 Brave／Aura 3.5.3 的 59 链接�
 - [第三方许可](THIRD_PARTY_NOTICES.md)
 - [M4 数据可靠性](docs/M4_DATA.md) · [图标恢复](docs/M4_ICON_RECOVERY.md)
 
-GitHub Actions 保持暂停。上游宣传图和历史更新可在 [Aura Tab 仓库](https://github.com/nil-byte/aura-tab) 查看，独立于 Ember Tab 的商店页面与版本。
