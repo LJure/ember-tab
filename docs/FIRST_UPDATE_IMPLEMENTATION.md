@@ -94,6 +94,6 @@ npm run test:firefox:search -- --live
 
 ## 本地候选包
 
-`dist/ember-tab-0.1.1-firefox.zip`，115 个运行文件、545746 字节；SHA-256 为 `ffaca1f29339240df43a8137fc662abfa67fe57f3345b8ba1b135a05a5a47820`，同时保存在相邻 `.sha256` 文件。所有源码和测试改动保留在工作区，没有上传商店或发布新版本。
+`dist/ember-tab-0.1.1-firefox.zip`，115 个运行文件、545746 字节；SHA-256 为 `ffaca1f29339240df43a8137fc662abfa67fe57f3345b8ba1b135a05a5a47820`，同时保存在相邻 `.sha256` 文件。用户试用确认后，源码与包已发布到 [GitHub v0.1.1](https://github.com/LJure/ember-tab/releases/tag/v0.1.1)，尚未上传／提交商店。发布回执见 [发布记录](FIRST_UPDATE_RELEASE.md)。
 
 临时体验：在单独 Firefox 测试配置打开 `about:debugging#/runtime/this-firefox`，临时载入 `dist/firefox/manifest.json`。临时加载在浏览器重启后失效。正式长期安装与更新继续通过签名／商店渠道，不能把 ZIP 重命名当作签名安装。详细步骤见 [分发说明](DISTRIBUTION.md)。

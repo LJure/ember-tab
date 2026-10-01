@@ -10,11 +10,13 @@
 
 ## GitHub 发布材料
 
-目标：[v0.1.1](https://github.com/LJure/ember-tab/releases/tag/v0.1.1)，仓库 `LJure/ember-tab`，主分支 `main`。
+已于 2026-10-01 13:15（北京时间）公开发布 [v0.1.1](https://github.com/LJure/ember-tab/releases/tag/v0.1.1)，仓库 `LJure/ember-tab`，主分支 `main` 已推送更新。标签对应提交 `c5eec9eb2b840f08aa349ef5742f776b5e6a12c1`；后续主分支仅补充发布回执。发布页不是草稿或预发布，未签名包边界已写入说明。
 
 - `ember-tab-0.1.1-firefox.zip`：115 个运行文件、545746 字节，SHA-256 `ffaca1f29339240df43a8137fc662abfa67fe57f3345b8ba1b135a05a5a47820`。
 - `ember-tab-0.1.1-source.zip`：当前提交的审阅源码，保留构建所需文件和第三方许可，不含 `.local`、浏览器配置、凭据、`node_modules` 或测试用 ZIP。
 - 两个包分别提供 `.sha256`，提交清单另作为 `ember-tab-0.1.1-submission.json` 附件。
+
+源码包 275 个文件、28636571 字节，SHA-256 `9ebf67a537f903b8fb76fd7c05ed69b5792d04155bf8283012d3ec111a4ba502`。已在独立目录解包，无 npm 安装和 Git 检出即可重建出字节一致的运行包。GitHub 发布 API 确认五个附件均为 `uploaded`，两个 ZIP 的远端 digest 与本地一致。
 
 运行 ZIP 未签名，仅用于开发者临时加载，不是可长期安装的签名 XPI；不能通过改名绕过 Firefox 签名要求。日常安装继续使用 AMO。
 

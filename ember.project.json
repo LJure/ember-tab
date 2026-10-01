@@ -9,7 +9,7 @@
   "geckoId": "ember-tab@ljure.github.io",
   "minimumFirefoxVersion": "140.0",
   "status": "first-update-store-submission-pending",
-  "note": "AMO 0.1.0 is approved and publicly listed. Version 0.1.1 has passed local and user testing and is prepared for GitHub distribution; its unsigned runtime and matching source are ready, but the AMO update has not been submitted. Actual signed XPI installation and upgrade acceptance remains separate and incomplete.",
+  "note": "AMO 0.1.0 is approved and publicly listed. Version 0.1.1 passed local and user testing and is published on GitHub (tag v0.1.1, commit c5eec9e) with unsigned runtime, matching source and checksums. The AMO update has not been submitted because the store automation tool is unavailable. Actual signed XPI installation and upgrade acceptance remains separate and incomplete.",
   "releaseBlockers": [],
   "distributionBlockers": [
     "Signed install/upgrade and distribution acceptance"
