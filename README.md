@@ -83,13 +83,6 @@ Aura 数据通过 ZIP 导入；用户已验证 Brave／Aura 3.5.3 的 59 链接�
 
 ![壁纸来源选择与透明度、模糊度、纹理设置](docs/screenshots/et-6.png)
 
-## M5 变化
-
-- 独立产品／相册／设置图标与默认壁纸（产品图标主体放大 14%），SVG 源文件随源码提供；Dock 默认行为保持上游一致。
-- 本地隐私页、Firefox 数据传输声明、完整第三方许可与包检查；未接入统计、广告或开发者后端。
-- 已移除 Unsplash／Pixabay 取图来源，保留历史收藏与备份兼容。新增 Wallhaven：随机 SFW 壁纸、指定公开／自己的私有收藏集、自动更换与上传者信息。[设置方法与验证](docs/WALLHAVEN.md)。
-- 保留 Aura 数据键、备份 schema 和已有 WebDAV 目录兼容性；关于页和变更记录明确标注分叉来源。
-
 ## 文档
 
 - [素材、网络和服务条款审计](docs/M5_ASSET_AND_NETWORK_AUDIT.md)
