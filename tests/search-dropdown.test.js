@@ -1,0 +1,210 @@
+import { beforeEach, afterEach, describe, it, expect, vi } from 'vitest';
+import { setStorageData, triggerStorageChange } from './setup.js';
+import { initSearch } from '../scripts/domains/search.js';
+import { SearchSuggestionClient } from '../scripts/platform/search-suggestions.js';
+import { createSearchHistoryHandler, SEARCH_HISTORY_KEY } from '../scripts/platform/search-data.js';
+let search;
+let input;
+beforeEach(() => {
+    document.body.innerHTML = `<div class="search-container"><input id="searchInput"><button id="searchEngineBtn"></button></div>
+        <div id="engineSwitcherOverlay" aria-hidden="true"><div id="engineSwitcher"><div id="engineSwitcherButtons"></div></div></div>`;
+    input = document.getElementById('searchInput');
+    const handler = createSearchHistoryHandler(chrome.storage.local, 'test');
+    chrome.runtime.sendMessage.mockImplementation(message => handler(message, { id: 'test' }));
+    vi.spyOn(SearchSuggestionClient.prototype, 'get').mockResolvedValue([]);
+});
+afterEach(() => { search?.destroy(); search = null; delete chrome.extension; vi.restoreAllMocks(); vi.useRealTimers(); });
+async function start(local) {
+    setStorageData(local, 'local');
+    search = initSearch();
+    await vi.waitFor(() => expect(search.dropdown.preferences.searchSuggestionsEnabled).toBe(local.searchSuggestionsEnabled === true));
+    input.focus();
+    input.dispatchEvent(new Event('pointerdown', { bubbles: true }));
+    vi.useFakeTimers();
+}
+function type(value) { input.value = value; input.dispatchEvent(new Event('input')); }
+describe('search dropdown interactions', () => {
+    it.each(['bing', 'default', 'default-fallback'])('clears and blurs after a new-tab search via %s while preserving submitted history', async route => {
+        await start({ searchHistoryEnabled: true, searchSuggestionsEnabled: true });
+        search.setOpenInNewTab(true);
+        search.setSearchEngine(route === 'bing' ? 'bing' : 'default');
+        chrome.search = { query: vi.fn().mockResolvedValue() };
+        if (route === 'default-fallback') chrome.search.query.mockRejectedValueOnce(new Error('unavailable'));
+        const open = vi.spyOn(window, 'open').mockReturnValue(null);
+        type('submitted query');
+        await search.submitQuery();
+        expect(input.value).toBe('');
+        expect(document.activeElement).not.toBe(input);
+        expect(search.searchContainer.classList.contains('focused')).toBe(false);
+        expect(search.dropdown.panel.hidden).toBe(true);
+        expect(search.dropdown.engaged).toBe(false);
+        expect((await chrome.runtime.sendMessage({ type: 'emberSearchHistory', action: 'list' })).items).toEqual(['submitted query']);
+        if (route === 'default') expect(chrome.search.query).toHaveBeenCalledWith({ text: 'submitted query', disposition: 'NEW_TAB' });
+        else expect(open).toHaveBeenCalledWith(expect.stringContaining('submitted%20query'), '_blank');
+        triggerStorageChange({ [SEARCH_HISTORY_KEY]: { newValue: ['submitted query'] } }, 'local');
+        await vi.advanceTimersByTimeAsync(500);
+        expect(search.dropdown.panel.hidden).toBe(true);
+        expect(SearchSuggestionClient.prototype.get).not.toHaveBeenCalled();
+    });
+    it('also removes focus from the search button after a new-tab submission', async () => {
+        await start({});
+        search.setOpenInNewTab(true);
+        search.setSearchEngine('bing');
+        vi.spyOn(window, 'open').mockReturnValue(null);
+        type('button query');
+        search.dropdown.submitButton.focus();
+        await search.submitQuery();
+        expect(input.value).toBe('');
+        expect(search.dropdown.contains(document.activeElement)).toBe(false);
+    });
+    it('keeps the query for current-tab searches and does not submit empty input', async () => {
+        await start({});
+        chrome.search = { query: vi.fn().mockResolvedValue() };
+        search.setSearchEngine('default');
+        search.setOpenInNewTab(false);
+        type('current query');
+        await search.submitQuery();
+        expect(chrome.search.query).toHaveBeenCalledWith({ text: 'current query', disposition: 'CURRENT_TAB' });
+        expect(input.value).toBe('current query');
+        expect(document.activeElement).toBe(input);
+        chrome.search.query.mockClear();
+        search.setOpenInNewTab(true);
+        type('   ');
+        await search.submitQuery();
+        expect(chrome.search.query).not.toHaveBeenCalled();
+        expect(input.value).toBe('   ');
+        expect(document.activeElement).toBe(input);
+    });
+    it('applies appearance storage updates without reopening history or requesting suggestions', async () => {
+        input.focus();
+        setStorageData({ searchHistoryEnabled: true, [SEARCH_HISTORY_KEY]: ['ember tab'] }, 'local');
+        search = initSearch();
+        await vi.waitFor(() => expect(search.dropdown.preferences.searchHistoryEnabled).toBe(true));
+        setStorageData({ searchPanelOpacity: 90, searchPanelBlur: 0 }, 'sync');
+        triggerStorageChange({ searchPanelOpacity: { newValue: 90 }, searchPanelBlur: { newValue: 0 } }, 'sync');
+        await vi.waitFor(() => expect(document.documentElement.style.getPropertyValue('--search-panel-opacity')).toBe('0.9'));
+        expect(document.documentElement.style.getPropertyValue('--search-panel-blur')).toBe('0px');
+        expect(search.dropdown.panel.hidden).toBe(true);
+        expect(chrome.runtime.sendMessage).not.toHaveBeenCalled();
+        expect(SearchSuggestionClient.prototype.get).not.toHaveBeenCalled();
+    });
+    it('keeps autofocus and background preference/history updates closed until an explicit click', async () => {
+        input.focus();
+        setStorageData({ searchHistoryEnabled: true, [SEARCH_HISTORY_KEY]: ['ember tab'] }, 'local');
+        search = initSearch();
+        await vi.waitFor(() => expect(search.dropdown.preferences.searchHistoryEnabled).toBe(true));
+        search.setSearchEngine('bing');
+        triggerStorageChange({ [SEARCH_HISTORY_KEY]: { newValue: ['ember tab'] } }, 'local');
+        window.dispatchEvent(new Event('languageChanged'));
+        await Promise.resolve();
+        expect(search.dropdown.panel.hidden).toBe(true);
+        expect(chrome.runtime.sendMessage).not.toHaveBeenCalled();
+        input.dispatchEvent(new Event('pointerdown', { bubbles: true }));
+        await vi.waitFor(() => expect(search.dropdown.panel.hidden).toBe(false));
+        expect(search.dropdown.items.map(item => item.query)).toEqual(['ember tab']);
+    });
+    it('opens autofocus history by keyboard and does not reopen a dismissed panel on storage changes', async () => {
+        input.focus();
+        setStorageData({ searchHistoryEnabled: true, [SEARCH_HISTORY_KEY]: ['ember tab'] }, 'local');
+        search = initSearch();
+        await vi.waitFor(() => expect(search.dropdown.preferences.searchHistoryEnabled).toBe(true));
+        input.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowDown', bubbles: true }));
+        await vi.waitFor(() => expect(search.dropdown.activeIndex).toBe(0));
+        input.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
+        triggerStorageChange({ [SEARCH_HISTORY_KEY]: { newValue: ['ember tab'] } }, 'local');
+        await Promise.resolve();
+        expect(search.dropdown.panel.hidden).toBe(true);
+        type('ember');
+        await vi.waitFor(() => expect(search.dropdown.panel.hidden).toBe(false));
+    });
+    it('keeps keyboard focus inside the separate history panel and dismisses when focus leaves', async () => {
+        await start({ searchHistoryEnabled: true, [SEARCH_HISTORY_KEY]: ['ember tab'] });
+        await vi.advanceTimersByTimeAsync(0);
+        document.querySelector('.search-history-delete').focus();
+        expect(search.dropdown.panel.hidden).toBe(false);
+        const outside = document.createElement('button');
+        document.body.append(outside);
+        outside.focus();
+        expect(search.dropdown.panel.hidden).toBe(true);
+    });
+    it('renders history as text, deletes without submitting and supports keyboard selection', async () => {
+        await start({ searchHistoryEnabled: true, [SEARCH_HISTORY_KEY]: ['<img src=x onerror=attack()>', 'ember tab'] });
+        await vi.advanceTimersByTimeAsync(0);
+        expect(document.querySelectorAll('.search-suggestion-choice')).toHaveLength(2);
+        expect(document.querySelector('.search-suggestions img')).toBeNull();
+        const submit = vi.spyOn(search, 'submitQuery').mockResolvedValue();
+        document.querySelector('.search-history-delete').click();
+        await vi.advanceTimersByTimeAsync(0);
+        expect(submit).not.toHaveBeenCalled();
+        expect(search.dropdown.items.map(item => item.query)).toEqual(['ember tab']);
+        input.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowDown', bubbles: true }));
+        input.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true }));
+        expect(input.value).toBe('ember tab');
+        expect(submit).toHaveBeenCalledOnce();
+    });
+    it('suppresses suggestions and search submission during Chinese composition', async () => {
+        await start({ searchSuggestionsEnabled: true });
+        const submit = vi.spyOn(search, 'submitQuery').mockResolvedValue();
+        input.dispatchEvent(new Event('compositionstart'));
+        type('zhong');
+        input.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', isComposing: true, bubbles: true }));
+        await vi.advanceTimersByTimeAsync(400);
+        expect(SearchSuggestionClient.prototype.get).not.toHaveBeenCalled();
+        expect(submit).not.toHaveBeenCalled();
+        input.value = '中文';
+        input.dispatchEvent(new Event('compositionend'));
+        await vi.advanceTimersByTimeAsync(281);
+        expect(SearchSuggestionClient.prototype.get).toHaveBeenCalledWith('bing', '中文', expect.anything());
+    });
+    it('ignores an old response after the input changes', async () => {
+        let oldResponse;
+        SearchSuggestionClient.prototype.get.mockImplementation((_provider, query) => query === 'old'
+            ? new Promise(resolve => { oldResponse = resolve; }) : Promise.resolve(['new result']));
+        await start({ searchSuggestionsEnabled: true });
+        type('old');
+        await vi.advanceTimersByTimeAsync(281);
+        type('new');
+        await vi.advanceTimersByTimeAsync(281);
+        expect(search.dropdown.items.map(item => item.query)).toEqual(['new result']);
+        oldResponse(['old result']);
+        await vi.advanceTimersByTimeAsync(0);
+        expect(search.dropdown.items.map(item => item.query)).toEqual(['new result']);
+    });
+    it('cancels the panel and ignores pending responses when the feature is disabled', async () => {
+        let resolve;
+        SearchSuggestionClient.prototype.get.mockImplementation(() => new Promise(done => { resolve = done; }));
+        await start({ searchSuggestionsEnabled: true });
+        type('pending');
+        await vi.advanceTimersByTimeAsync(281);
+        setStorageData({ searchSuggestionsEnabled: false }, 'local');
+        triggerStorageChange({ searchSuggestionsEnabled: { oldValue: true, newValue: false } }, 'local');
+        await vi.advanceTimersByTimeAsync(0);
+        resolve(['late result']);
+        await vi.advanceTimersByTimeAsync(400);
+        expect(search.dropdown.panel.hidden).toBe(true);
+        expect(SearchSuggestionClient.prototype.get).toHaveBeenCalledOnce();
+    });
+    it('never reads history or requests suggestions in private windows', async () => {
+        chrome.extension = { inIncognitoContext: true };
+        await start({ searchHistoryEnabled: true, searchSuggestionsEnabled: true });
+        type('private query');
+        await vi.advanceTimersByTimeAsync(500);
+        await search.dropdown.record('private query');
+        expect(chrome.runtime.sendMessage).not.toHaveBeenCalled();
+        expect(SearchSuggestionClient.prototype.get).not.toHaveBeenCalled();
+        expect(search.dropdown.panel.hidden).toBe(true);
+    });
+    it('closes on Escape and clears pending requests when destroyed', async () => {
+        SearchSuggestionClient.prototype.get.mockResolvedValue(['result']);
+        await start({ searchSuggestionsEnabled: true });
+        type('query');
+        await vi.advanceTimersByTimeAsync(281);
+        input.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
+        expect(input.value).toBe('query');
+        expect(search.dropdown.panel.hidden).toBe(true);
+        type('other');
+        search.destroy();
+        await vi.advanceTimersByTimeAsync(500);
+        expect(SearchSuggestionClient.prototype.get).toHaveBeenCalledOnce();
+    });
+});

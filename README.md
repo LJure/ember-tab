@@ -6,6 +6,8 @@ An unofficial Firefox port of [Aura Tab by nil-byte](https://github.com/nil-byte
 
 **Ember Tab 0.1.0 已通过 Mozilla 审核并公开上架。**
 
+源码版本已更新至 **0.1.1**，用户测试完成；商店更新尚未提交。构建包与源码见 [GitHub 0.1.1 发布](https://github.com/LJure/ember-tab/releases/tag/v0.1.1)，当前 ZIP 为开发者临时加载包，长期安装仍推荐商店签名版。
+
 [![Firefox Add-ons 版本](https://img.shields.io/amo/v/ember-tab-firefox?style=for-the-badge&logo=firefoxbrowser&logoColor=white&label=Firefox%20Add-ons&color=FF7139)](https://addons.mozilla.org/zh-CN/firefox/addon/ember-tab-firefox/)
 
 ## 安装与迁移
@@ -48,6 +50,16 @@ An unofficial Firefox port of [Aura Tab by nil-byte](https://github.com/nil-byte
 Aura 数据通过 ZIP 导入；用户已验证 Brave／Aura 3.5.3 的 59 链接、37.1 MB 备份、新版真实 WebDAV、Firefox 账号设置／链接同步、慢图床与自动图标尺寸修复，以及 Wallhaven 私有收藏集和 Pexels 真实取图。128 MiB 合成数据备份往返已通过；跨设备冲突合并延期至后续版本，长期轮换留待上线后持续验证，正式签名升级仍待验收。恢复不具备跨数据库与 storage 的全局回滚。
 
 普通包要求图床、在线服务和 WebDAV 使用 HTTPS。仅本机集成测试可以单独生成带 `-test-http` 标记的包。Chromium 历史配置不是 Firefox 安装入口。
+
+## 0.1.1 更新
+
+- 恢复原版相册和设置图标。
+- 可选搜索历史，支持逐项删除与清空，只保存在本机，不参与同步、迁移或备份。
+- 可选实时搜索联想；浏览器默认、搜狗和 Ecosia 使用独立来源选择，其他支持的引擎跟随搜索框选择。历史与联想默认关闭，无痕窗口禁用。
+- 外观设置可调历史／联想面板不透明度及模糊强度，提供即时预览与恢复默认。新标签页保持面板收起。
+- 新标签页打开搜索结果后，清空原页面搜索框并移除焦点。
+
+开关和联想来源位于“设置 → 通用 → 搜索”，面板样式位于“设置 → 外观”。验证与发布边界见 [实现记录](docs/FIRST_UPDATE_IMPLEMENTATION.md) 和 [0.1.1 发布记录](docs/FIRST_UPDATE_RELEASE.md)。
 
 ## 展示截图
 

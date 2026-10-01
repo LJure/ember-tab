@@ -2,6 +2,7 @@ import { validateWallhavenCollection } from '../backgrounds/source-wallhaven.js'
 import { t } from "../../platform/i18n.js";
 import { backgroundSystem } from "../backgrounds/controller.js";
 import { toast } from "../../shared/toast.js";
+import { initSearchPanelAppearance } from './content-search-appearance.js';
 import {
   SYNC_SETTINGS_DEFAULTS,
   createBackgroundSettingsDefaults,
@@ -89,6 +90,8 @@ export function registerAppearanceContent(window) {
                     </div>
                 </div>
             </div>
+
+            <div id="macSearchPanelAppearance"></div>
 
             <!-- Background Source -->
             <div class="mac-settings-section">
@@ -275,6 +278,7 @@ export function registerAppearanceContent(window) {
         `;
 
     _bindAppearanceEvents(container);
+    initSearchPanelAppearance(container.querySelector('#macSearchPanelAppearance'));
     _loadAppearanceSettings(container);
 
     _activeAppearanceContainer = container;

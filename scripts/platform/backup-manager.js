@@ -3,6 +3,7 @@ import { idbCursorAll } from '../shared/storage.js';
 import { setStorageInChunks } from '../shared/storage.js';
 import { buildIconCacheKey, normalizeIconCacheUrl } from '../shared/text.js';
 import { validateSyncSnapshot } from './backup-validation.js';
+import { SEARCH_LOCAL_KEYS, withoutSearchLocalData } from './search-data.js';
 const SCHEMA_VERSION = 1;
 const SCHEMA_NAME = 'aura-tab-webdav-backup';
 const MAX_IN_MEMORY_BACKUP_SIZE = 500 * 1024 * 1024;
@@ -126,8 +127,8 @@ export class BackupManager {
                 }
                 onProgress?.({ stage: 'validate', percent: 55 });
                 onProgress?.({ stage: 'restoreStorage', percent: 55 });
-                const syncData = await this._parseRequiredStagingJsonObject(stagingDb, 'storage/sync.json');
-                const localData = await this._parseRequiredStagingJsonObject(stagingDb, 'storage/local.json');
+                const syncData = withoutSearchLocalData(await this._parseRequiredStagingJsonObject(stagingDb, 'storage/sync.json'));
+                const localData = withoutSearchLocalData(await this._parseRequiredStagingJsonObject(stagingDb, 'storage/local.json'));
                 // _smartRestoreStorage writes before removing obsolete keys. Check
                 // its peak footprint too, so quota rejection cannot leave half a restore.
                 validateSyncSnapshot({ ...await chrome.storage.sync.get(null), ...syncData });
@@ -148,7 +149,7 @@ export class BackupManager {
                 // Publish metadata after its blobs exist; storage listeners may
                 // otherwise prune restored images as missing during the import.
                 await this._smartRestoreStorage('sync', syncData);
-                await this._smartRestoreStorage('local', localData, ['webdavConfig']);
+                await this._smartRestoreStorage('local', localData, ['webdavConfig', ...SEARCH_LOCAL_KEYS]);
                 onProgress?.({ stage: 'done', percent: 100 });
                 return { success: true, skippedCacheEntries };
             } finally {
@@ -431,11 +432,11 @@ export class BackupManager {
             chrome.storage.sync.get(null),
             chrome.storage.local.get(null)
         ]);
-        const filteredLocalData = { ...localData };
+        const filteredLocalData = withoutSearchLocalData(localData);
         delete filteredLocalData.webdavConfig;
-        stats.storageSync.keys = Object.keys(syncData).length;
+        stats.storageSync.keys = Object.keys(withoutSearchLocalData(syncData)).length;
         stats.storageLocal.keys = Object.keys(filteredLocalData).length;
-        this._addFileToZip(zipper, 'storage/sync.json', strToU8(JSON.stringify(syncData, null, 2)));
+        this._addFileToZip(zipper, 'storage/sync.json', strToU8(JSON.stringify(withoutSearchLocalData(syncData), null, 2)));
         this._addFileToZip(zipper, 'storage/local.json', strToU8(JSON.stringify(filteredLocalData, null, 2)));
         onProgress?.({ stage: 'storage', percent: 10 });
         onProgress?.({ stage: 'iconCache', percent: 10 });

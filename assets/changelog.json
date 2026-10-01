@@ -1,4 +1,34 @@
 {
+  "0.1.1": {
+    "en": [
+      "Restored the original Photos and Settings icons.",
+      "Optional local search history with individual deletion and clear-all, excluded from sync, migration and backups.",
+      "Optional live suggestions follow the search-box engine. Browser default, Sogou and Ecosia use a shared source: Bing, Google, Baidu, DuckDuckGo or Brave.",
+      "Both features are off by default and disabled in private windows.",
+      "Improved suggestion/history contrast; new tabs keep history collapsed until interaction. Removed the input clear button.",
+      "Added panel opacity and blur sliders with live preview and reset in Appearance settings.",
+      "Opening search results in a new tab now clears and unfocuses the search box."
+    ],
+    "zh_CN": [
+      "恢复原版相册和设置图标。",
+      "新增可选本地搜索历史，支持逐项删除和清空，不参与同步、迁移或备份。",
+      "新增可选实时联想；浏览器默认、搜狗和 Ecosia 使用共用来源：Bing、Google、百度、DuckDuckGo 或 Brave，其他引擎跟随搜索框选择。",
+      "两个功能默认关闭，无痕窗口不记录历史、不请求联想。",
+      "提高历史与联想面板的可读性；新标签页不再自动展开历史，移除输入框清空按钮。",
+      "外观设置新增面板不透明度与模糊强度调节，支持即时预览和恢复默认值。",
+      "在新标签页打开搜索结果后，自动清空搜索框并移除焦点。"
+    ],
+    "zh_TW": [
+      "還原原版相簿和設定圖示。",
+      "新增可選本機搜尋記錄，支援逐筆刪除及清空，不參與同步、移轉或備份。",
+      "新增可選即時建議；瀏覽器預設、搜狗和 Ecosia 使用共用來源：Bing、Google、百度、DuckDuckGo 或 Brave，其他引擎跟隨搜尋框選擇。",
+      "兩個功能預設關閉，私密視窗不記錄歷史、不請求建議。",
+      "提高記錄與建議面板的可讀性；新分頁不再自動展開記錄，移除輸入框清空按鈕。",
+      "外觀設定新增面板不透明度與模糊強度調整，支援即時預覽及還原預設值。",
+      "在新分頁開啟搜尋結果後，自動清空搜尋框並移除焦點。"
+    ],
+    "moreUrl": "https://github.com/LJure/ember-tab"
+  },
   "0.1.0": {
     "en": [
       "Ember Tab: an unofficial Firefox port of Aura Tab 3.5.3.",

@@ -4,6 +4,7 @@ import {
 } from '../platform/lifecycle.js';
 import { t } from '../platform/i18n.js';
 import { SYNC_SETTINGS_DEFAULTS, getSyncSettings } from '../platform/settings-contract.js';
+import { SearchDropdown } from './search-dropdown.js';
 
 const MODAL_ID = 'engine-switcher';
 
@@ -60,6 +61,8 @@ class Search extends DisposableComponent {
         if (this.isDestroyed || this.isInitialized) return;
 
         this.renderEngineButtons();
+        this.dropdown = new SearchDropdown(this);
+        this.dropdown.init();
         this.loadSavedPreferences();
         this._bindEvents();
         this._initStorageListener();
@@ -106,7 +109,7 @@ class Search extends DisposableComponent {
 
         // Click search container to focus input (intuitive: click "search box area" = enter input)
         this._events.add(this.searchContainer, 'click', (e) => {
-            if (!e.target.closest('.search-engine-wrapper')) {
+            if (!e.target.closest('button')) {
                 this.searchInput.focus();
             }
         });
@@ -192,6 +195,7 @@ class Search extends DisposableComponent {
         if (!this.searchEngines[engine]) return;
 
         this.currentEngine = engine;
+        this.dropdown?.refresh();
 
         this.engineBtns.forEach((btn, index) => {
             if (btn.dataset.engine === engine) {
@@ -209,6 +213,7 @@ class Search extends DisposableComponent {
         if (this.isOpen || this.isDestroyed) return;
 
         this.isOpen = true;
+        this.dropdown?.close();
         this.overlay.classList.add('active');
         this.overlay.setAttribute('aria-hidden', 'false');
 
@@ -328,39 +333,56 @@ class Search extends DisposableComponent {
     }
 
     async handleSearch(e) {
+        if (this.dropdown?.handleKey(e)) return;
         if (e.key !== 'Enter') return;
+        e.preventDefault();
+        return this.submitQuery();
+    }
 
-        const query = this.searchInput.value.trim();
+    async submitQuery(value = this.searchInput.value) {
+        const query = value.trim();
         if (!query) return;
+        const engine = this.currentEngine;
+        const openInNewTab = this.openInNewTab;
+        await this.dropdown?.record(query);
 
-        if (this.currentEngine === 'default') {
+        if (engine === 'default') {
             try {
                 await chrome.search.query({
                     text: query,
-                    disposition: this.openInNewTab ? 'NEW_TAB' : 'CURRENT_TAB'
+                    disposition: openInNewTab ? 'NEW_TAB' : 'CURRENT_TAB'
                 });
             } catch {
                 // Fallback to Google
                 const searchUrl = this.searchEngines.google.searchUrl + encodeURIComponent(query);
-                if (this.openInNewTab) {
+                if (openInNewTab) {
                     window.open(searchUrl, '_blank');
                 } else {
                     window.location.href = searchUrl;
                 }
             }
         } else {
-            const searchUrl = this.searchEngines[this.currentEngine].searchUrl + encodeURIComponent(query);
-            if (this.openInNewTab) {
+            const searchUrl = this.searchEngines[engine].searchUrl + encodeURIComponent(query);
+            if (openInNewTab) {
                 window.open(searchUrl, '_blank');
             } else {
                 window.location.href = searchUrl;
             }
+        }
+
+        if (openInNewTab && !this.isDestroyed) {
+            this.searchInput.value = '';
+            const focused = document.activeElement;
+            if (this.searchContainer.contains(focused) || this.dropdown?.contains(focused)) focused?.blur();
+            this.dropdown?.dismiss();
+            this.searchContainer.classList.remove('focused');
         }
     }
 
     // Inherited from DisposableComponent - handles all cleanup automatically
     destroy() {
         if (this.isDestroyed) return;
+        this.dropdown?.destroy();
 
         // Close switcher if open
         if (this.isOpen) {

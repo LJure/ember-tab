@@ -57,6 +57,7 @@ describe('settings-general-ui-defaults', () => {
         expect(sectionTitles).toEqual([
             'settingsLanguageSection',
             'settingsUiSection',
+            'settingsSearchSection',
             'settingsLaunchpadDensity'
         ]);
         expect(getRowById(rows, 'macShowSeconds')?.defaultValue).toBe(SYNC_SETTINGS_DEFAULTS.showSeconds);

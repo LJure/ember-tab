@@ -1071,6 +1071,88 @@ html[data-first-paint='disarming'] #background-media .background-image {
     pointer-events: auto;
 }
 
+.search-action {
+    flex: 0 0 32px;
+    width: 32px;
+    height: 32px;
+    border: 0;
+    border-radius: var(--radius-md);
+    background: transparent;
+    color: rgba(255, 255, 255, 0.7);
+    cursor: pointer;
+    position: relative;
+    z-index: 2;
+    display: grid;
+    place-items: center;
+}
+.search-action[hidden], .search-suggestions[hidden] { display: none; }
+.search-action svg { width: 22px; height: 22px; }
+.search-action:hover, .search-action:focus-visible { background: var(--surface-glass); color: white; }
+.search-suggestions {
+    position: fixed;
+    /* Separate from animated/backdrop-filter ancestors; coordinates follow the search box. */
+    z-index: calc(var(--z-dock) + 1);
+    border: 0.5px solid var(--spotlight-glass-border);
+    border-radius: var(--spotlight-glass-radius);
+    background: rgba(28, 28, 34, var(--search-panel-opacity, 0.68));
+    -webkit-backdrop-filter: blur(var(--search-panel-blur, 48px)) saturate(var(--spotlight-glass-saturate)) brightness(var(--glass-brightness));
+    backdrop-filter: blur(var(--search-panel-blur, 48px)) saturate(var(--spotlight-glass-saturate)) brightness(var(--glass-brightness));
+    box-shadow: var(--shadow-elevation-3), var(--shadow-glass-inset);
+    padding: 8px;
+    color: rgba(255, 255, 255, 0.95);
+    max-height: min(420px, 45vh);
+    overflow-y: auto;
+    cursor: default;
+}
+.search-suggestions-label { padding: 5px 12px 7px; font-size: 12px; color: rgba(255,255,255,0.8); }
+.search-suggestion-row { display: flex; align-items: center; border-radius: 12px; }
+.search-suggestion-row:hover, .search-suggestion-row.selected, .search-suggestion-row:focus-within { background: rgba(255,255,255,0.14); }
+.search-suggestion-choice {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 12px;
+    border: 0;
+    background: transparent;
+    color: inherit;
+    text-align: left;
+    cursor: pointer;
+    font: inherit;
+    font-size: 16px;
+}
+.search-suggestion-choice svg { width: 20px; height: 20px; flex: 0 0 20px; opacity: 0.7; }
+.search-suggestion-choice span { overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+.search-history-delete {
+    width: 32px; height: 32px; margin-right: 6px;
+    border: 0; border-radius: 8px; background: transparent;
+    color: inherit; font-size: 25px; cursor: pointer; opacity: 0;
+}
+.search-suggestion-row:hover .search-history-delete,
+.search-suggestion-row.selected .search-history-delete,
+.search-suggestion-row:focus-within .search-history-delete { opacity: 1; }
+.search-history-delete:hover, .search-history-delete:focus-visible { background: rgba(255,255,255,0.2); }
+@media (hover: none) { .search-history-delete { opacity: 1; } }
+.mac-search-source-row .mac-select { width: 144px; min-width: 144px; }
+.mac-search-source-row .mac-select-input { width: 100%; min-width: 0; }
+
+#macSearchPanelAppearance { margin-bottom: var(--space-6); }
+.mac-search-panel-preview { padding: 14px 12px; }
+.mac-search-panel-preview-title { display: block; margin-bottom: 8px; color: var(--mac-text-secondary); font-size: 12px; }
+.mac-search-panel-preview-stage {
+    padding: 16px; border-radius: 12px; overflow: hidden;
+    background: repeating-linear-gradient(35deg, transparent 0 8px, rgba(255,255,255,0.22) 8px 12px), linear-gradient(120deg, #27385e, #bd735b 65%, #e7b078);
+}
+.mac-search-panel-preview-surface {
+    max-width: 340px; margin: auto; padding: 10px; border-radius: 12px;
+    background: rgba(28,28,34,var(--search-panel-opacity,0.68));
+    backdrop-filter: blur(var(--search-panel-blur,48px)) saturate(var(--spotlight-glass-saturate));
+    border: 0.5px solid var(--spotlight-glass-border); color: rgba(255,255,255,0.95);
+}
+.mac-search-panel-preview-label { padding: 2px 8px 7px; color: rgba(255,255,255,0.8); font-size: 12px; }
+.mac-search-panel-preview-item { display: flex; gap: 12px; padding: 8px; font-size: 15px; }
+
 .search-container::before {
     content: '';
     position: absolute;

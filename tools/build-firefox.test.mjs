@@ -21,7 +21,7 @@ test('Firefox package is reproducible, attributed and contains only runtime file
     assert.equal(await readFile(new URL('../manifest.json', import.meta.url), 'utf8'), upstreamBefore);
     const entries = unzipSync(new Uint8Array(await readFile(second.archive)));
     const manifest = JSON.parse(strFromU8(entries['manifest.json']));
-    assert.equal(manifest.version, '0.1.0');
+    assert.equal(manifest.version, project.currentVersion || project.initialVersion);
     assert.equal(manifest.browser_specific_settings.gecko.id, 'ember-tab@ljure.github.io');
     assert.equal(manifest.browser_specific_settings.gecko.strict_min_version, '140.0');
     assert.deepEqual(manifest.host_permissions, ['https://*/*']);

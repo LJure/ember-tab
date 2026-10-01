@@ -17,7 +17,7 @@ The `sortable-loader.js` wrapper belongs to the application, not a separate vend
 
 ## Images and remaining provenance boundary
 
-The product PNGs, built-in photo/settings JPEGs and default background JPEG are Ember-authored geometric artwork, rendered from `assets/brand/*.svg`. Existing runtime filenames are retained for restored backup compatibility. These images replace upstream raster assets whose individual origins were not established. The source SVGs and rendering instructions are in the repository.
+The product PNGs and default background JPEG are Ember-authored geometric artwork, rendered from `assets/brand/*.svg`. The built-in `assets/icons/photo.jpg` and `assets/icons/setting.jpg` are restored unchanged from the Aura Tab baseline `a706cee56e43b80777de697dd4462083b1f97ef8`, at the user's request to preserve the original UI. Their individual external origins and separate redistribution rights have not been established; they must not be described as Ember-authored artwork or independently cleared by the application MIT license. Existing runtime filenames are retained for restored backup compatibility. The historical geometric alternatives remain in `assets/brand/photo.svg` and `assets/brand/setting.svg`, but the rendering tool no longer writes them over the restored icons.
 
 `assets/other/` contains historical upstream screenshots, excluded from the extension package. Other inline application SVG paths are inherited under the upstream repository's MIT statement; apart from the identified Heroicons, individual outside origins have not been established. This is not an independent guarantee of the provenance of every upstream glyph; final release review must retain this limitation.
 

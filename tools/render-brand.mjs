@@ -8,7 +8,6 @@ const svg = name => readFile(new URL(`assets/brand/${name}.svg`, root));
 for (const size of [16, 48, 128]) {
     await writeFile(new URL(`assets/icons/icon${size}.png`, root), await sharp(await svg('ember')).resize(size, size).png().toBuffer());
 }
-for (const name of ['photo', 'setting']) {
-    await writeFile(new URL(`assets/icons/${name}.jpg`, root), await sharp(await svg(name)).resize(256, 256).jpeg({ quality: 95 }).toBuffer());
-}
+// Keep the restored upstream Photos/Settings JPEGs. Do not overwrite them
+// with the historical M5 geometric alternatives when regenerating branding.
 await writeFile(new URL('assets/backgrounds/Background1.jpg', root), await sharp(await svg('background')).jpeg({ quality: 90 }).toBuffer());

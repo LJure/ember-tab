@@ -1,5 +1,6 @@
 import { DEFAULT_SETTINGS as BACKGROUND_DEFAULT_SETTINGS } from '../domains/backgrounds/defaults.js';
 import { SHORTCUT_DEFAULTS, SHORTCUT_SETTING_KEYS } from './shortcut-manager.js';
+import { SEARCH_PANEL_DEFAULTS } from './search-appearance.js';
 
 function isPlainObject(value) {
     return value && typeof value === 'object' && !Array.isArray(value);
@@ -45,6 +46,7 @@ export const SYNC_SETTINGS_DEFAULTS = Object.freeze({
     [SHORTCUT_SETTING_KEYS.openLaunchpad]: SHORTCUT_DEFAULTS[SHORTCUT_SETTING_KEYS.openLaunchpad],
     macSettingsDismissOnOutsideClick: false,
     uiTheme: 'light',
+    ...SEARCH_PANEL_DEFAULTS,
     interfaceLanguage: 'auto',
     backgroundSettings: Object.freeze(createBackgroundSettingsDefaults())
 });

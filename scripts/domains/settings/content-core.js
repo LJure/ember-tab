@@ -14,6 +14,9 @@ import { createStepperRow } from './content-dock.js';
 import { normalizeLocaleForChangelog, loadChangelogData } from '../changelog/utils.js';
 import { escapeHtml } from '../../shared/text.js';
 import { QUICKLINKS_BOUNDS, QUICKLINKS_SYNC_KEYS } from '../quicklinks/store.js';
+import { SEARCH_LOCAL_DEFAULTS, SUGGESTION_SOURCES, requestSearchHistory } from '../../platform/search-data.js';
+import { hasSearchTermsConsent } from '../../platform/search-suggestions.js';
+import { confirmDialog } from '../../shared/confirm-dialog.js';
 
 const ONLINE_BACKGROUND_SOURCES = ['wallhaven', 'pexels', 'bing'];
 const BACKGROUND_UI_DEFAULTS = createBackgroundSettingsDefaults();
@@ -146,11 +149,64 @@ export function registerGeneralContent(window) {
                 },
                 {
                     type: 'section',
+                    titleKey: 'settingsSearchSection',
+                    rows: [
+                        {
+                            type: 'toggle', id: 'macSearchHistory',
+                            labelKey: 'settingsSearchHistory', descKey: 'settingsSearchHistoryDesc',
+                            storageArea: 'local', storageKey: 'searchHistoryEnabled',
+                            defaultValue: SEARCH_LOCAL_DEFAULTS.searchHistoryEnabled
+                        },
+                        {
+                            type: 'custom', labelKey: 'settingsSearchClearHistory',
+                            controlHtml: `<button type="button" class="mac-button mac-button-secondary" id="macClearSearchHistory">${escapeHtml(t('settingsSearchClearHistory'))}</button>`,
+                            bind: ({ builder }) => {
+                                const button = builder.getById('macClearSearchHistory');
+                                button?.addEventListener('click', async () => {
+                                    if (!(await confirmDialog(t('settingsSearchClearConfirm'), { confirmVariant: 'danger' }))) return;
+                                    button.disabled = true;
+                                    try { await requestSearchHistory('clear'); toast(t('settingsSearchHistoryCleared')); }
+                                    catch { toast(t('settingsSaveFailed')); }
+                                    finally { button.disabled = false; }
+                                });
+                            }
+                        },
+                        {
+                            type: 'toggle', id: 'macSearchSuggestions',
+                            labelKey: 'settingsSearchSuggestions', descKey: 'settingsSearchSuggestionsDesc',
+                            storageArea: 'local', storageKey: 'searchSuggestionsEnabled',
+                            defaultValue: SEARCH_LOCAL_DEFAULTS.searchSuggestionsEnabled,
+                            write: async (value, { builder }) => {
+                                if (value && !(await hasSearchTermsConsent())) {
+                                    builder.getById('macSearchSuggestions').checked = false;
+                                    toast(t('settingsSearchConsentRequired'));
+                                    throw new Error('Search terms consent required');
+                                }
+                                await chrome.storage.local.set({ searchSuggestionsEnabled: value });
+                            }
+                        },
+                        {
+                            type: 'select', id: 'macSearchSuggestionSource', rowClassName: 'mac-search-source-row',
+                            labelKey: 'settingsSearchSuggestionSource', descKey: 'settingsSearchSuggestionSourceDesc',
+                            storageArea: 'local', storageKey: 'searchSuggestionSource',
+                            defaultValue: SEARCH_LOCAL_DEFAULTS.searchSuggestionSource,
+                            options: SUGGESTION_SOURCES.map(value => ({ value, label: { bing: 'Bing', google: 'Google', baidu: 'Baidu', duckduckgo: 'DuckDuckGo', brave: 'Brave' }[value] }))
+                        }
+                    ]
+                },
+                {
+                    type: 'section',
                     titleKey: 'settingsLaunchpadDensity',
                     rows: LAUNCHPAD_DENSITY_STEPPERS.map(createStepperRow)
                 }
             ],
             onAfterLoad: ({ builder, storage }) => {
+                if (chrome.extension?.inIncognitoContext) {
+                    for (const id of ['macSearchHistory', 'macSearchSuggestions', 'macClearSearchHistory', 'macSearchSuggestionSource']) {
+                        const control = builder.getById(id);
+                        if (control) control.disabled = true;
+                    }
+                }
                 const photoInfoRow = builder.getById('macPhotoInfoSetting');
                 if (!photoInfoRow) return;
 

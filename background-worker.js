@@ -4,6 +4,9 @@ import { runFaviconDomTask } from './scripts/platform/favicon-runtime.js';
 import { chromeFaviconUrl, isOwnChromeFaviconUrl } from './scripts/platform/extension-urls.js';
 import { createBackgroundSettingsDefaults } from './scripts/platform/settings-contract.js';
 import { resolveEffectiveFrequency } from './scripts/domains/backgrounds/refresh-policy.js';
+import { SEARCH_HISTORY_MESSAGE, createSearchHistoryHandler } from './scripts/platform/search-data.js';
+
+const handleSearchHistory = createSearchHistoryHandler(chrome.storage.local, chrome.runtime.id);
 
 const ALARM_NAME = 'refreshBackground';
 const FETCH_ICON_MESSAGE = 'fetchIcon';
@@ -85,7 +88,9 @@ chrome.alarms.onAlarm.addListener(async (alarm) => {
 });
 
 chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
-    const handler = message?.type === FETCH_ICON_MESSAGE
+    const handler = message?.type === SEARCH_HISTORY_MESSAGE
+        ? handleSearchHistory(message, _sender)
+        : message?.type === FETCH_ICON_MESSAGE
         ? (message.customIcon === true
             ? requestCustomIcon(message.url, () => handleFetchIcon(message.url, true))
             : handleFetchIcon(message.url))

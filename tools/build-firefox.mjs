@@ -37,7 +37,7 @@ await cp(path.join(root, 'scripts/platform/favicon-runtime-firefox.js'),
 
 delete manifest.minimum_chrome_version;
 delete manifest.offline_enabled;
-manifest.version = project.initialVersion;
+manifest.version = project.currentVersion || project.initialVersion;
 manifest.permissions = manifest.permissions.filter(p => !['favicon', 'offscreen'].includes(p));
 manifest.background = { scripts: ['background-worker.js'], type: 'module' };
 manifest.browser_specific_settings = {

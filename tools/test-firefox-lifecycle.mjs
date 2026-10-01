@@ -21,12 +21,20 @@ await writeFile(path.join(profile,'user.js'),[
 ].map(([k,v])=>`user_pref(${JSON.stringify(k)},${JSON.stringify(v)});`).join('\n'));
 const binary=process.env.FIREFOX_BINARY;
 const gecko=await download('0.36.0',path.join(root,'.local','drivers'));
-const original=path.join(root,`dist/ember-tab-${project.initialVersion}-firefox.zip`);
+const current=path.join(root,`dist/ember-tab-${project.currentVersion || project.initialVersion}-firefox.zip`);
+const original=process.env.FIREFOX_UPGRADE_FROM ? path.resolve(root,process.env.FIREFOX_UPGRADE_FROM) : current;
 const originalBytes=await readFile(original);
 const entries=unzipSync(originalBytes);const manifest=JSON.parse(strFromU8(entries['manifest.json']));
-manifest.version='0.1.1';entries['manifest.json']=strToU8(JSON.stringify(manifest));
-const upgraded=path.join(evidence,'test-upgrade-0.1.1.zip');await writeFile(upgraded,zipSync(entries));
-const report={profile,testOnlyVersion:'0.1.1',packageSha256:createHash('sha256').update(originalBytes).digest('hex'),startedAt:new Date().toISOString()};
+let upgraded, upgradeVersion;
+if(process.env.FIREFOX_UPGRADE_FROM) {
+    upgraded=current;
+    upgradeVersion=JSON.parse(strFromU8(unzipSync(await readFile(current))['manifest.json'])).version;
+} else {
+    const parts=manifest.version.split('.');parts[parts.length-1]=String(Number(parts.at(-1))+1);
+    upgradeVersion=parts.join('.');manifest.version=upgradeVersion;entries['manifest.json']=strToU8(JSON.stringify(manifest));
+    upgraded=path.join(evidence,`test-upgrade-${upgradeVersion}.zip`);await writeFile(upgraded,zipSync(entries));
+}
+const report={profile,fromVersion:JSON.parse(strFromU8(unzipSync(originalBytes)['manifest.json'])).version,upgradeVersion,temporaryAddon:true,packageSha256:createHash('sha256').update(originalBytes).digest('hex'),startedAt:new Date().toISOString()};
 let driver;
 const run=async(script,...args)=>{
     const result=await driver.executeAsyncScript(`const done=arguments[arguments.length-1];Promise.resolve().then(async()=>{${script}}).then(value=>done({value}),error=>done({error:String(error)}));`,...args);
@@ -53,17 +61,18 @@ const stop=async()=>{
 const read=()=>run(`const {BackupManager}=await import('./scripts/platform/backup-manager.js');
     const db=await new BackupManager()._openDatabase('aura-tab-assets',1,'images');
     const value=await new Promise((r,j)=>{const q=db.transaction('images').objectStore('images').get('m4-restart');q.onsuccess=()=>r(q.result);q.onerror=()=>j(q.error);});db.close();
-    return {marker:(await chrome.storage.local.get('m4Restart')).m4Restart,blob:value?await value.fullBlob.text():null,version:chrome.runtime.getManifest().version};`);
+    return {marker:(await chrome.storage.local.get('m4Restart')).m4Restart,search:await chrome.storage.local.get(['emberSearchHistory','searchHistoryEnabled','searchSuggestionsEnabled','searchSuggestionSource']),blob:value?await value.fullBlob.text():null,version:chrome.runtime.getManifest().version};`);
 try {
     report.firstProcess=await start();await driver.installAddon(original,true);await open();
-    await run(`await chrome.storage.local.set({m4Restart:'persisted'});
+    await run(`await chrome.storage.local.set({m4Restart:'persisted',emberSearchHistory:['persisted history'],searchHistoryEnabled:true,searchSuggestionsEnabled:false,searchSuggestionSource:'brave'});
         const {BackupManager}=await import('./scripts/platform/backup-manager.js');const db=await new BackupManager()._openDatabase('aura-tab-assets',1,'images');
         await new Promise((r,j)=>{const tx=db.transaction('images','readwrite');tx.oncomplete=r;tx.onerror=()=>j(tx.error);tx.objectStore('images').put({id:'m4-restart',fullBlob:new Blob(['restart-image-bytes']),isUserPinned:true});});db.close();`);
     await driver.switchTo().newWindow('tab');await driver.installAddon(upgraded,true);await open();
-    report.upgrade=await read();assert.equal(report.upgrade.marker,'persisted');assert.equal(report.upgrade.blob,'restart-image-bytes');assert.equal(report.upgrade.version,'0.1.1');
+    const expectedSearch={emberSearchHistory:['persisted history'],searchHistoryEnabled:true,searchSuggestionsEnabled:false,searchSuggestionSource:'brave'};
+    report.upgrade=await read();assert.equal(report.upgrade.marker,'persisted');assert.equal(report.upgrade.blob,'restart-image-bytes');assert.equal(report.upgrade.version,upgradeVersion);assert.deepEqual(report.upgrade.search,expectedSearch);
     await stop();report.secondProcess=await start();assert.notEqual(report.secondProcess,report.firstProcess);
     await driver.installAddon(upgraded,true);await open();report.restart=await read();
-    report.restartDataPreserved=report.restart.marker==='persisted'&&report.restart.blob==='restart-image-bytes';
+    report.restartDataPreserved=report.restart.marker==='persisted'&&report.restart.blob==='restart-image-bytes';assert.deepEqual(report.restart.search,expectedSearch);
     report.status=report.restartDataPreserved?'passed':'temporary-addon-data-not-preserved';
     assert.equal(report.restartDataPreserved,true,'Restart must preserve storage and image bytes');
     console.log(JSON.stringify(report,null,2));
