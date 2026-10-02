@@ -3,7 +3,7 @@
 ## 2026-10-02：0.1.2 用户测试完成，准备手动更新
 
 - 已通过 AMO 公开 API 核实商店当前版本为 **0.1.1**，与 README 的上架说明一致。下面 0.1.1 未提交记录是当时状态，已被后续手动提交／上架取代。
-- 0.1.2 用户测试完成，GitHub 更新及发布材料见 [发布记录](SECOND_UPDATE_RELEASE.md)。本轮由用户手动提交商店，未代为上传，不记录为已审核或已上架。
+- 0.1.2 用户测试完成，已于北京时间 21:39 推送源码并公开发布 [GitHub v0.1.2](https://github.com/LJure/ember-tab/releases/tag/v0.1.2)，发布材料与校验见 [发布记录](SECOND_UPDATE_RELEASE.md)。本轮由用户手动提交商店，未代为上传，不记录为已审核或已上架。
 - 运行包、匹配源码、三个语言的版本说明、英文审核备注、隐私副本、新图标和可选截图位于 `dist/amo/0.1.2/`，步骤见 [手动更新指南](SECOND_UPDATE_STORE_GUIDE.md)。
 - 提交到现有 `ember-tab-firefox`，固定 ID `ember-tab@ljure.github.io`，桌面 Firefox 140+。提交结束记录 0.1.2 的版本／文件 ID、源码附交和实际审核状态；签名升级另行验证。
 

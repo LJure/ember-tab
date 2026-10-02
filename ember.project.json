@@ -8,8 +8,8 @@
   "currentVersion": "0.1.2",
   "geckoId": "ember-tab@ljure.github.io",
   "minimumFirefoxVersion": "140.0",
-  "status": "second-update-user-accepted-amo-manual-pending",
-  "note": "Version 0.1.2 passed local validation and user testing on 2026-10-02. GitHub release materials and matching AMO runtime/source are prepared; the maintainer will submit the AMO update manually. Public AMO API currently reports 0.1.1. GitHub publication receipt is recorded separately in docs/SECOND_UPDATE_RELEASE.md.",
+  "status": "second-update-github-released-amo-manual-pending",
+  "note": "Version 0.1.2 passed local validation and user testing and is published on GitHub (tag v0.1.2, commit fdaee9c) with runtime, matching rebuild-verified source, manual AMO materials and checksums. The maintainer will submit the AMO update manually; this run has not submitted it. Public AMO API reports 0.1.1 as verified on 2026-10-02. GitHub receipt is recorded in docs/SECOND_UPDATE_RELEASE.md. Signed installation/upgrade acceptance remains separate.",
   "releaseBlockers": [],
   "distributionBlockers": [
     "Signed install/upgrade and distribution acceptance"
