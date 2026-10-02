@@ -4,9 +4,8 @@ An unofficial Firefox port of [Aura Tab by nil-byte](https://github.com/nil-byte
 
 基于 Aura Tab 的非官方 Firefox 新标签页扩展，保留快捷链接、Dock、搜索、书签导入、本地／在线壁纸、照片、备份与 WebDAV。独立维护，名称为 **Ember Tab**。
 
-**Ember Tab 0.1.1 已通过 Mozilla 审核并公开上架。**
 
-**0.1.2 UI/UX 更新已完成用户测试并在 GitHub 发布，商店更新由维护者手动提交。** 构建包与源码见 [GitHub 0.1.2 发布](https://github.com/LJure/ember-tab/releases/tag/v0.1.2)，GitHub ZIP 为开发者临时加载包，长期安装仍推荐商店签名版。
+**0.1.2 UI/UX 更新已完成用户测试并发布。** 构建包与源码见 [GitHub 0.1.2 发布](https://github.com/LJure/ember-tab/releases/tag/v0.1.2)，GitHub ZIP 为开发者临时加载包，长期安装仍推荐商店签名版。
 
 [![Firefox Add-ons 版本](https://img.shields.io/amo/v/ember-tab-firefox?style=for-the-badge&logo=firefoxbrowser&logoColor=white&label=Firefox%20Add-ons&color=FF7139)](https://addons.mozilla.org/zh-CN/firefox/addon/ember-tab-firefox/)
 
@@ -58,7 +57,7 @@ Aura 数据通过 ZIP 导入；用户已验证 Brave／Aura 3.5.3 的 59 链接�
 - 搜索历史／联想面板平滑展开和收起；删除记录时淡出、补位并调整面板高度，减少闪烁。支持快速关闭再打开及减少动态效果设置。
 - 改善等待联想更新时的键盘选择，以及异步删除后的焦点行为。
 
-验证见 [第二次更新记录](docs/SECOND_UPDATE_IMPLEMENTATION.md)。商店上传材料与步骤见 [0.1.2 手动更新指南](docs/SECOND_UPDATE_STORE_GUIDE.md)。
+验证见 [第二次更新记录](docs/SECOND_UPDATE_IMPLEMENTATION.md)。
 
 ## 0.1.1 更新
 
