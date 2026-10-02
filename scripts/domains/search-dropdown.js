@@ -39,12 +39,15 @@ export class SearchDropdown extends DisposableComponent {
         this.composing = false;
         // A new tab focuses the input automatically; only explicit interaction opens suggestions.
         this.engaged = false;
+        this.animations = new Map();
     }
 
     init() {
         this.panel = document.createElement('div');
         this.panel.className = 'search-suggestions';
         this.panel.hidden = true;
+        this.panel.setAttribute('aria-hidden', 'true');
+        this.panel.inert = true;
         this.header = document.createElement('div');
         this.header.className = 'search-suggestions-label';
         this.list = document.createElement('div');
@@ -102,7 +105,12 @@ export class SearchDropdown extends DisposableComponent {
             const item = row && this.items[Number(row.dataset.index)];
             if (!item) return;
             if (event.target.closest('.search-history-delete')) {
-                requestSearchHistory('delete', item.query).then(() => { this.input.focus(); this.refresh(); })
+                requestSearchHistory('delete', item.query).then(() => {
+                    // A late deletion must not steal focus or reopen a dismissed panel.
+                    if (this.isDestroyed || !this.engaged || !this.contains(document.activeElement)) return;
+                    this.input.focus();
+                    this.refresh();
+                })
                     .catch(() => toast(t('settingsSaveFailed')));
             } else if (event.target.closest('.search-suggestion-choice')) {
                 this.input.value = item.query;
@@ -112,9 +120,11 @@ export class SearchDropdown extends DisposableComponent {
         this._events.add(this.submitButton, 'click', () => this.search.submitQuery());
         this._getStorageManager().register('search-local', (changes, area) => {
             if (area !== 'local' || !SEARCH_LOCAL_KEYS.some(key => changes[key])) return;
-            this.close();
             this.client.clear();
-            if (Object.keys(SEARCH_LOCAL_DEFAULTS).some(key => changes[key])) this.loadPreferences();
+            if (Object.keys(SEARCH_LOCAL_DEFAULTS).some(key => changes[key])) {
+                this.close();
+                this.loadPreferences();
+            }
             else if (changes[SEARCH_HISTORY_KEY]) this.refresh();
         });
         this._getStorageManager().register('search-appearance', (changes, area) => {
@@ -175,15 +185,33 @@ export class SearchDropdown extends DisposableComponent {
         this.cancel();
         this.items = [];
         this.activeIndex = -1;
+        this.hidePanel();
+    }
+
+    hidePanel() {
+        const wasOpen = !this.panel.hidden;
+        const style = wasOpen ? getComputedStyle(this.panel) : null;
+        const from = style ? { opacity: style.opacity, transform: style.transform } : null;
         this.panel.hidden = true;
+        this.panel.setAttribute('aria-hidden', 'true');
+        this.panel.inert = true;
         this.input.setAttribute('aria-expanded', 'false');
         this.input.removeAttribute('aria-activedescendant');
+        if (wasOpen) {
+            this.panel.classList.add('closing');
+            this.animate(this.panel, [from, { opacity: 0, transform: 'translateY(-6px) scale(0.98)' }], 160,
+                () => this.panel.classList.remove('closing'));
+        }
     }
 
     async refresh() {
         if (this.isDestroyed) return;
-        this.close();
-        if (!this.engaged || this.private || this.submitting || this.composing || this.search.isOpen || !this.contains(document.activeElement)) return;
+        this.cancel();
+        this.highlight(-1);
+        if (!this.engaged || this.private || this.submitting || this.composing || this.search.isOpen || !this.contains(document.activeElement)) {
+            this.close();
+            return;
+        }
         const version = this.version;
         const query = this.input.value.trim();
         const current = () => !this.isDestroyed && this.engaged && version === this.version && this.input.value.trim() === query && this.contains(document.activeElement);
@@ -193,7 +221,8 @@ export class SearchDropdown extends DisposableComponent {
             catch { /* History failures never block ordinary search. */ }
         }
         if (!current()) return;
-        this.render(history, []);
+        // Keep the current surface while the next remote result is pending.
+        if (history.length || !query || !this.preferences.searchSuggestionsEnabled || this.panel.hidden) this.render(history, []);
         if (!query || !this.preferences.searchSuggestionsEnabled) return;
         const provider = resolveSuggestionProvider(this.search.currentEngine, this.preferences.searchSuggestionSource);
         this.controller = new AbortController();
@@ -206,42 +235,120 @@ export class SearchDropdown extends DisposableComponent {
     }
 
     render(history, remote, provider) {
+        const wasOpen = !this.panel.hidden;
+        const oldHeight = wasOpen ? this.panel.getBoundingClientRect().height : 0;
+        const previous = new Map([...this.list.children].map(row => [row._searchKey, { row, top: row.getBoundingClientRect().top }]));
+        const panelStyle = getComputedStyle(this.panel);
+        const from = { opacity: panelStyle.opacity, transform: panelStyle.transform };
+        // Only content changes interrupt content animations. Closing/reopening is reversible.
+        for (const { row } of previous.values()) this.animations.get(row)?.cancel();
+        const panelAnimation = this.animations.get(this.panel);
+        if (panelAnimation?.effect.getKeyframes().some(frame => 'height' in frame)) panelAnimation.cancel();
         const seen = new Set();
         const local = history.slice(0, remote.length ? 4 : 8).map(query => ({ query, kind: 'history' }));
         this.items = [...local, ...remote.map(query => ({ query, kind: 'suggestion' }))]
             .filter(item => { if (seen.has(item.query)) return false; seen.add(item.query); return true; }).slice(0, 8);
         this.activeIndex = -1;
         this.input.removeAttribute('aria-activedescendant');
-        this.list.replaceChildren();
         this.header.textContent = remote.length ? t('searchSuggestionsFrom', { engine: this.search.searchEngines[provider]?.label || provider }) : t('searchRecent');
-        this.items.forEach((item, index) => {
-            const row = document.createElement('div');
-            row.className = 'search-suggestion-row';
+        if (!this.items.length) {
+            this.hidePanel();
+            return;
+        }
+        const rows = this.items.map((item, index) => {
+            const key = `${item.kind}:${item.query}`;
+            const row = previous.get(key)?.row || this.createRow(item);
+            row._searchKey = key;
             row.dataset.index = String(index);
-            const choice = document.createElement('button');
-            choice.type = 'button';
-            choice.className = 'search-suggestion-choice';
+            row.classList.remove('selected');
+            const choice = row.querySelector('[role="option"]');
             choice.id = `searchSuggestion${index}`;
-            choice.tabIndex = -1;
-            choice.setAttribute('role', 'option');
             choice.setAttribute('aria-selected', 'false');
-            const text = document.createElement('span');
-            text.textContent = item.query;
-            choice.append(icon(item.kind === 'history'), text);
-            row.append(choice);
-            if (item.kind === 'history') {
-                const remove = document.createElement('button');
-                remove.className = 'search-history-delete';
-                remove.type = 'button';
-                remove.textContent = '×';
-                remove.setAttribute('aria-label', t('searchDeleteHistory', { query: item.query }));
-                row.append(remove);
-            }
-            this.list.append(row);
+            if (item.kind === 'history') row.querySelector('.search-history-delete').setAttribute('aria-label', t('searchDeleteHistory', { query: item.query }));
+            return row;
         });
-        this.panel.hidden = this.items.length === 0;
-        this.input.setAttribute('aria-expanded', String(this.items.length > 0));
+        // Restore input focus before removing the focused delete button.
+        if ([...previous.values()].some(({ row }) => !rows.includes(row) && row.contains(document.activeElement))) this.input.focus();
+        for (const { row, top } of previous.values()) {
+            if (rows.includes(row)) continue;
+            const rect = row.getBoundingClientRect();
+            const panelRect = this.panel.getBoundingClientRect();
+            row.remove();
+            if (wasOpen && rect.height) {
+                row.className = 'search-suggestion-row search-suggestion-exit';
+                row.removeAttribute('data-index');
+                row.querySelector('[role="option"]').removeAttribute('id');
+                row.setAttribute('aria-hidden', 'true');
+                row.inert = true;
+                Object.assign(row.style, { position: 'absolute', top: `${top - panelRect.top + this.panel.scrollTop}px`, left: '8px', width: `${rect.width}px`, pointerEvents: 'none' });
+                this.panel.append(row);
+                this.animate(row, [{ opacity: 1, transform: 'translateX(0)' }, { opacity: 0, transform: 'translateX(10px)' }], 150, () => row.remove());
+            }
+        }
+        rows.forEach((row, index) => {
+            if (this.list.children[index] !== row) this.list.insertBefore(row, this.list.children[index] || null);
+        });
+        this.panel.hidden = false;
+        this.panel.inert = false;
+        this.panel.setAttribute('aria-hidden', 'false');
+        this.panel.classList.remove('closing');
+        this.input.setAttribute('aria-expanded', 'true');
         this.fitPanel();
+        if (!wasOpen) {
+            this.animate(this.panel, [this.animations.has(this.panel) ? from : { opacity: 0, transform: 'translateY(-8px) scale(0.97)' },
+                { opacity: 1, transform: 'translateY(0) scale(1)' }], 250);
+        } else {
+            const height = this.panel.getBoundingClientRect().height;
+            if (Math.abs(oldHeight - height) > 1) this.animate(this.panel, [{ height: `${oldHeight}px` }, { height: `${height}px` }], 220);
+            rows.forEach(row => {
+                const old = previous.get(row._searchKey);
+                const delta = old ? old.top - row.getBoundingClientRect().top : 0;
+                if (old && Math.abs(delta) > 1) this.animate(row, [{ transform: `translateY(${delta}px)` }, { transform: 'translateY(0)' }], 220);
+                else if (!old) this.animate(row, [{ opacity: 0, transform: 'translateY(5px)' }, { opacity: 1, transform: 'translateY(0)' }], 180);
+            });
+        }
+    }
+
+    animate(element, frames, duration, done = () => {}) {
+        this.animations.get(element)?.cancel();
+        if (!element.animate || window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) {
+            done();
+            return;
+        }
+        const animation = element.animate(frames, { duration, easing: 'cubic-bezier(0.25, 1, 0.5, 1)' });
+        this.animations.set(element, animation);
+        const finish = () => {
+            if (this.animations.get(element) === animation) {
+                this.animations.delete(element);
+                done();
+            }
+        };
+        animation.onfinish = finish;
+        animation.oncancel = finish;
+    }
+
+    createRow(item) {
+        const row = document.createElement('div');
+        row.className = 'search-suggestion-row';
+        const choice = document.createElement('button');
+        choice.type = 'button';
+        choice.className = 'search-suggestion-choice';
+        choice.tabIndex = -1;
+        choice.setAttribute('role', 'option');
+        choice.setAttribute('aria-selected', 'false');
+        const text = document.createElement('span');
+        text.textContent = item.query;
+        choice.append(icon(item.kind === 'history'), text);
+        row.append(choice);
+        if (item.kind === 'history') {
+            const remove = document.createElement('button');
+            remove.className = 'search-history-delete';
+            remove.type = 'button';
+            remove.textContent = '×';
+            remove.setAttribute('aria-label', t('searchDeleteHistory', { query: item.query }));
+            row.append(remove);
+        }
+        return row;
     }
 
     fitPanel() {
@@ -312,6 +419,8 @@ export class SearchDropdown extends DisposableComponent {
     destroy() {
         if (this.isDestroyed) return;
         this.close();
+        for (const animation of this.animations.values()) animation.cancel();
+        this.animations.clear();
         this.client.clear();
         this.panel.remove(); this.submitButton.remove();
         super.destroy();

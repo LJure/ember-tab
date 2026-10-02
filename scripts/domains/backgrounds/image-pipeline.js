@@ -10,6 +10,7 @@ import { logWithDedup } from '../../shared/error-utils.js';
 import { getProvider } from './source-remote.js';
 import { getApplyOptions, getPrepareTimeoutMs, shouldPreloadNextBackground } from './controller-actions.js';
 import { shouldRefreshBackground } from './refresh-policy.js';
+import { beginBackgroundRefresh } from './refresh-activity.js';
 
 const FIRST_PAINT_API_KEY = '__AURA_FIRST_PAINT__';
 const FIRST_PAINT_STORAGE_KEY = 'aura:firstPaintColor';
@@ -1363,36 +1364,41 @@ export const backgroundApplyMethods = {
     async refresh() {
         if (document.hidden) return;
 
-        if (this._loadMutex.isLocked) {
-            await this.loadBackground(true);
-            return;
-        }
-
-        if (this.settings.type !== 'color' && this.nextBackground) {
-            const { background, type } = this.nextBackground;
-            if (type === this.settings.type) {
-                await this._loadMutex.acquire();
-                try {
-                    this.nextBackground = null;
-                    await runBackgroundTransition(this, {
-                        background,
-                        type,
-                        basePrepareTimeoutMs: 140,
-                        updateTimestamp: true,
-                        save: true,
-                        preload: true
-                    });
-                } catch (error) {
-                    console.error('[Background] Refresh failed:', error);
-                    showNotification(error.message || t('bgRefreshFailed'), 'error');
-                } finally {
-                    this._loadMutex.release();
-                }
+        const finishRefresh = beginBackgroundRefresh(this);
+        try {
+            if (this._loadMutex.isLocked) {
+                await this.loadBackground(true);
                 return;
             }
-        }
 
-        await this.loadBackground(true);
+            if (this.settings.type !== 'color' && this.nextBackground) {
+                const { background, type } = this.nextBackground;
+                if (type === this.settings.type) {
+                    await this._loadMutex.acquire();
+                    try {
+                        this.nextBackground = null;
+                        await runBackgroundTransition(this, {
+                            background,
+                            type,
+                            basePrepareTimeoutMs: 140,
+                            updateTimestamp: true,
+                            save: true,
+                            preload: true
+                        });
+                    } catch (error) {
+                        console.error('[Background] Refresh failed:', error);
+                        showNotification(error.message || t('bgRefreshFailed'), 'error');
+                    } finally {
+                        this._loadMutex.release();
+                    }
+                    return;
+                }
+            }
+
+            await this.loadBackground(true);
+        } finally {
+            finishRefresh();
+        }
     }
 };
 

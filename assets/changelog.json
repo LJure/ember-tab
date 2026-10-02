@@ -1,4 +1,22 @@
 {
+  "0.1.2": {
+    "en": [
+      "Updated the extension icon with a new blue design.",
+      "Automatic wallpaper updates now keep the refresh button spinning until completion.",
+      "Search history and suggestions open and close smoothly; deleting a record animates the row and resizes the panel without flashing."
+    ],
+    "zh_CN": [
+      "更新插件图标，采用全新的蓝色设计。",
+      "自动更新壁纸时，刷新按钮持续旋转至更新完成。",
+      "搜索历史与联想面板平滑展开、收起；删除记录时条目与面板高度连贯过渡，避免闪烁。"
+    ],
+    "zh_TW": [
+      "更新擴充套件圖示，採用全新的藍色設計。",
+      "自動更新桌布時，重新整理按鈕持續旋轉至更新完成。",
+      "搜尋記錄與建議面板平滑展開、收起；刪除記錄時項目與面板高度連貫過渡，避免閃爍。"
+    ],
+    "moreUrl": "https://github.com/LJure/ember-tab"
+  },
   "0.1.1": {
     "en": [
       "Restored the original Photos and Settings icons.",

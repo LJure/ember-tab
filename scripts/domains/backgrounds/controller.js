@@ -22,6 +22,7 @@ import { localFilesManager } from './source-local.js';
 import { getProvider } from './source-remote.js';
 import { DEFAULT_SETTINGS } from './types.js';
 import { resolveEffectiveFrequency } from './refresh-policy.js';
+import { beginBackgroundRefresh, clearBackgroundRefresh } from './refresh-activity.js';
 
 const REFRESH_BACKGROUND_MESSAGE = 'refreshBackground';
 
@@ -384,6 +385,9 @@ class BackgroundSystem {
             suppressRecoverableErrors
         } = this._normalizeLoadBackgroundOptions(forceOrOptions);
 
+        const finishRefresh = this.settings.type !== 'color' &&
+            (force || !this.currentBackground || needsBackgroundChange(this.settings.frequency, this.lastChange, this.settings.type))
+            ? beginBackgroundRefresh(this) : null;
         await this._loadMutex.acquire();
 
         try {
@@ -460,6 +464,7 @@ class BackgroundSystem {
             }
         } finally {
             this._loadMutex.release();
+            finishRefresh?.();
         }
     }
 
@@ -875,6 +880,7 @@ class BackgroundSystem {
     }
 
     destroy() {
+        clearBackgroundRefresh(this);
         blobUrlManager.releaseAll();
         this._metadataCache.clear();
         clearCropAnalysisCache();

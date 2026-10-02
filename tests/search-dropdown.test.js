@@ -24,6 +24,52 @@ async function start(local) {
 }
 function type(value) { input.value = value; input.dispatchEvent(new Event('input')); }
 describe('search dropdown interactions', () => {
+    it('clears keyboard selection as soon as a new query starts while retaining the surface', async () => {
+        SearchSuggestionClient.prototype.get.mockResolvedValue(['old result']);
+        await start({ searchSuggestionsEnabled: true });
+        type('old');
+        await vi.advanceTimersByTimeAsync(281);
+        input.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowDown', bubbles: true }));
+        expect(search.dropdown.activeIndex).toBe(0);
+        type('new');
+        expect(search.dropdown.panel.hidden).toBe(false);
+        expect(search.dropdown.activeIndex).toBe(-1);
+        expect(input.hasAttribute('aria-activedescendant')).toBe(false);
+        const submit = vi.spyOn(search, 'submitQuery').mockResolvedValue();
+        input.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true }));
+        expect(input.value).toBe('new');
+        expect(submit).toHaveBeenCalledOnce();
+    });
+    it('keeps the panel and surviving row mounted throughout a history refresh', async () => {
+        await start({ searchHistoryEnabled: true, [SEARCH_HISTORY_KEY]: ['first', 'second'] });
+        await vi.advanceTimersByTimeAsync(0);
+        const panel = search.dropdown.panel;
+        const survivor = search.dropdown.list.children[1];
+        let resolve;
+        const original = chrome.runtime.sendMessage.getMockImplementation();
+        chrome.runtime.sendMessage.mockImplementationOnce(() => new Promise(done => { resolve = done; }));
+        const refresh = search.dropdown.refresh();
+        expect(panel.hidden).toBe(false);
+        expect(search.dropdown.list.children[1]).toBe(survivor);
+        resolve({ success: true, items: ['second'] });
+        await refresh;
+        expect(panel.hidden).toBe(false);
+        expect(search.dropdown.list.children[0]).toBe(survivor);
+        chrome.runtime.sendMessage.mockImplementation(original);
+    });
+    it('does not steal focus after a delayed deletion finishes outside the panel', async () => {
+        await start({ searchHistoryEnabled: true, [SEARCH_HISTORY_KEY]: ['first', 'second'] });
+        await vi.advanceTimersByTimeAsync(0);
+        let resolve;
+        chrome.runtime.sendMessage.mockImplementationOnce(() => new Promise(done => { resolve = done; }));
+        document.querySelector('.search-history-delete').click();
+        const outside = document.createElement('button');
+        document.body.append(outside); outside.focus();
+        resolve({ success: true, items: ['second'] });
+        await vi.advanceTimersByTimeAsync(0);
+        expect(document.activeElement).toBe(outside);
+        expect(search.dropdown.panel.hidden).toBe(true);
+    });
     it.each(['bing', 'default', 'default-fallback'])('clears and blurs after a new-tab search via %s while preserving submitted history', async route => {
         await start({ searchHistoryEnabled: true, searchSuggestionsEnabled: true });
         search.setOpenInNewTab(true);

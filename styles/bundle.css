@@ -1086,6 +1086,7 @@ html[data-first-paint='disarming'] #background-media .background-image {
     place-items: center;
 }
 .search-action[hidden], .search-suggestions[hidden] { display: none; }
+.search-suggestions[hidden].closing { display: block; pointer-events: none; }
 .search-action svg { width: 22px; height: 22px; }
 .search-action:hover, .search-action:focus-visible { background: var(--surface-glass); color: white; }
 .search-suggestions {
@@ -1103,9 +1104,11 @@ html[data-first-paint='disarming'] #background-media .background-image {
     max-height: min(420px, 45vh);
     overflow-y: auto;
     cursor: default;
+    transform-origin: top center;
 }
 .search-suggestions-label { padding: 5px 12px 7px; font-size: 12px; color: rgba(255,255,255,0.8); }
-.search-suggestion-row { display: flex; align-items: center; border-radius: 12px; }
+.search-suggestion-row { display: flex; align-items: center; border-radius: 12px; transition: background var(--transition-fast); }
+.search-suggestion-exit { z-index: 1; }
 .search-suggestion-row:hover, .search-suggestion-row.selected, .search-suggestion-row:focus-within { background: rgba(255,255,255,0.14); }
 .search-suggestion-choice {
     flex: 1;

@@ -5,8 +5,10 @@ import { pathToFileURL } from 'node:url';
 const { default: sharp } = await import(process.argv[2] ? pathToFileURL(process.argv[2]).href : 'sharp');
 const root = new URL('../', import.meta.url);
 const svg = name => readFile(new URL(`assets/brand/${name}.svg`, root));
-for (const size of [16, 48, 128]) {
-    await writeFile(new URL(`assets/icons/icon${size}.png`, root), await sharp(await svg('ember')).resize(size, size).png().toBuffer());
+// Preserve the supplied transparent icon; normal builds never require sharp.
+const icon = await readFile(new URL('assets/brand/ember.png', root));
+for (const size of [16, 32, 48, 128]) {
+    await writeFile(new URL(`assets/icons/icon${size}.png`, root), await sharp(icon).resize(size, size).png().toBuffer());
 }
 // Keep the restored upstream Photos/Settings JPEGs. Do not overwrite them
 // with the historical M5 geometric alternatives when regenerating branding.

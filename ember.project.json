@@ -5,11 +5,11 @@
   "upstreamCommit": "a706cee56e43b80777de697dd4462083b1f97ef8",
   "upstreamVersion": "3.5.3",
   "initialVersion": "0.1.0",
-  "currentVersion": "0.1.1",
+  "currentVersion": "0.1.2",
   "geckoId": "ember-tab@ljure.github.io",
   "minimumFirefoxVersion": "140.0",
-  "status": "first-update-store-submission-pending",
-  "note": "AMO 0.1.0 is approved and publicly listed. Version 0.1.1 passed local and user testing and is published on GitHub (tag v0.1.1, commit c5eec9e) with unsigned runtime, matching source and checksums. The AMO update has not been submitted because the store automation tool is unavailable. Actual signed XPI installation and upgrade acceptance remains separate and incomplete.",
+  "status": "second-update-user-accepted-amo-manual-pending",
+  "note": "Version 0.1.2 passed local validation and user testing on 2026-10-02. GitHub release materials and matching AMO runtime/source are prepared; the maintainer will submit the AMO update manually. Public AMO API currently reports 0.1.1. GitHub publication receipt is recorded separately in docs/SECOND_UPDATE_RELEASE.md.",
   "releaseBlockers": [],
   "distributionBlockers": [
     "Signed install/upgrade and distribution acceptance"

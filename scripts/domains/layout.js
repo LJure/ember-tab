@@ -5,6 +5,7 @@ import { DisposableComponent } from '../platform/lifecycle.js';
 import { launchpad } from './quicklinks/launchpad.js';
 import { getSyncSettings, SYNC_SETTINGS_DEFAULTS } from '../platform/settings-contract.js';
 import { isTimeoutError, logWithDedup } from '../shared/error-utils.js';
+import { isBackgroundRefreshing } from './backgrounds/refresh-activity.js';
 import {
     SHORTCUT_SETTING_KEYS,
     matchesShortcutEvent,
@@ -62,6 +63,10 @@ export class LayoutManager extends DisposableComponent {
         if (this.refreshBgBtn) {
             this._events.add(this.refreshBgBtn, 'click', () => this.refreshBackground());
         }
+        this._events.add(window, 'background:refreshing', event => {
+            if (event.detail?.system === this.backgroundSystem) this._syncRefreshIndicator();
+        });
+        this._syncRefreshIndicator();
 
         if (this.downloadBgBtn) {
             this._events.add(this.downloadBgBtn, 'click', () => this._handleDownloadBackground());
@@ -512,9 +517,8 @@ export class LayoutManager extends DisposableComponent {
     async refreshBackground() {
         if (!this.backgroundSystem?.refresh) return;
 
-        if (this.refreshBgBtn) {
-            this.refreshBgBtn.classList.add('refreshing');
-        }
+        this._manualRefreshes = (this._manualRefreshes || 0) + 1;
+        this._syncRefreshIndicator();
 
         try {
             await this.backgroundSystem.whenReady?.();
@@ -522,10 +526,20 @@ export class LayoutManager extends DisposableComponent {
         } catch (error) {
             console.error('Failed to refresh background:', error);
         } finally {
-            this._timers.setTimeout('refreshCooldown', () => {
-                this.refreshBgBtn?.classList.remove('refreshing');
-            }, 500);
+            this._manualRefreshes--;
+            this._syncRefreshIndicator();
         }
+    }
+
+    _syncRefreshIndicator() {
+        if (this.isDestroyed || !this.refreshBgBtn) return;
+        const active = Boolean(this._manualRefreshes) || (this.backgroundSystem && isBackgroundRefreshing(this.backgroundSystem));
+        this._timers.clearTimeout('refreshCooldown');
+        this.refreshBgBtn.setAttribute('aria-busy', String(Boolean(active)));
+        if (active) this.refreshBgBtn.classList.add('refreshing');
+        else this._timers.setTimeout('refreshCooldown', () => {
+            this.refreshBgBtn?.classList.remove('refreshing');
+        }, 500);
     }
 
 }

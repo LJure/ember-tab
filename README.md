@@ -6,7 +6,7 @@ An unofficial Firefox port of [Aura Tab by nil-byte](https://github.com/nil-byte
 
 **Ember Tab 0.1.1 已通过 Mozilla 审核并公开上架。**
 
-构建包与源码见 [GitHub 0.1.1 发布](https://github.com/LJure/ember-tab/releases/tag/v0.1.1)，当前 ZIP 为开发者临时加载包，长期安装仍推荐商店签名版。
+**0.1.2 UI/UX 更新已完成用户测试，商店更新由维护者手动提交。** 构建包与源码见 [GitHub 0.1.2 发布](https://github.com/LJure/ember-tab/releases/tag/v0.1.2)，GitHub ZIP 为开发者临时加载包，长期安装仍推荐商店签名版。
 
 [![Firefox Add-ons 版本](https://img.shields.io/amo/v/ember-tab-firefox?style=for-the-badge&logo=firefoxbrowser&logoColor=white&label=Firefox%20Add-ons&color=FF7139)](https://addons.mozilla.org/zh-CN/firefox/addon/ember-tab-firefox/)
 
@@ -50,6 +50,15 @@ An unofficial Firefox port of [Aura Tab by nil-byte](https://github.com/nil-byte
 Aura 数据通过 ZIP 导入；用户已验证 Brave／Aura 3.5.3 的 59 链接、37.1 MB 备份、新版真实 WebDAV、Firefox 账号设置／链接同步、慢图床与自动图标尺寸修复，以及 Wallhaven 私有收藏集和 Pexels 真实取图。128 MiB 合成数据备份往返已通过；跨设备冲突合并延期至后续版本，长期轮换留待上线后持续验证，正式签名升级仍待验收。恢复不具备跨数据库与 storage 的全局回滚。
 
 普通包要求图床、在线服务和 WebDAV 使用 HTTPS。仅本机集成测试可以单独生成带 `-test-http` 标记的包。Chromium 历史配置不是 Firefox 安装入口。
+
+## 0.1.2 更新
+
+- 更新插件图标，采用新的蓝色设计，适配普通与高像素密度工具栏。
+- 自动更换壁纸时，左上角刷新按钮持续旋转，更新完成或失败后停止。
+- 搜索历史／联想面板平滑展开和收起；删除记录时淡出、补位并调整面板高度，减少闪烁。支持快速关闭再打开及减少动态效果设置。
+- 改善等待联想更新时的键盘选择，以及异步删除后的焦点行为。
+
+验证见 [第二次更新记录](docs/SECOND_UPDATE_IMPLEMENTATION.md)。商店上传材料与步骤见 [0.1.2 手动更新指南](docs/SECOND_UPDATE_STORE_GUIDE.md)。
 
 ## 0.1.1 更新
 

@@ -1,0 +1,13 @@
+# AMO review notes — Ember Tab 0.1.2
+
+Update to the existing listed add-on ember-tab-firefox; ID ember-tab@ljure.github.io. Desktop Firefox 140+, not Android. This independent, unofficial port of Aura Tab 3.5.3 by nil-byte preserves upstream MIT copyright and third-party licenses.
+
+Extract the matching source ZIP and run `node tools/build-firefox.mjs --release` from its root. Built on Windows x64 with Node 24.14.1; the portable build uses only Node built-ins and bundled fflate. No npm install, Git checkout, image tools, account or credentials are required. The expected runtime SHA-256 is included in SHA256SUMS.txt and the submission JSON. The root manifest is retained Chromium history; upload only ember-tab-0.1.2-firefox.zip. Readable application ES modules; third-party distribution files and licenses are described in THIRD_PARTY_NOTICES.md, licenses/ and docs/M6_SOURCE_REVIEW.md.
+
+Changes from 0.1.1: new blue extension icon; automatic wallpaper updates use the same rotating refresh button as manual updates; smoother history/suggestion panel entry/exit, row deletion/reflow and panel resizing. Busy-state counting handles overlapping updates and failure cleanup. Dismissal immediately cancels requests and makes the exiting panel inert. Reduced-motion users skip panel/row animation. New input clears stale keyboard selection; delayed deletion respects current focus.
+
+Permissions, remote providers and privacy behavior are unchanged from 0.1.1. Local history and optional suggestions remain off by default; private windows do not read/write history or request suggestions. History and device-local search preferences stay outside Sync, ZIP/WebDAV backup and migration. Enabled suggestions use only the selected HTTPS provider without cookies or remote scripts. No developer analytics or new remote executable code.
+
+Review: open a new tab; check the extension/toolbar icon. Enable history in Settings > General > Search, submit test searches, click the empty search box, then delete rows, dismiss outside and reopen rapidly. Enable suggestions to inspect the same panel. For automatic wallpaper feedback, use a local image collection with multiple images and the new-tab frequency, or a supported online source with configured refresh. Also test the manual refresh button and reduced-motion preference.
+
+Validation: 678 unit tests; Firefox 157.0 / ESR 140.16.0 each passed 6 UI and 10 search checks; production-package baseline passed 10 checks. web-ext: 0 errors, 0 notices, 52 inherited warnings. User trial passed. Temporary-loading checks do not replace signed installation/upgrade acceptance. See docs/SECOND_UPDATE_IMPLEMENTATION.md.

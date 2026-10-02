@@ -56,7 +56,7 @@ const run = (script, ...args) => driver.executeAsyncScript(`const done=arguments
 const type = async value => {
     await driver.executeScript(`const input=document.getElementById('searchInput');input.focus();input.value=arguments[0];input.dispatchEvent(new Event('input',{bubbles:true}));`, value);
 };
-const waitRows = text => driver.wait(async () => await driver.executeScript(`return document.getElementById('searchSuggestions').textContent.includes(arguments[0]);`, text), 12000);
+const waitRows = text => driver.wait(async () => await driver.executeScript(`const list=document.getElementById('searchSuggestions'),panel=list.parentElement;return list.textContent.includes(arguments[0])&&!panel.hidden&&panel.getAnimations({subtree:true}).length===0;`, text), 12000);
 const pref = (area, values) => run(`await chrome.storage[arguments[0]].set(arguments[1]);`, area, values);
 const check = async (name, task) => { report.running = name; await task(); report.checks.push(name); console.log(`PASS ${name}`); };
 try {
