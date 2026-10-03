@@ -9,8 +9,8 @@
   "geckoId": "ember-tab@ljure.github.io",
   "minimumFirefoxVersion": "140.0",
   "minimumChromeVersion": "116",
-  "status": "third-update-validated-amo-manual-pending",
-  "note": "Version 0.1.3 prepares shared favicon discovery fixes, manual icon candidates and Chrome self-use build support after user testing. Firefox AMO submission remains manual. Public AMO API reports 0.1.2 as verified on 2026-10-03. Release validation and handoff are recorded in docs/THIRD_UPDATE_RELEASE.md. Signed installation/upgrade acceptance remains separate.",
+  "status": "third-update-github-released-amo-manual-pending",
+  "note": "Version 0.1.3 publishes shared favicon discovery fixes, manual icon candidates and Chrome self-use build support after user testing. GitHub v0.1.3 is public with seven digest-verified Firefox attachments. Firefox AMO submission remains manual. Public AMO API reports 0.1.2 as verified on 2026-10-03. Release validation and handoff are recorded in docs/THIRD_UPDATE_RELEASE.md. Signed installation/upgrade acceptance remains separate.",
   "releaseBlockers": [],
   "distributionBlockers": [
     "Signed install/upgrade and distribution acceptance"

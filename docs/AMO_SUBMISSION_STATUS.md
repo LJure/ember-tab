@@ -4,6 +4,7 @@
 
 - AMO 公开 API 已核实当前版本 **0.1.2**，固定 ID 为 `ember-tab@ljure.github.io`。这表示下面 0.1.2“准备提交”段落是历史记录。
 - 用户完成图标修复和候选选择测试并授权更新 GitHub。0.1.3 的运行包、匹配源码、版本说明、隐私文本、审核备注、候选截图与手动指南位于 `dist/amo/0.1.3/`，见 [手动更新](THIRD_UPDATE_STORE_GUIDE.md)。
+- [GitHub v0.1.3](https://github.com/LJure/ember-tab/releases/tag/v0.1.3) 已于北京时间 15:39:58 公开，七个附件的名称、大小与 SHA-256 核对通过；源码包独立重建与运行包逐字节一致。
 - 本轮没有代为上传 AMO，也不记为 0.1.3 已审核／签名／公开。GitHub 与重建验证见 [发布记录](THIRD_UPDATE_RELEASE.md)，提交后记录版本／文件 ID、源码附件和实际状态。
 - Firefox 权限和数据类别与已发布 0.1.2 包逐项比较一致；正式签名包的同 ID 升级仍需在商店完成后验收。
 

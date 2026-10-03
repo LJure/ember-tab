@@ -1,6 +1,6 @@
 # Ember Tab 0.1.3 发布记录
 
-2026-10-03：用户完成图标修复和候选选择测试，授权更新 GitHub，并由用户手动提交 Firefox 商店。准备 GitHub `v0.1.3`，发布回执将在公开附件核对后补充。
+2026-10-03：用户完成图标修复和候选选择测试，授权更新 GitHub，并由用户手动提交 Firefox 商店。[GitHub v0.1.3](https://github.com/LJure/ember-tab/releases/tag/v0.1.3) 已于 UTC 07:39:58／北京时间 15:39:58 公开，七个附件已核对；AMO 0.1.3 仍待用户手动提交。
 
 ## 更新范围
 
@@ -28,7 +28,23 @@ Firefox 权限、host_permissions、Gecko 身份和数据声明与已发布 0.1.
 
 机器可读结果见 [验证 JSON](THIRD_UPDATE_VALIDATION.json)。本机证据：`.local/third-update-vitest.log`、`.local/third-update-{ui,search,m3}-{stable,esr}/`、`.local/third-update-production/`、`.local/chrome-runtime/run-1791012174611/report.json` 和 `.local/third-update-web-ext.json`。浏览器配置、原始备份、凭据、测试包不进入发布附件。
 
-Firefox 运行包 `ember-tab-0.1.3-firefox.zip`：119 文件、551888 字节；SHA-256 `c2faea140d97d70ef42967d1bd1d47410b4964fb179334377942c81a91be479d`。对应源码和商店完整材料由 `tools/package-firefox-release.mjs` 从已提交源码生成；工具会检查普通权限、源提交、独立重建一致及所有材料校验。完整包哈希与 GitHub 发布状态在后续回执记录，源包不会包含自己后补的发布回执。
+Firefox 运行包 `ember-tab-0.1.3-firefox.zip`：119 文件、551888 字节；SHA-256 `c2faea140d97d70ef42967d1bd1d47410b4964fb179334377942c81a91be479d`。对应源码和商店完整材料由 `tools/package-firefox-release.mjs` 从源提交 `42e6ed98f3c55a8ea562f6bd47fa480e0fcdd8f5` 生成，远程 `v0.1.3` 标签指向该提交。源包包含发布前记录，不包含后补回执；后补文档提交不改变运行代码与发布附件。
+
+## GitHub 发布回执
+
+发布 ID `402392631`，公开正式版本（draft=false、prerelease=false）。2026-10-03T07:40:02Z 已通过 GitHub API 逐一比较全部七个附件的名称、大小、uploaded 状态与 SHA-256，记录见 [附件核对 JSON](THIRD_UPDATE_GITHUB.json)。
+
+| 附件 | 字节／文件数 | SHA-256 |
+| --- | --- | --- |
+| `ember-tab-0.1.3-firefox.zip` | 551888／119 | `c2faea140d97d70ef42967d1bd1d47410b4964fb179334377942c81a91be479d` |
+| `ember-tab-0.1.3-source.zip` | 30114300／323 | `b5ae830ecc0d36b1a65744857efd24ae6565fffe8880a82ddc612461499bbcae` |
+| `ember-tab-0.1.3-amo-materials.zip` | 30944821／13 | `bd3a3e509c986a95715402cd3faf46a00c7bb8c35ec9711792ecbb070233bc23` |
+
+另附以上三个 ZIP 的 `.sha256` 文件和 `ember-tab-0.1.3-submission.json`，总计七项。商店材料中的 `SHA256SUMS.txt` 覆盖其余十二份材料，已逐一验证；完整材料重复打包逐字节一致，见 [本地材料验证](THIRD_UPDATE_PACKAGE.json)。
+
+将源码包单独解压到隔离目录，在 Node 24.14.1 下执行 `node tools/build-firefox.mjs --release`，无需 npm 安装或 Git 检出，输出与上述 Firefox 运行 ZIP 逐字节一致。本轮只公开 Firefox 更新附件，Chrome 包仍在本地自用交付。
+
+代码提交及发布标签已推送 `origin/main`；本回执随单独文档提交推送后，通过 GitHub API 再核对远程主分支与本地 HEAD 相等。最后远程 SHA 见本机 `.local/third-update-final-verification.json`，避免将回执自己的提交 SHA 写入自身造成循环。
 
 ## 商店状态
 
