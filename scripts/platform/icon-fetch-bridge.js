@@ -84,3 +84,18 @@ export async function discoverIconViaBackground(pageUrl) {
     if (!blob.size) return null;
     return { blob, meta: response.meta || {} };
 }
+
+export async function discoverIconCandidatesViaBackground(pageUrl) {
+    if (!isAllowedIconFetchUrl(pageUrl)) return [];
+    try {
+        const response = await chrome.runtime.sendMessage({ type: DISCOVER_ICON_MESSAGE, url: pageUrl, includeCandidates: true });
+        if (!response?.success || !Array.isArray(response.candidates)) return [];
+        return response.candidates.slice(0, 8).flatMap(candidate => {
+            const bytes = normalizeIconBinaryPayload(candidate.data);
+            if (!bytes?.byteLength || bytes.byteLength > 512 * 1024) return [];
+            return [{ blob: new Blob([bytes], { type: candidate.contentType || 'image/png' }), meta: candidate.meta || {} }];
+        });
+    } catch {
+        return [];
+    }
+}

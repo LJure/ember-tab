@@ -230,6 +230,7 @@ class IconCacheManager {
         score: Number(entry.score) || 0,
         purpose: entry.purpose || '',
         discoveryVersion: Number(entry.discoveryVersion) || 0,
+        userSelected: entry.userSelected === true,
         cachedAt: entry.cachedAt,
         lastAccessedAt: now,
         size: blob.size
@@ -318,11 +319,13 @@ class IconCacheManager {
         score: Number(metadata.score) || 0,
         purpose: metadata.purpose || '',
         discoveryVersion: Number(metadata.discoveryVersion) || 0,
+        userSelected: metadata.userSelected === true,
         cachedAt: now,
         lastAccessedAt: now,
         size
       };
-      await idbRequest(db, IconCacheManager.CONFIG.STORE_NAME, 'readwrite', (store) => store.put(entry));
+      // Report success after commit so an immediate page reload cannot abort the write.
+      await idbBatch(db, IconCacheManager.CONFIG.STORE_NAME, (store) => store.put(entry));
       this._resetDegradedState();
 
       const scheduleEviction = () => {

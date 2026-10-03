@@ -29,4 +29,14 @@ describe('favicon offscreen parsing', () => {
             expect.objectContaining({ url: 'https://example.com/maskable.png', purpose: 'maskable', sizeHint: 512 })
         ]);
     });
+    it.each(['light', 'dark'])('selects the site favicon for the %s theme instead of mixing light and dark artwork', colorScheme => {
+        const parsed = parsePage(`
+            <link rel="shortcut icon" media="(prefers-color-scheme: light)" href="/colored.png">
+            <link rel="shortcut icon" media="(prefers-color-scheme: dark)" href="/white.png">
+            <link rel="apple-touch-icon" href="/common.png">
+        `, 'https://example.com/', { colorScheme });
+        expect(parsed.candidates.map(x => x.url)).toEqual([
+            `https://example.com/${colorScheme === 'light' ? 'colored' : 'white'}.png`, 'https://example.com/common.png'
+        ]);
+    });
 });

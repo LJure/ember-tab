@@ -168,12 +168,15 @@ async function _loadIconWithCache(img, urls, onExhausted, { minPx, skipSvg, skip
     if (!isTokenValid()) return;
     if (!customIconUrl && pageUrl) {
       onPending?.();
-      const discovered = await discoverIconViaBackground(pageUrl);
+      let discovered = await discoverIconViaBackground(pageUrl);
       if (!isTokenValid()) return;
+      const chosen = await iconCache.get(cacheKey);
+      if (!isTokenValid()) return;
+      if (chosen?.userSelected) discovered = { blob: chosen.blob, meta: chosen };
       const displayBlob = discovered?.blob ? await autoIconDisplayBlob(discovered.blob) : null;
       if (!isTokenValid()) return;
       if (displayBlob && _setImageFromBlob(img, displayBlob)) {
-        if (canWriteCache) {
+        if (canWriteCache && !chosen?.userSelected) {
           await iconCache.set(cacheKey, discovered.blob, discovered.meta?.sourceUrl || '', {
             ...discovered.meta,
             mimeType: discovered.blob.type || discovered.meta?.mimeType || ''
@@ -375,6 +378,10 @@ async function _fetchAndCacheIcon(cacheKey, url, metadata = {}, options) {
   try {
     const blob = await fetchIconBlobViaBackground(url, options);
     if (!blob) return null;
+    if (!options?.customIcon) {
+      const chosen = await iconCache.get(cacheKey);
+      if (chosen?.userSelected) return chosen.blob;
+    }
     // A failed cache write must not hide a successfully downloaded image.
     try { await iconCache.set(cacheKey, blob, url, metadata); } catch { /* display without caching */ }
     return blob;

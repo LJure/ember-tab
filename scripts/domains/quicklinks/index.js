@@ -12,6 +12,8 @@ import { DisposableComponent, createDebounce } from '../../platform/lifecycle.js
 import { discoverIconViaBackground, fetchIconBlobViaBackground } from '../../platform/icon-fetch-bridge.js';
 import { getInitial, isValidQuicklinkUrl, normalizeUrlForNavigation } from '../../shared/text.js';
 import { ICON_PALETTE, createTextIconContent, normalizeCustomIconColor, normalizeIconAppearance, resolveIconColor, resolveIconMode, truncateIconText } from './icon-appearance.js';
+import { IconChooser } from './icon-chooser.js';
+import { updateItemIcon } from './icon-renderer.js';
 
 const MODAL_ID = 'quicklink-dialog';
 
@@ -94,6 +96,16 @@ class QuickLinksApp extends DisposableComponent {
         };
 
         this.dialogOverlay = this.refs.dialogOverlay;
+        this.iconChooser = new IconChooser({
+            button: byId('quicklinkChooseIconBtn'), panel: byId('quicklinkIconCandidates'),
+            status: byId('quicklinkIconCandidatesStatus'), list: byId('quicklinkIconCandidatesList'),
+            readContext: () => ({ url: this._normalizeUrl(this.refs.urlInput?.value.trim() || ''), mode: this.editState.iconMode }),
+            onSelected: () => {
+                this._updatePreviewIcon();
+                this._refreshVisibleIcons(this._normalizeUrl(this.refs.urlInput?.value.trim() || ''));
+            }
+        });
+        this._events.add(byId('quicklinkChooseIconBtn'), 'click', () => this.iconChooser.load());
     }
 
     _bindDialogEvents() {
@@ -123,6 +135,7 @@ class QuickLinksApp extends DisposableComponent {
         if (urlInput) {
             this._events.add(urlInput, 'blur', () => this._updatePreviewIcon());
             this._events.add(urlInput, 'input', () => {
+                this.iconChooser.reset();
                 this._clearUrlValidation();
                 this._debouncedPreview.call();
             });
@@ -179,6 +192,7 @@ class QuickLinksApp extends DisposableComponent {
 
     openDialog(link = null, source = null) {
         if (!this.dialogOverlay || this.isDestroyed) return;
+        this.iconChooser.reset();
 
         const { titleInput, urlInput, iconInput, dockCheckbox, dialogTitle, refreshIconRow } = this.refs;
 
@@ -255,6 +269,7 @@ class QuickLinksApp extends DisposableComponent {
 
         const wasActive = this.dialogOverlay.classList.contains('active');
         if (!wasActive) return;
+        this.iconChooser.reset();
 
         this.dialogOverlay.classList.remove('active');
         this.dialogOverlay.setAttribute('aria-hidden', 'true');
@@ -385,6 +400,7 @@ class QuickLinksApp extends DisposableComponent {
 
     async _handleRefreshIconCache() {
         if (!this.editState.editingId) return;
+        this.iconChooser.reset();
 
         const { urlInput, iconInput, refreshIconBtn, refreshIconLabel } = this.refs;
         const url = urlInput?.value.trim();
@@ -422,6 +438,7 @@ class QuickLinksApp extends DisposableComponent {
             if (success) {
                 toast(t('iconCacheRefreshed'));
                 this._updatePreviewIcon();
+                this._refreshVisibleIcons(normalizedUrl);
             } else {
                 toast(t('iconCacheRefreshFailed'));
             }
@@ -510,8 +527,18 @@ class QuickLinksApp extends DisposableComponent {
         previewIcon.appendChild(fallback);
     }
 
+    _refreshVisibleIcons(url) {
+        const key = buildIconCacheKey(url);
+        for (const element of document.querySelectorAll('.quicklink-item[data-id], .launchpad-item[data-id]')) {
+            const item = store.getItem(element.dataset.id);
+            if (!item || resolveIconMode(item) !== 'auto' || buildIconCacheKey(item.url) !== key) continue;
+            updateItemIcon(element, item, element.classList.contains('quicklink-item') ? 'quicklink' : 'launchpad');
+        }
+    }
+
     _setIconMode(mode, updatePreview = true) {
         if (!['auto', 'custom', 'text'].includes(mode)) mode = 'auto';
+        if (mode !== 'auto') this.iconChooser?.reset();
         this.editState.iconMode = mode;
         for (const button of this.refs.iconMode?.querySelectorAll('[data-mode]') || []) {
             button.setAttribute('aria-checked', String(button.dataset.mode === mode));
@@ -733,7 +760,10 @@ class QuickLinksApp extends DisposableComponent {
                 return;
             }
 
-            if (await this._discoverAndCacheIcon(cacheKey, url)) {
+            // Ordinary link edits must not overwrite a deliberately chosen icon.
+            if ((await iconCache.get(cacheKey))?.userSelected) return;
+
+            if (await this._discoverAndCacheIcon(cacheKey, url, true)) {
                 iconCache.removeFromNegativeCache(cacheKey);
                 return;
             }
@@ -756,9 +786,10 @@ class QuickLinksApp extends DisposableComponent {
         }
     }
 
-    async _discoverAndCacheIcon(cacheKey, pageUrl) {
+    async _discoverAndCacheIcon(cacheKey, pageUrl, preserveChoice = false) {
         const discovered = await discoverIconViaBackground(pageUrl);
         if (!discovered?.blob) return false;
+        if (preserveChoice && (await iconCache.get(cacheKey))?.userSelected) return true;
         return iconCache.set(cacheKey, discovered.blob, discovered.meta?.sourceUrl || '', {
             ...discovered.meta,
             mimeType: discovered.blob.type || discovered.meta?.mimeType || ''
@@ -767,6 +798,7 @@ class QuickLinksApp extends DisposableComponent {
 
     destroy() {
         if (this.isDestroyed) return;
+        this.iconChooser?.reset();
 
         this._debouncedPreview.cancel();
 

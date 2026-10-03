@@ -2,6 +2,9 @@
 import { t } from '../../platform/i18n.js';
 import { assetsStore } from '../backgrounds/assets-store.js';
 import { ICONS } from './icons.js';
+import { modalLayer } from '../../platform/modal-layer.js';
+
+const MODAL_ID = 'photos-immersive';
 
 export class ImmersiveViewer {
     constructor(host) {
@@ -165,12 +168,19 @@ export class ImmersiveViewer {
         await this._loadCurrentImage();
 
         viewer.classList.add('is-visible');
+        modalLayer.register(MODAL_ID, modalLayer.constructor.LEVEL.DIALOG, viewer, () => this.hide(), {
+            dismissOnOutsideClick: false,
+            zIndexElement: this._host._overlay || viewer
+        });
         document.body.style.overflow = 'hidden';
 
         this._resetToolbarTimer();
     }
 
     hide() {
+        const wasRegistered = modalLayer.has(MODAL_ID);
+        modalLayer.unregister(MODAL_ID);
+        if (wasRegistered) modalLayer.bringToFront(this._host._getModalId());
         const viewer = this._host._window?.querySelector('#photosImmersiveViewer');
         if (viewer) {
             viewer.classList.remove('is-visible');
@@ -244,6 +254,7 @@ export class ImmersiveViewer {
 
     destroy() {
         if (this._isDestroyed) return;
+        this.hide();
         this._isDestroyed = true;
 
         this._loadSeq++;

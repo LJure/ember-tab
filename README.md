@@ -5,11 +5,17 @@ An unofficial Firefox port of [Aura Tab by nil-byte](https://github.com/nil-byte
 基于 Aura Tab 的非官方 Firefox 新标签页扩展，保留快捷链接、Dock、搜索、书签导入、本地／在线壁纸、照片、备份与 WebDAV。独立维护，名称为 **Ember Tab**。
 
 
-**0.1.2 UI/UX 更新已完成用户测试并发布。** 构建包与源码见 [GitHub 0.1.2 发布](https://github.com/LJure/ember-tab/releases/tag/v0.1.2)，GitHub ZIP 为开发者临时加载包，长期安装仍推荐商店签名版。
+**0.1.3 图标修复与候选选择更新已完成用户测试。** 构建包与源码见 [GitHub 0.1.3 发布](https://github.com/LJure/ember-tab/releases/tag/v0.1.3)，Firefox 商店本轮由维护者手动更新；GitHub 发布不代表商店已完成审核。GitHub ZIP 用于商店上传或开发者临时加载，长期安装仍推荐商店签名版。
 
 [![Firefox Add-ons 版本](https://img.shields.io/amo/v/ember-tab-firefox?style=for-the-badge&logo=firefoxbrowser&logoColor=white&label=Firefox%20Add-ons&color=FF7139)](https://addons.mozilla.org/zh-CN/firefox/addon/ember-tab-firefox/)
 
 ## 安装与迁移
+
+### Chrome 自用版
+
+Chrome 自用迁移已完成，采用本地加载、手动更新。运行 `npm ci` 后执行 `npm run package:chrome:self-use`，生成 `dist/ember-tab-0.1.3-chrome-self-use.zip`；解压后在 `chrome://extensions/` 开启开发者模式，加载包内直接含 `manifest.json` 的 **chrome 目录**。也可直接加载本仓库的 `dist/chrome/`。
+
+固定 ID 为 `ikjonccnpooflmknleniaiicpogiaieb`。保持开发者模式开启和加载目录存在；更新前导出备份，保留公钥，替换同一目录的文件后点击“重新加载”。早期无固定 ID 的 Chrome 包须先导出 ZIP，再迁移到固定 ID 版。安装、Firefox 迁移、手动更新和恢复见 [自用说明](docs/CHROME_SELF_USE.md)，测试范围见 [验证记录](docs/CHROME_SELF_USE_VALIDATION.md) 和 [完整迁移记录](docs/CHROME_MIGRATION.md)。Chrome 包为本地构建物，本轮未提交 Chrome 商店；GitHub 发布附件为 Firefox 更新材料。
 
 ### Firefox 附加组件商店（推荐）
 
@@ -49,6 +55,15 @@ An unofficial Firefox port of [Aura Tab by nil-byte](https://github.com/nil-byte
 Aura 数据通过 ZIP 导入；用户已验证 Brave／Aura 3.5.3 的 59 链接、37.1 MB 备份、新版真实 WebDAV、Firefox 账号设置／链接同步、慢图床与自动图标尺寸修复，以及 Wallhaven 私有收藏集和 Pexels 真实取图。128 MiB 合成数据备份往返已通过；跨设备冲突合并延期至后续版本，长期轮换留待上线后持续验证，正式签名升级仍待验收。恢复不具备跨数据库与 storage 的全局回滚。
 
 普通包要求图床、在线服务和 WebDAV 使用 HTTPS。仅本机集成测试可以单独生成带 `-test-http` 标记的包。Chromium 历史配置不是 Firefox 安装入口。
+
+## 0.1.3 更新
+
+- 自动取图保留大页面中的图标声明，优先可用原站图，匹配浅深色图标，公共 HTTP 链接先尝试 HTTPS。
+- 新增“选择图标”：编辑链接 → 自动 → 选择图标，比较来源和实际尺寸。点击应用本机选择，普通保存和重载保留；刷新缓存恢复自动选择。
+- 修复相册全屏查看器的弹层／Escape 行为；共享构建支持 Firefox 和 Chrome 自用版。
+- Firefox 权限及固定 ID 保持不变，隐私页补充主动取候选的说明。
+
+验证与发布见 [0.1.3 记录](docs/THIRD_UPDATE_RELEASE.md)，商店手动更新见 [上传指南](docs/THIRD_UPDATE_STORE_GUIDE.md)。历史图标诊断见 [候选选择记录](docs/CHROME_ICON_CHOOSER.md)。
 
 ## 0.1.2 更新
 

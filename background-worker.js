@@ -1,4 +1,5 @@
-import { fetchLimited } from './scripts/platform/icon-network.js';
+import { fetchLimited, fetchPageMetadata, preferSecureIconPageUrl } from './scripts/platform/icon-network.js';
+import { chooseBestIcon, hasHighResolutionIcon, hasUsableSiteIcon, isProviderPlaceholder, uniqueIconCandidates } from './scripts/platform/icon-quality.js';
 import { CUSTOM_ICON_TIMEOUT_MS, requestCustomIcon } from './scripts/platform/custom-icon-request.js';
 import { runFaviconDomTask } from './scripts/platform/favicon-runtime.js';
 import { chromeFaviconUrl, isOwnChromeFaviconUrl } from './scripts/platform/extension-urls.js';
@@ -95,7 +96,7 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
             ? requestCustomIcon(message.url, () => handleFetchIcon(message.url, true))
             : handleFetchIcon(message.url))
         : message?.type === DISCOVER_ICON_MESSAGE
-            ? handleDiscoverIcon(message.url)
+            ? handleDiscoverIcon(message.url, message.includeCandidates === true)
             : null;
     if (!handler) return false;
     handler
@@ -193,6 +194,7 @@ async function inspectCandidate(candidate) {
     if (!isHttpUrl(candidate.url) && !isOwnChromeFaviconUrl(candidate.url)) return null;
     const response = await fetchLimited(candidate.url, 'image/*', MAX_ICON_BYTES);
     if (!response.ok || !response.contentType.toLowerCase().startsWith('image/')) return null;
+    if (isProviderPlaceholder(candidate, response.bytes, response.contentType)) return null;
     const inspection = await runFaviconDomTask({
         type: OFFSCREEN_INSPECT_IMAGE_MESSAGE, bytes: response.bytes, contentType: response.contentType
     });
@@ -210,23 +212,25 @@ async function inspectCandidate(candidate) {
     };
 }
 
-function chooseBestIcon(results) {
-    return results.filter(Boolean).sort((a, b) => {
-        if (b.score !== a.score) return b.score - a.score;
-        const aAboveTarget = Math.max(a.width, a.height) >= 128 ? 1 : 0;
-        const bAboveTarget = Math.max(b.width, b.height) >= 128 ? 1 : 0;
-        if (bAboveTarget !== aAboveTarget) return bAboveTarget - aAboveTarget;
-        if (a.data.length !== b.data.length) return a.data.length - b.data.length;
-        return a.url.localeCompare(b.url);
-    })[0] || null;
+function iconPayload(icon) {
+    return {
+        data: icon.data, contentType: icon.contentType,
+        meta: {
+            sourceKind: icon.sourceKind, sourceUrl: icon.url, width: icon.width, height: icon.height,
+            score: icon.score, purpose: icon.purpose || '', discoveryVersion: 2, isSvg: icon.isSvg
+        }
+    };
 }
 
-async function handleDiscoverIcon(pageUrl) {
+async function handleDiscoverIcon(pageUrl, includeCandidates = false) {
     if (!isHttpUrl(pageUrl)) return { success: false, error: 'Invalid page URL' };
     try {
-        const page = await fetchLimited(pageUrl, 'text/html,application/xhtml+xml', MAX_PAGE_BYTES);
+        const discoveryUrl = preferSecureIconPageUrl(pageUrl);
+        let page = await fetchPageMetadata(discoveryUrl, MAX_PAGE_BYTES);
+        if (!page.ok && discoveryUrl !== pageUrl) page = await fetchPageMetadata(pageUrl, MAX_PAGE_BYTES);
+        const { uiTheme } = await chrome.storage.sync.get({ uiTheme: 'light' });
         const parsed = page.ok && /(?:text\/html|application\/xhtml\+xml)/i.test(page.contentType)
-            ? await runFaviconDomTask({ type: OFFSCREEN_PARSE_PAGE_MESSAGE, html: new TextDecoder().decode(Uint8Array.from(page.bytes)), pageUrl: page.finalUrl })
+            ? await runFaviconDomTask({ type: OFFSCREEN_PARSE_PAGE_MESSAGE, html: new TextDecoder().decode(Uint8Array.from(page.bytes)), pageUrl: page.finalUrl, colorScheme: uiTheme === 'dark' ? 'dark' : 'light' })
             : { candidates: [], manifests: [] };
         const manifestCandidates = (await Promise.all((parsed?.manifests || []).slice(0, 3).map(async manifestUrl => {
             const manifest = await fetchLimited(manifestUrl, 'application/manifest+json,application/json', MAX_PAGE_BYTES);
@@ -237,21 +241,25 @@ async function handleDiscoverIcon(pageUrl) {
             });
             return Array.isArray(candidates) ? candidates : [];
         }))).flat();
-        const fallback = fallbackCandidates(pageUrl);
+        const fallback = fallbackCandidates(page.ok ? page.finalUrl : discoveryUrl);
         const primary = dedupeCandidates([...(parsed?.candidates || []), ...manifestCandidates, ...fallback.primary])
             .sort((a, b) => (b.sizeHint || 0) - (a.sizeHint || 0)).slice(0, MAX_PRIMARY_CANDIDATES);
-        let valid = (await Promise.all(primary.map(inspectCandidate))).filter((result) => result && !result.lowResolution);
-        if (valid.length === 0) {
-            valid = (await Promise.all(fallback.providers.map(inspectCandidate))).filter(Boolean);
+        const inspected = (await Promise.all(primary.map(inspectCandidate))).filter(Boolean);
+        const valid = inspected.filter(result => !result.lowResolution);
+        if (includeCandidates || (!valid.some(hasUsableSiteIcon) && !valid.some(hasHighResolutionIcon))) {
+            // Keep a usable primary result when higher-resolution fallbacks are unavailable.
+            const providers = (await Promise.all(fallback.providers.map(inspectCandidate))).filter(Boolean);
+            valid.push(...providers);
+            inspected.push(...providers);
         }
         const best = chooseBestIcon(valid);
-        if (!best) return { success: false, error: 'No valid favicon found' };
+        if (!best && !includeCandidates) return { success: false, error: 'No valid favicon found' };
+        if (includeCandidates) {
+            const candidates = (await uniqueIconCandidates(inspected)).map(iconPayload);
+            return { success: candidates.length > 0, candidates };
+        }
         return {
-            success: true, data: best.data, contentType: best.contentType,
-            meta: {
-                sourceKind: best.sourceKind, sourceUrl: best.url, width: best.width, height: best.height,
-                score: best.score, purpose: best.purpose || '', discoveryVersion: 1
-            }
+            success: true, ...iconPayload(best)
         };
     } catch (error) {
         return { success: false, error: String(error) };

@@ -5,11 +5,12 @@
   "upstreamCommit": "a706cee56e43b80777de697dd4462083b1f97ef8",
   "upstreamVersion": "3.5.3",
   "initialVersion": "0.1.0",
-  "currentVersion": "0.1.2",
+  "currentVersion": "0.1.3",
   "geckoId": "ember-tab@ljure.github.io",
   "minimumFirefoxVersion": "140.0",
-  "status": "second-update-github-released-amo-manual-pending",
-  "note": "Version 0.1.2 passed local validation and user testing and is published on GitHub (tag v0.1.2, commit fdaee9c) with runtime, matching rebuild-verified source, manual AMO materials and checksums. The maintainer will submit the AMO update manually; this run has not submitted it. Public AMO API reports 0.1.1 as verified on 2026-10-02. GitHub receipt is recorded in docs/SECOND_UPDATE_RELEASE.md. Signed installation/upgrade acceptance remains separate.",
+  "minimumChromeVersion": "116",
+  "status": "third-update-validated-amo-manual-pending",
+  "note": "Version 0.1.3 prepares shared favicon discovery fixes, manual icon candidates and Chrome self-use build support after user testing. Firefox AMO submission remains manual. Public AMO API reports 0.1.2 as verified on 2026-10-03. Release validation and handoff are recorded in docs/THIRD_UPDATE_RELEASE.md. Signed installation/upgrade acceptance remains separate.",
   "releaseBlockers": [],
   "distributionBlockers": [
     "Signed install/upgrade and distribution acceptance"
@@ -23,5 +24,7 @@
     "User deferred long-running wallpaper rotation acceptance to continued user validation after initial release",
     "User deferred additional interrupted-restore protection; retain existing upstream-style handling, no global rollback or automatic recovery copy implemented",
     "User deferred permission revocation acceptance and additional handling; retain existing behavior, not marked verified"
-  ]
+  ],
+  "chromePublicKey": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA6YM3xSf+6ptuRPxPP04SDFlX76az21Bx8u29uCt/wXqvOPGWJ+N+2HH3b4LBJBBouKKQK1Xp3ZDS2Fc/5SFWB9bUV8aVOoyGibTASutf6pjo9XrB22bhinsGWK/VR9QP2xtVIdjMKL1qnk3+edtBZlTHUdPlETdPrCZrTHEqD8gKbHEkAa4b9n9aVne3S91ndO4oL7ug9X0NP58JP0KOWONM39vHKLhxoTpeqbT15vNpIdzy+bxh3rtqijoDX8/Vm9Acy25w0Mzo4OfCvnamNfW+QUvBtNRGrW96WTjAzC12yMVzAjNh1e3SlROdHxYuMnMqTb44EA7jO1KC7bqeWQIDAQAB",
+  "chromeId": "ikjonccnpooflmknleniaiicpogiaieb"
 }

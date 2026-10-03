@@ -1,6 +1,6 @@
 # Ember Tab — attribution and third-party notices
 
-Ember Tab is an independent, unofficial Firefox port of [Aura Tab by nil-byte](https://github.com/nil-byte/aura-tab), baseline `a706cee56e43b80777de697dd4462083b1f97ef8` (3.5.3). It is not affiliated with Mozilla or the upstream author. The original `Copyright (c) 2026 nil-byte` and complete MIT license remain in [LICENSE](LICENSE). Ember modifications and the original geometric artwork added for this port are distributed under the same MIT terms.
+Ember Tab is an independently maintained, unofficial port of [Aura Tab by nil-byte](https://github.com/nil-byte/aura-tab), baseline `a706cee56e43b80777de697dd4462083b1f97ef8` (3.5.3), with Firefox and Chrome builds. It is not affiliated with Mozilla, Google or the upstream author. The original `Copyright (c) 2026 nil-byte` and complete MIT license remain in [LICENSE](LICENSE). Ember modifications and the original geometric artwork added for this port are distributed under the same MIT terms.
 
 ## Bundled code
 

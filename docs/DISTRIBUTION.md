@@ -1,10 +1,12 @@
 # 开发安装、迁移与分发
 
-2026-10-02 更新：[Ember Tab 商店公开版本为 0.1.1](https://addons.mozilla.org/zh-CN/firefox/addon/ember-tab-firefox/)，经 AMO API 核实。0.1.2 完成用户测试，GitHub 发布材料已准备，AMO 由用户手动更新，见 [上传指南](SECOND_UPDATE_STORE_GUIDE.md)。普通用户应使用商店安装；下方“未签名候选包”仅指开发者构建物。正式签名 XPI 的安装／升级验收独立记录，见 [当前进度](AMO_SUBMISSION_STATUS.md)。
+Chrome 自用迁移和交付已完成：执行 `npm run package:chrome:self-use`，生成 `dist/ember-tab-0.1.3-chrome-self-use.zip`（含可加载的 `chrome/`、安装说明、验证记录与校验清单）；只需运行包时执行 `npm run build:chrome`。Chrome 固定 ID 为 `ikjonccnpooflmknleniaiicpogiaieb`，采用开发者模式本地加载和手动更新。具体操作见 [Chrome 自用说明](CHROME_SELF_USE.md)，本次验证及限制见 [验证记录](CHROME_SELF_USE_VALIDATION.md) 和 [完整迁移记录](CHROME_MIGRATION.md)。本轮 Chrome 包只在本地交付，未提交商店或发布到 GitHub；以下 Firefox 商店与发布状态单独保留。
 
-当前开发者构建版本为 **0.1.2**，本轮未代为提交 AMO；功能与测试见 [第二次更新记录](SECOND_UPDATE_IMPLEMENTATION.md)。固定 ID 为 `ember-tab@ljure.github.io`，目标桌面 Firefox 140+；首版稳定版 156.0.1 与 ESR 140.16.0 的历史矩阵见 [M6 验收](M6_ACCEPTANCE.md)，商店进度见 [Mozilla 提交进度](AMO_SUBMISSION_STATUS.md)。
+2026-10-03 更新：[Ember Tab 商店公开版本为 0.1.2](https://addons.mozilla.org/zh-CN/firefox/addon/ember-tab-firefox/)，经 AMO API 核实。0.1.3 完成用户测试，本轮商店由维护者手动更新，见 [上传指南](THIRD_UPDATE_STORE_GUIDE.md)。GitHub 发布、AMO 上传／审核与签名安装是独立状态，见 [当前进度](AMO_SUBMISSION_STATUS.md)。
 
-当前来源为本地、Wallhaven、Pexels、Bing；Unsplash／Pixabay 已移除，旧收藏保留。用户确认 Pexels 真实取图、Wallhaven 私有收藏集通过。设置方法见 [Wallhaven 使用](WALLHAVEN.md)，最新构建哈希以 [M6 验收](M6_ACCEPTANCE.md) 为准。
+当前开发者构建版本为 **0.1.3**，本轮未代为提交 AMO；功能与验证见 [发布记录](THIRD_UPDATE_RELEASE.md)。固定 ID 为 `ember-tab@ljure.github.io`，目标桌面 Firefox 140+；0.1.3 在 Firefox 157.0 与 ESR 140.16.0 完成回归，历史首版矩阵见 [M6 验收](M6_ACCEPTANCE.md)。
+
+当前来源为本地、Wallhaven、Pexels、Bing；Unsplash／Pixabay 已移除，旧收藏保留。用户确认 Pexels 真实取图、Wallhaven 私有收藏集通过。设置方法见 [Wallhaven 使用](WALLHAVEN.md)，Firefox 历史候选包哈希见 [M6 验收](M6_ACCEPTANCE.md)，本轮双浏览器构建哈希见 [Chrome 迁移记录](CHROME_MIGRATION.md)。
 
 ## 复现构建
 
@@ -19,7 +21,7 @@ npm run build:firefox
 npm run lint:firefox
 ```
 
-输出 `dist/firefox/`、`dist/ember-tab-0.1.2-firefox.zip` 与 `.sha256`，版本读取 `ember.project.json` 的 `currentVersion`。ZIP 固定文件顺序及时间戳，同一源码和运行环境重复构建结果一致。品牌导出文件已入库，普通构建不需要图像工具；重新导出图标和默认壁纸时用 sharp 0.35.4 运行 `node tools/render-brand.mjs <sharp模块入口>`。新图标原始 PNG 和壁纸 SVG 位于 `assets/brand/`。2026-10-01 起相册／设置 JPEG 已按用户要求恢复上游原版，品牌导出工具不再覆盖它们，历史几何 SVG 不用于当前包；见 [首次更新](FIRST_UPDATE_ASSESSMENT.md)。
+输出 `dist/firefox/`、`dist/ember-tab-0.1.3-firefox.zip` 与 `.sha256`，版本读取 `ember.project.json` 的 `currentVersion`。ZIP 固定文件顺序及时间戳，同一源码和运行环境重复构建结果一致。品牌导出文件已入库，普通构建不需要图像工具；重新导出图标和默认壁纸时用 sharp 0.35.4 运行 `node tools/render-brand.mjs <sharp模块入口>`。新图标原始 PNG 和壁纸 SVG 位于 `assets/brand/`。2026-10-01 起相册／设置 JPEG 已按用户要求恢复上游原版，品牌导出工具不再覆盖它们，历史几何 SVG 不用于当前包；见 [首次更新](FIRST_UPDATE_ASSESSMENT.md)。
 
 `node tools/build-firefox.mjs --release` 会在 `ember.project.json` 的 releaseBlockers 非空时拒绝构建。本轮候选构建门槛已按核查结果和用户范围决定处理，可以生成未签名候选包。本开关不签名、不上传。签名安装／升级与正式分发单列在 distributionBlockers，仍未完成；生成候选包不清除该门槛。
 
@@ -28,7 +30,7 @@ npm run lint:firefox
 ## 临时安装与更新
 
 1. 在单独测试配置中打开 `about:debugging#/runtime/this-firefox`，选择“临时载入附加组件”，选 `dist/firefox/manifest.json`。
-2. 重新构建后点“重新载入”，再打开新标签页；当前构建为 0.1.2，临时加载的重载／升级不代表正式签名包升级验收。
+2. 重新构建后点“重新载入”，再打开新标签页；当前构建为 0.1.3，临时加载的重载／升级不代表正式签名包升级验收。
 3. 临时扩展在浏览器重启后移除，需重新加载。长期安装需要 Mozilla 签名；没有把 ZIP 改成 XPI 就能绕过签名的步骤。
 4. M6 正式签名包使用相同 ID 和递增版本。正式签名安装、权限提示和升级保留数据须另外验收。不要先卸载旧扩展来更新，以免清除本地数据。
 
@@ -42,10 +44,10 @@ npm run lint:firefox
 - 0.1.1 搜索历史及其新开关／联想来源只在本机保存，从 ZIP、WebDAV 和迁移排除；恢复时不导入这些字段，保留本机历史和选择。
 - 历史／联想面板的不透明度与模糊强度属于普通外观设置，只保存数值，随 Firefox Sync 和备份保留，不包含搜索词。
 - 保存的 WebDAV 目录、数据库名、备份 schema 和 storage 键继续沿用 Aura 标识，以兼容旧数据。Dock 默认背板保持上游行为。
-- HTTP 图床／WebDAV 需改成服务实际支持的 HTTPS 地址；不要仅盲目改前缀。HTTP 快捷链接仍能导航，自动图标可回退；不支持 HTTPS 的 WebDAV 不能在普通包中备份。
+- HTTP 图床／WebDAV 需改成服务实际支持的 HTTPS 地址；不要仅盲目改前缀。HTTP 快捷链接仍能导航；公共默认端口链接取图先尝试 HTTPS，不改导航地址，失败仍可回退；不支持 HTTPS 的 WebDAV 不能在普通包中备份。
 
 ## 发布门槛
 
-当前服务／素材复核和用户决定见 [M6 来源审核](M6_SOURCE_REVIEW.md)，0.1.2 审阅资料见 [AMO reviewer notes](SECOND_UPDATE_AMO_NOTES.md)。商店名称 Ember Tab、slug `ember-tab-firefox`，当前公开版本 0.1.1；0.1.2 完成测试并准备手动更新，签名安装／升级验收另行记录。
+当前服务／素材复核和用户决定见 [M6 来源审核](M6_SOURCE_REVIEW.md)，0.1.3 审阅资料见 [AMO reviewer notes](THIRD_UPDATE_AMO_NOTES.md)。商店名称 Ember Tab、slug `ember-tab-firefox`，核实公开版本为 0.1.2；0.1.3 准备手动更新，签名安装／升级验收另行记录。
 
 不启用继承的 Chrome 发布脚本；GitHub Actions 保持用户批准的暂停状态。源根目录 manifest 和上游打包脚本仅保留为 Chromium 历史参考，Firefox 必须使用上述构建入口。

@@ -1,9 +1,15 @@
 {
     "name": "ember-tab",
-    "version": "0.1.2",
-    "description": "An unofficial Firefox port of Aura Tab",
+    "version": "0.1.3",
+    "description": "An unofficial port of Aura Tab for Firefox and Chrome",
     "type": "module",
     "scripts": {
+        "build:chrome": "node tools/build-chrome.mjs",
+        "package:chrome:self-use": "node tools/package-chrome-self-use.mjs",
+        "test:chrome-build": "node --test tools/build-chrome.test.mjs",
+        "test:chrome:runtime": "node tools/test-chrome-runtime.mjs",
+        "test:chrome:features": "node tools/test-chrome-runtime.mjs --features",
+        "test:chrome:lifecycle": "node tools/test-chrome-lifecycle.mjs",
         "build:firefox": "node tools/build-firefox.mjs",
         "lint:firefox": "web-ext lint --source-dir dist/firefox --output json",
         "test:firefox": "node tools/test-firefox.mjs",

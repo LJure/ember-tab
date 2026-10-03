@@ -1,4 +1,22 @@
 {
+  "0.1.3": {
+    "en": [
+      "Improved automatic icons: discover icons in large pages, prefer usable site originals, follow light/dark icon variants and try HTTPS for public HTTP links.",
+      "Choose Icon shows multiple sources and actual dimensions. Click to apply a local choice; ordinary edits and reloads preserve it. Refresh Icon Cache restores automatic selection.",
+      "Fixed Photos fullscreen viewer interaction with modal layers. Added shared Chrome self-use build support; Firefox permissions and add-on ID remain unchanged."
+    ],
+    "zh_CN": [
+      "改进自动图标：解析大页面中的图标，优先可用原站图、匹配浅深色变体，公共 HTTP 链接先尝试 HTTPS 取图。",
+      "新增“选择图标”：查看多个来源和实际尺寸，点击应用本机选择；普通编辑和重载保留，刷新图标缓存恢复自动选择。",
+      "修复相册全屏查看器与弹层交互，新增共用的 Chrome 自用构建支持；Firefox 权限和扩展 ID 不变。"
+    ],
+    "zh_TW": [
+      "改善自動圖示：解析大型頁面的圖示，優先可用原站圖、符合淺深色變體，公共 HTTP 連結先嘗試 HTTPS 取圖。",
+      "新增「選擇圖示」：檢視多個來源與實際尺寸，點選套用本機選擇；一般編輯與重新載入保留，重新整理圖示快取恢復自動選擇。",
+      "修正相簿全螢幕檢視器與浮層互動，新增共用的 Chrome 自用建置支援；Firefox 權限及擴充套件 ID 不變。"
+    ],
+    "moreUrl": "https://github.com/LJure/ember-tab/releases/tag/v0.1.3"
+  },
   "0.1.2": {
     "en": [
       "Updated the extension icon with a new blue design.",

@@ -1,13 +1,17 @@
 import assert from 'node:assert/strict';
 import { createServer } from 'node:http';
-import { writeFile } from 'node:fs/promises';
+import { readFile, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { By, Key } from 'selenium-webdriver';
 import firefox from 'selenium-webdriver/firefox.js';
+import { testIconChooser } from './test-icon-chooser.mjs';
 
 export async function runM3Tests({driver, check, runInExtension: run, evidence, uuid, report}) {
+    const smallPng = await readFile(new URL('../assets/icons/icon32.png', import.meta.url));
     const click = async selector => {
         const el = await driver.findElement(By.css(selector));
+        await driver.executeScript('arguments[0].scrollIntoView({block:"nearest"});',el);
+        await driver.wait(async()=>await driver.executeScript('return !document.getAnimations().some(a=>a.playState==="running"&&a.effect.getComputedTiming().iterations!==Infinity);'),5000);
         await driver.wait(async () => driver.executeScript(`const el=arguments[0],r=el.getBoundingClientRect();
             return r.width>0 && r.height>0 && el.contains(document.elementFromPoint(r.x+r.width/2,r.y+r.height/2));`,el),5000);
         await el.click();
@@ -22,6 +26,9 @@ export async function runM3Tests({driver, check, runInExtension: run, evidence, 
         const pathname = new URL(req.url, 'http://localhost').pathname;
         requests.push(pathname);
         const send = (type, body) => { res.writeHead(200, {'Content-Type':type}); res.end(body); };
+        if (pathname === '/choices') return send('text/html', '<link rel="icon" href="/choice-vector.svg"><link rel="icon" href="/choice-small.png">');
+        if (pathname === '/choice-small.png') return send('image/png', smallPng);
+        if (pathname === '/choice-vector.svg') return send('image/svg+xml', svg);
         if (pathname === '/declared') return send('text/html', '<base href="/assets/"><link rel="icon" href="icon.svg"><img src="/unwanted-subresource"><script>fetch("/unwanted-script")</script>');
         if (pathname === '/redirect') { res.writeHead(302, {Location:'/declared'}); return res.end(); }
         if (pathname === '/manifest-page') return send('text/html', '<link rel="manifest" href="/site.webmanifest">');
@@ -93,6 +100,7 @@ export async function runM3Tests({driver, check, runInExtension: run, evidence, 
                 try { img.src=url; await img.decode(); return img.naturalWidth; } finally { URL.revokeObjectURL(url); }`);
             assert.ok(loaded >= 32); assert.equal(requests.length, before);
         });
+        await testIconChooser({ driver, run, check, origin, evidence });
         await check('M3 real Firefox bookmark roots, separators, duplicates and import', async () => {
             const result = await run(`const root = (await chrome.bookmarks.getTree())[0];
                 for (const folder of root.children) for (const child of folder.children || []) await chrome.bookmarks.removeTree(child.id);
@@ -173,16 +181,21 @@ export async function runM3Tests({driver, check, runInExtension: run, evidence, 
                 const ctx=c.getContext('2d');ctx.fillStyle='#243b53';ctx.fillRect(0,0,1200,800);
                 ctx.fillStyle='#d97942';ctx.fillRect(650,100,400,600);return c.toDataURL('image/png').split(',')[1];`),'base64');
             const fixture=path.join(evidence,'wallpaper.png'); await writeFile(fixture,wallpaper);
+            report.featureStage='open wallpaper settings';
             await click('#settingsBtn');
             await click('[data-menu="appearance"]');
             await driver.wait(async()=> (await driver.findElements(By.id('macLocalFileInput'))).length>0,5000);
             await driver.findElement(By.id('macLocalFileInput')).sendKeys(fixture);
+            report.featureStage='wait uploaded wallpaper';
             const uploaded='.mac-local-file-item:not([data-id="default"])';
             await driver.wait(async()=> (await driver.findElements(By.css(uploaded))).length===1,15000);
             const selectedId=await driver.findElement(By.css(uploaded)).getAttribute('data-id');
             await click(uploaded);
+            report.featureStage='wait selected wallpaper';
             await driver.wait(async()=>await run('return (await chrome.storage.local.get("backgroundFiles")).backgroundFiles?.[arguments[0]]?.selected===true',selectedId),10000);
-            await click('#macSettingsClose');
+            await driver.actions().sendKeys(Key.ESCAPE).perform();
+            await driver.wait(async()=>!(await driver.findElement(By.id('macSettingsOverlay')).isDisplayed()),5000);
+            report.featureStage='wait applied wallpaper';
             await driver.wait(async()=>await driver.executeScript('return [...document.querySelectorAll(".background-image.ready")].some(el=>el.style.backgroundImage.includes("blob:"))'),10000);
             const file=await run(`const {localFilesManager}=await import('./scripts/domains/backgrounds/source-local.js');
                 await localFilesManager.init();const f=await localFilesManager.getSelectedFile();
@@ -216,6 +229,7 @@ export async function runM3Tests({driver, check, runInExtension: run, evidence, 
             await driver.wait(async()=> (await driver.findElement(By.id('photosWindow')).getAttribute('class')).includes('is-expanded'),5000);
             await click('#photosExpand');
             const title=await driver.findElement(By.id('photosTitlebar'));
+            await driver.wait(async()=>await driver.executeScript('return !document.getAnimations().some(a=>a.playState==="running"&&a.effect.getComputedTiming().iterations!==Infinity);'),5000);
             const before=await driver.findElement(By.id('photosWindow')).getRect();
             await driver.actions().move({origin:title,x:80,y:0}).press().move({origin:'pointer',x:60,y:40,duration:500}).release().perform();
             const after=await driver.findElement(By.id('photosWindow')).getRect();
@@ -226,6 +240,7 @@ export async function runM3Tests({driver, check, runInExtension: run, evidence, 
             await driver.actions().sendKeys(Key.ARROW_RIGHT).perform();
             await driver.actions().sendKeys(Key.ESCAPE).perform();
             await driver.wait(async()=> !(await driver.findElement(By.id('photosImmersiveViewer')).getAttribute('class')).includes('is-visible'),5000);
+            assert.equal(await driver.findElement(By.id('photosOverlay')).getAttribute('aria-hidden'),'false','Escape should return to the album');
             await writeFile(path.join(evidence,'photos.png'),await driver.takeScreenshot(),'base64');
             await click('#photosClose');
             await driver.wait(async()=>!(await driver.findElement(By.id('photosOverlay')).isDisplayed()),5000);

@@ -19,13 +19,16 @@ function sizeHint(value) {
     }, 0);
 }
 
-function parsePage(html, pageUrl) {
+function parsePage(html, pageUrl, { colorScheme = 'light' } = {}) {
     const doc = new DOMParser().parseFromString(String(html || ''), 'text/html');
     const baseUrl = toHttpUrl(doc.querySelector('base[href]')?.getAttribute('href') || pageUrl, pageUrl) || pageUrl;
     const candidates = [];
     const manifests = [];
     doc.querySelectorAll('link[href]').forEach((link) => {
         const rels = (link.getAttribute('rel') || '').toLowerCase().split(/\s+/).filter(Boolean);
+        const themeMedia = (link.getAttribute('media') || '').trim()
+            .match(/^\(\s*prefers-color-scheme\s*:\s*(light|dark)\s*\)$/i);
+        if (themeMedia && themeMedia[1].toLowerCase() !== colorScheme) return;
         const href = toHttpUrl(link.getAttribute('href'), baseUrl);
         if (!href) return;
         if (rels.includes('manifest')) {
@@ -94,7 +97,7 @@ export async function inspectImage(bytes, contentType) {
 
 export function runFaviconDomTask(message) {
     if (message?.type === PARSE_PAGE_MESSAGE) {
-        return parsePage(message.html, message.pageUrl);
+        return parsePage(message.html, message.pageUrl, { colorScheme: message.colorScheme });
     }
     if (message?.type === PARSE_MANIFEST_MESSAGE) {
         return parseManifest(message.text, message.manifestUrl);

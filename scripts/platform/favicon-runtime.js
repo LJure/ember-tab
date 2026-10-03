@@ -11,8 +11,14 @@ async function ensureDocument() {
             url: 'favicon-offscreen.html', reasons: ['DOM_PARSER'],
             justification: 'Parse site-declared favicon metadata and verify image dimensions.'
         });
-    })().catch(error => { pending = null; throw error; });
-    return pending;
+    })();
+    try {
+        await pending;
+    } finally {
+        // Cache only concurrent creation work, not the document's lifetime.
+        // A later request must recheck after Chrome closes or recreates contexts.
+        pending = null;
+    }
 }
 
 export async function runFaviconDomTask(message) {
