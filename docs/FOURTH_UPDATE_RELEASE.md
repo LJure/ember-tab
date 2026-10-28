@@ -26,11 +26,16 @@ Firefox 权限、host_permissions、Gecko 身份和数据声明与已公开 0.1.
 
 本次未重跑 Firefox/ESR 浏览器验收矩阵和完整 Chrome 生命周期矩阵；0.1.4 只改变首屏初始化顺序与预览分辨率，功能代码与 0.1.3 相同。机器可读结果见 [验证 JSON](FOURTH_UPDATE_VALIDATION.json)。
 
-Firefox 运行包 `ember-tab-0.1.4-firefox.zip`：119 文件、552742 字节；SHA-256 `c74bc040e7e7bf180cf134c104f18fb25b7c9512c94c428bc588c13d00c9fc34`。Chrome 运行包 `ember-tab-0.1.4-chrome.zip`：120 文件、553586 字节；SHA-256 `d947414f6308647b55fbd7fa910c8caf4aedad27d0af9d444789251d65d2e998`。Chrome 自用交付包由 `npm run package:chrome:self-use` 生成，运行文件与上述 Chrome ZIP 一致。
+Firefox 运行包 `ember-tab-0.1.4-firefox.zip`：119 文件、552742 字节；SHA-256 `c74bc040e7e7bf180cf134c104f18fb25b7c9512c94c428bc588c13d00c9fc34`。Chrome 运行包 `ember-tab-0.1.4-chrome.zip`：120 文件、553586 字节；SHA-256 `d947414f6308647b55fbd7fa910c8caf4aedad27d0af9d444789251d65d2e998`。Chrome 自用交付包 `ember-tab-0.1.4-chrome-self-use.zip`：124 文件、570998 字节；SHA-256 `2a39bd956c053c6f3a48ad0c372384b99ee0f4deb0d6c3b7b6871cee9cb382bc`，`RELEASE.json` 的 `matchesValidatedRuntime` 为 `true`。
 
-源码包与商店完整材料由 `tools/package-firefox-release.mjs` 从本次源提交生成，提交与校验值见 `dist/amo/0.1.4/submission.json` 及打包后的 [材料验证](FOURTH_UPDATE_PACKAGE.json)。
+源码包与商店完整材料由 `tools/package-firefox-release.mjs` 从源提交 `cd993d9d615bc26b1e4be5c83d698288637a8fdb` 生成：
 
-将源码包单独解压到隔离目录，在 Node 24.22.1 下执行 `node tools/build-firefox.mjs --release`，无需 npm 安装或 Git 检出，输出与上述 Firefox 运行 ZIP 逐字节一致。商店材料重复打包逐字节一致，`SHA256SUMS.txt` 覆盖其余十二份材料。源包包含发布前记录，不包含后补回执。
+| 附件 | 字节／文件数 | SHA-256 |
+| --- | --- | --- |
+| `ember-tab-0.1.4-source.zip` | 30127744／331 | `04bf8a9aca1e2490eccb48948837abd3d3db9494c91656b204ec2720ed086bc1` |
+| `ember-tab-0.1.4-amo-materials.zip` | 30957683／13 | `63a3e79c61b117c23cb63b59d37500f99be088d1c54a6c457df79385d94ce395` |
+
+将源码包单独解压到隔离目录，在 Node 24.22.1 下执行 `node tools/build-firefox.mjs --release`，无需 npm 安装或 Git 检出，输出与上述 Firefox 运行 ZIP 逐字节一致。商店材料重复打包逐字节一致，`SHA256SUMS.txt` 覆盖其余十二份材料；见 [材料验证](FOURTH_UPDATE_PACKAGE.json)。源包包含发布前记录，不包含后补回执。
 
 ## GitHub 推送
 
