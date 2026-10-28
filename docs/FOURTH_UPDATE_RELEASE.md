@@ -28,7 +28,18 @@ Firefox 权限、host_permissions、Gecko 身份和数据声明与已公开 0.1.
 
 Firefox 运行包 `ember-tab-0.1.4-firefox.zip`：119 文件、552776 字节；SHA-256 `e6122aa351d0dcc9a01432a3537dac2955b1393333f1fae20e779bae2550587e`。Chrome 运行包 `ember-tab-0.1.4-chrome.zip`：120 文件、553620 字节；SHA-256 `b375cb6ec028df99855489a00fec96fae3fb0ce50857ba2009e912200bf1b9ff`。
 
-源码包与商店完整材料由 `tools/package-firefox-release.mjs` 从本次源提交生成；源包包含发布前记录，不包含后补回执。打包后回执在本文件、[材料验证](FOURTH_UPDATE_PACKAGE.json) 和 `dist/amo/0.1.4/SHA256SUMS.txt` 中记录。
+源码包与商店完整材料由 `tools/package-firefox-release.mjs` 从本次源提交 `f0123d250b6ecc45d64fcd1edffb5e7bc0df0bda` 生成：
+
+| 附件 | 字节／文件数 | SHA-256 |
+| --- | --- | --- |
+| `ember-tab-0.1.4-source.zip` | 30126691／330 | `a2914c063c77a0c09018c377655de0b2978988154ff39fd6d13d8b690e90cf54` |
+| `ember-tab-0.1.4-amo-materials.zip` | 30956704／13 | `dff0006b348a526e568fc7c99671c6450edaf532a32fb4d9291c1c606c200227` |
+
+将源码包单独解压到隔离目录，在 Node 24.22.1 下执行 `node tools/build-firefox.mjs --release`，无需 npm 安装或 Git 检出，输出与上述 Firefox 运行 ZIP 逐字节一致。商店材料重复打包逐字节一致，`SHA256SUMS.txt` 覆盖其余十二份材料；见 [材料验证](FOURTH_UPDATE_PACKAGE.json)。源包包含发布前记录，不包含后补回执。
+
+## GitHub 推送
+
+本轮代码与发布准备提交为 `f0123d2`，随后推送 `origin/main`；没有创建 `v0.1.4` 标签或 GitHub Release。材料与回执提交单独推送，最终远程 HEAD 在推送后核对，避免把回执自身提交 SHA 写入自身。
 
 ## 商店状态
 
