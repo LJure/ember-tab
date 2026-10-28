@@ -1,0 +1,57 @@
+{
+  "version": "0.1.4",
+  "status": "passed",
+  "userTrial": "passed on functionally identical pre-release builds for Firefox and Chrome self-use",
+  "verifiedAt": "2026-10-28T15:10:20.704Z",
+  "runtime": {
+    "file": "ember-tab-0.1.4-firefox.zip",
+    "files": 119,
+    "bytes": 552776,
+    "sha256": "e6122aa351d0dcc9a01432a3537dac2955b1393333f1fae20e779bae2550587e"
+  },
+  "chromeRuntime": {
+    "file": "ember-tab-0.1.4-chrome.zip",
+    "files": 120,
+    "bytes": 553620,
+    "sha256": "b375cb6ec028df99855489a00fec96fae3fb0ce50857ba2009e912200bf1b9ff"
+  },
+  "unit": {
+    "files": 98,
+    "tests": 718
+  },
+  "userValidation": {
+    "firefox": "startup clock, wallpaper and Dock verified locally",
+    "chromeSelfUse": "startup clock, wallpaper and Dock verified locally"
+  },
+  "webExt": {
+    "errors": 0,
+    "notices": 0,
+    "warnings": 52,
+    "warningComparison": "identical code/file/message multiset to GitHub v0.1.3"
+  },
+  "build": {
+    "firefox": 1,
+    "chrome": 3,
+    "reproducible": true,
+    "eslint": "passed"
+  },
+  "permissionComparison": {
+    "baseline": "AMO public 0.1.3 runtime",
+    "unchanged": true,
+    "id": "ember-tab@ljure.github.io"
+  },
+  "amo": {
+    "publicVersion": "0.1.3",
+    "fileId": 5081375,
+    "status": "public",
+    "verifiedAt": "2026-10-28T15:10:20.703Z",
+    "submitted": false
+  },
+  "limits": [
+    "Signed install/upgrade not accepted yet",
+    "Firefox stable/ESR acceptance matrix and full Chrome lifecycle matrix not rerun for 0.1.4",
+    "User startup trial applies to functionally identical pre-release builds",
+    "No AMO upload in this task",
+    "No GitHub Release or tag created for 0.1.4"
+  ]
+}

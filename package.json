@@ -1,6 +1,6 @@
 {
     "name": "ember-tab",
-    "version": "0.1.3",
+    "version": "0.1.4",
     "description": "An unofficial port of Aura Tab for Firefox and Chrome",
     "type": "module",
     "scripts": {

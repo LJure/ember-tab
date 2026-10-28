@@ -9,6 +9,7 @@ import { zipSync, unzipSync } from '../scripts/libs/fflate.esm.js';
 const root = fileURLToPath(new URL('../', import.meta.url));
 const project = JSON.parse(await readFile(path.join(root, 'ember.project.json'), 'utf8'));
 const version = project.currentVersion;
+const docs = project.releaseDocs || 'THIRD_UPDATE';
 assert(/^\d+\.\d+\.\d+$/.test(version));
 const dist = path.join(root, 'dist');
 const sha = bytes => createHash('sha256').update(bytes).digest('hex');
@@ -55,7 +56,7 @@ for (const [name, bytes] of Object.entries(unzipSync(source))) {
 const rebuild = execFileSync(process.execPath, ['tools/build-firefox.mjs', '--release'], { cwd: verify, encoding: 'utf8' });
 assert.equal(sha(await readFile(path.join(verify, 'dist', runtimeName))), expected);
 await writeFile(path.join(root, `.local/source-rebuild-${version}.log`), rebuild);
-const validation = JSON.parse(await readFile(path.join(root, 'docs/THIRD_UPDATE_VALIDATION.json'), 'utf8'));
+const validation = JSON.parse(await readFile(path.join(root, `docs/${docs}_VALIDATION.json`), 'utf8'));
 assert.equal(validation.version, version);
 assert.equal(validation.runtime.sha256, expected);
 assert.equal(validation.status, 'passed');
@@ -76,8 +77,8 @@ for (const name of [runtimeName, sourceName]) await cp(path.join(dist, name), pa
 await cp(path.join(dist, submissionName), path.join(amo, 'submission.json'));
 await cp(path.join(root, 'assets/icons/icon128.png'), path.join(amo, 'icon128.png'));
 await cp(path.join(root, 'docs/store/05-icon-choices.png'), path.join(amo, '05-icon-choices.png'));
-await cp(path.join(root, 'docs/THIRD_UPDATE_STORE_GUIDE.md'), path.join(amo, 'upload-guide.md'));
-const reviewer = (await readFile(path.join(root, 'docs/THIRD_UPDATE_AMO_NOTES.md'), 'utf8')).replace(/^#.*\r?\n\r?\n/, '');
+await cp(path.join(root, `docs/${docs}_STORE_GUIDE.md`), path.join(amo, 'upload-guide.md'));
+const reviewer = (await readFile(path.join(root, `docs/${docs}_AMO_NOTES.md`), 'utf8')).replace(/^#.*\r?\n\r?\n/, '');
 assert(reviewer.length < 3000);
 await writeFile(path.join(amo, 'reviewer-notes.txt'), reviewer);
 const changelog = JSON.parse(await readFile(path.join(root, 'assets/changelog.json'), 'utf8'))[version];
@@ -89,7 +90,7 @@ const privacy = (await readFile(path.join(root, 'dist/firefox/privacy.html'), 'u
     .replace(/<\/(?:p|li|h1|h2|section)>/gi, '\n\n').replace(/<[^>]*>/g, '').replace(/&amp;/g, '&')
     .replace(/\n\s*\n\s*\n/g, '\n\n').trim();
 await writeFile(path.join(amo, 'privacy-policy.txt'), privacy + '\n');
-await writeFile(path.join(amo, 'screenshot-captions.txt'), '简体中文：自动图标候选选择，显示多个来源和实际尺寸。隔离 Firefox 配置，所有图标均为本地测试素材。\n\nEnglish: Choose from available automatic icons with source labels and actual sizes. Disposable Firefox profile with local test artwork.\n');
+await writeFile(path.join(amo, 'screenshot-captions.txt'), '可选沿用：自动图标候选选择（0.1.3 起），显示多个来源和实际尺寸。隔离 Firefox 配置，所有图标均为本地测试素材。\n\nOptional reuse: automatic icon candidates with source labels and actual sizes (0.1.3+). Disposable Firefox profile with local test artwork.\n');
 const materials = {};
 let sums = '';
 for (const name of (await readdir(amo)).sort()) {
@@ -103,6 +104,6 @@ const materialsName = `ember-tab-${version}-amo-materials.zip`;
 const bundle = zipSync(materials, { level: 6 });
 await writeFile(path.join(dist, materialsName), bundle);
 await writeFile(path.join(dist, materialsName + '.sha256'), `${sha(bundle)}  ${materialsName}\n`);
-const body = await readFile(path.join(root, 'docs/THIRD_UPDATE_RELEASE_NOTES.md'), 'utf8');
-await writeFile(path.join(root, '.local/third-update-release-body.md'), body + `\nRuntime SHA-256: \`${expected}\`\n\nSource SHA-256: \`${sha(source)}\`\n`);
+const body = await readFile(path.join(root, `docs/${docs}_RELEASE_NOTES.md`), 'utf8');
+await writeFile(path.join(root, `.local/${version}-release-body.md`), body + `\nRuntime SHA-256: \`${expected}\`\n\nSource SHA-256: \`${sha(source)}\`\n`);
 console.log(JSON.stringify({ ...submission, materials: { file: materialsName, sha256: sha(bundle), bytes: bundle.length, files: Object.keys(materials).length } }, null, 2));

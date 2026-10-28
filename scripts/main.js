@@ -10,7 +10,9 @@ import { initChangelog } from './domains/changelog/index.js';
 import { getSyncSettings } from './platform/settings-contract.js';
 
 const FIRST_PAINT_API_KEY = '__AURA_FIRST_PAINT__';
-const FIRST_PAINT_DISARM_TIMEOUT_MS = 3000;
+// Last-resort cleanup only. The overlay normally stays until the real wallpaper
+// has painted, so a slow startup must not strip it after a few seconds.
+const FIRST_PAINT_DISARM_TIMEOUT_MS = 30000;
 
 function getFirstPaintApi() {
     const api = globalThis[FIRST_PAINT_API_KEY];
@@ -67,39 +69,36 @@ async function main() {
 
     await whenDomReady();
 
-    await initLanguage();
-    await initTheme();
-    initHtmlI18n();
-    void initChangelog();
+    // Clock and wallpaper run first. Both depend on chrome.storage at browser
+    // startup; gating them behind language/theme used to leave the page frozen
+    // at the static 00:00 placeholder with no wallpaper until storage warmed up.
+    initClock();
     void initBackgroundSystem().catch((error) => {
         console.error('[Aura Tab] background init failed:', error);
         disarmFirstPaint();
     });
 
-    initLayout({ backgroundSystem });
-    initClock();
-    initSearch();
-    const schedule = (fn) => {
-        if (typeof requestIdleCallback === 'function') {
-            requestIdleCallback(fn, { timeout: 1200 });
-            return;
-        }
-        setTimeout(fn, 0);
-    };
+    const languageReady = initLanguage();
+    const themeReady = initTheme();
 
-    schedule(() => {
-        void (async () => {
-            await initQuickLinks();
-            void libraryStore.init().catch(() => {});
-            const macWindow = initMacSettings();
-            const settingsBtn = document.getElementById('settingsBtn');
-            settingsBtn?.addEventListener('click', (e) => {
-                e.preventDefault();
-                macWindow?.toggle?.();
-            });
-        })().catch((error) => {
-            console.error('[Aura Tab] quicklinks/settings init failed:', error);
+    await Promise.allSettled([languageReady, themeReady]);
+    initHtmlI18n();
+    void initChangelog();
+
+    initLayout({ backgroundSystem });
+    initSearch();
+
+    void (async () => {
+        await initQuickLinks();
+        void libraryStore.init().catch(() => {});
+        const macWindow = initMacSettings();
+        const settingsBtn = document.getElementById('settingsBtn');
+        settingsBtn?.addEventListener('click', (e) => {
+            e.preventDefault();
+            macWindow?.toggle?.();
         });
+    })().catch((error) => {
+        console.error('[Aura Tab] quicklinks/settings init failed:', error);
     });
 }
 

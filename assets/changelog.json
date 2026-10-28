@@ -1,4 +1,22 @@
 {
+  "0.1.4": {
+    "en": [
+      "Clock and wallpaper now appear immediately at browser startup instead of waiting for extension storage to initialize.",
+      "Dock shortcuts are initialized without the extra idle delay, so they show up sooner after a cold start.",
+      "The startup wallpaper preview stays until the real wallpaper is ready and renders at a sharper resolution, avoiding a brief blank or colour-only background."
+    ],
+    "zh_CN": [
+      "浏览器启动时立即显示时钟和壁纸，不再等待扩展存储初始化，避免停留在 00:00。",
+      "Dock 不再等待额外的空闲延迟，冷启动后快捷链接更早出现。",
+      "启动壁纸预览保留到真实壁纸就绪，并提升清晰度；不再出现短暂无壁纸或只剩纯色背景。"
+    ],
+    "zh_TW": [
+      "瀏覽器啟動時立即顯示時鐘和桌布，不再等待擴充套件儲存初始化，避免停留在 00:00。",
+      "Dock 不再等待額外的閒置延遲，冷啟動後捷徑更早出現。",
+      "啟動桌布預覽保留到真實桌布就緒，並提升清晰度；不再出現短暫無桌布或只剩純色背景。"
+    ],
+    "moreUrl": "https://github.com/LJure/ember-tab/releases"
+  },
   "0.1.3": {
     "en": [
       "Improved automatic icons: discover icons in large pages, prefer usable site originals, follow light/dark icon variants and try HTTPS for public HTTP links.",

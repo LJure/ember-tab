@@ -108,19 +108,20 @@ export async function initClock() {
     if (!clockElement || !dateElement) return null;
 
     const controller = new AbortController();
-    let settings;
-    try {
-        settings = await getSyncSettings(DEFAULTS);
-    } catch (error) {
+
+    // Start the storage read right away, but paint the clock from defaults first.
+    // At browser startup chrome.storage can take seconds to warm up; waiting for
+    // it left the static 00:00 placeholder on screen until the read resolved.
+    const settingsPromise = getSyncSettings(DEFAULTS).catch((error) => {
         console.warn('[Aura Tab] clock settings load failed:', error);
-        settings = { ...DEFAULTS };
-    }
+        return { ...DEFAULTS };
+    });
 
     clockState = {
         controller,
         clockElement,
         dateElement,
-        settings,
+        settings: { ...DEFAULTS },
         tickTimer: null
     };
 
@@ -155,6 +156,14 @@ export async function initClock() {
         clearTimeout(clockState.dateAnimationTimer);
         clockState = null;
     };
+
+    const settings = await settingsPromise;
+    if (!clockState || clockState.controller !== controller) return null;
+
+    clockState.settings = { ...DEFAULTS, ...settings };
+    updateClock();
+    syncToggles();
+    scheduleNextTick();
 
     return clockState;
 }

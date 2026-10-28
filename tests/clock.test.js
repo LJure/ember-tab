@@ -13,6 +13,32 @@ describe('clock', () => {
         `;
     });
 
+    it('paints from defaults before sync settings resolve', async () => {
+        const originalGet = chrome.storage.sync.get;
+        let release;
+        chrome.storage.sync.get = vi.fn(() => new Promise((resolve) => {
+            release = resolve;
+        }));
+
+        const { initClock } = await import('../scripts/domains/clock.js');
+        const pending = initClock();
+
+        const now = new Date();
+        const expected = `${now.getHours()}:${String(now.getMinutes()).padStart(2, '0')}`;
+        expect(document.getElementById('clock').textContent).toBe(expected);
+        expect(document.getElementById('date').textContent).not.toBe('');
+
+        release({ clockFormat: '12', dateFormat: 'zh', showSeconds: false });
+        const state = await pending;
+
+        try {
+            expect(state.settings.clockFormat).toBe('12');
+        } finally {
+            state.destroy();
+            chrome.storage.sync.get = originalGet;
+        }
+    });
+
     it('does not commit local state when sync write fails', async () => {
         setStorageData({
             clockFormat: '24',
