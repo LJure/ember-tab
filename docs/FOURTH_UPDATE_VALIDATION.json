@@ -6,14 +6,14 @@
   "runtime": {
     "file": "ember-tab-0.1.4-firefox.zip",
     "files": 119,
-    "bytes": 552776,
-    "sha256": "e6122aa351d0dcc9a01432a3537dac2955b1393333f1fae20e779bae2550587e"
+    "bytes": 552742,
+    "sha256": "c74bc040e7e7bf180cf134c104f18fb25b7c9512c94c428bc588c13d00c9fc34"
   },
   "chromeRuntime": {
     "file": "ember-tab-0.1.4-chrome.zip",
     "files": 120,
-    "bytes": 553620,
-    "sha256": "b375cb6ec028df99855489a00fec96fae3fb0ce50857ba2009e912200bf1b9ff"
+    "bytes": 553586,
+    "sha256": "d947414f6308647b55fbd7fa910c8caf4aedad27d0af9d444789251d65d2e998"
   },
   "unit": {
     "files": 98,

@@ -21,25 +21,20 @@ Firefox 权限、host_permissions、Gecko 身份和数据声明与已公开 0.1.
 | 两版构建 | Firefox 1 项、Chrome 3 项；运行包可重复构建 |
 | ESLint | 通过 |
 | web-ext | 0 错误、0 notices、52 个既有 warnings |
-| Firefox 运行包 | 119 文件、552776 字节 |
-| Chrome 运行包 | 120 文件、553620 字节 |
+| Firefox 运行包 | 119 文件、552742 字节 |
+| Chrome 运行包 | 120 文件、553586 字节 |
 
 本次未重跑 Firefox/ESR 浏览器验收矩阵和完整 Chrome 生命周期矩阵；0.1.4 只改变首屏初始化顺序与预览分辨率，功能代码与 0.1.3 相同。机器可读结果见 [验证 JSON](FOURTH_UPDATE_VALIDATION.json)。
 
-Firefox 运行包 `ember-tab-0.1.4-firefox.zip`：119 文件、552776 字节；SHA-256 `e6122aa351d0dcc9a01432a3537dac2955b1393333f1fae20e779bae2550587e`。Chrome 运行包 `ember-tab-0.1.4-chrome.zip`：120 文件、553620 字节；SHA-256 `b375cb6ec028df99855489a00fec96fae3fb0ce50857ba2009e912200bf1b9ff`。
+Firefox 运行包 `ember-tab-0.1.4-firefox.zip`：119 文件、552742 字节；SHA-256 `c74bc040e7e7bf180cf134c104f18fb25b7c9512c94c428bc588c13d00c9fc34`。Chrome 运行包 `ember-tab-0.1.4-chrome.zip`：120 文件、553586 字节；SHA-256 `d947414f6308647b55fbd7fa910c8caf4aedad27d0af9d444789251d65d2e998`。Chrome 自用交付包由 `npm run package:chrome:self-use` 生成，运行文件与上述 Chrome ZIP 一致。
 
-源码包与商店完整材料由 `tools/package-firefox-release.mjs` 从本次源提交 `f0123d250b6ecc45d64fcd1edffb5e7bc0df0bda` 生成：
+源码包与商店完整材料由 `tools/package-firefox-release.mjs` 从本次源提交生成，提交与校验值见 `dist/amo/0.1.4/submission.json` 及打包后的 [材料验证](FOURTH_UPDATE_PACKAGE.json)。
 
-| 附件 | 字节／文件数 | SHA-256 |
-| --- | --- | --- |
-| `ember-tab-0.1.4-source.zip` | 30126691／330 | `a2914c063c77a0c09018c377655de0b2978988154ff39fd6d13d8b690e90cf54` |
-| `ember-tab-0.1.4-amo-materials.zip` | 30956704／13 | `dff0006b348a526e568fc7c99671c6450edaf532a32fb4d9291c1c606c200227` |
-
-将源码包单独解压到隔离目录，在 Node 24.22.1 下执行 `node tools/build-firefox.mjs --release`，无需 npm 安装或 Git 检出，输出与上述 Firefox 运行 ZIP 逐字节一致。商店材料重复打包逐字节一致，`SHA256SUMS.txt` 覆盖其余十二份材料；见 [材料验证](FOURTH_UPDATE_PACKAGE.json)。源包包含发布前记录，不包含后补回执。
+将源码包单独解压到隔离目录，在 Node 24.22.1 下执行 `node tools/build-firefox.mjs --release`，无需 npm 安装或 Git 检出，输出与上述 Firefox 运行 ZIP 逐字节一致。商店材料重复打包逐字节一致，`SHA256SUMS.txt` 覆盖其余十二份材料。源包包含发布前记录，不包含后补回执。
 
 ## GitHub 推送
 
-本轮代码与发布准备提交为 `f0123d2`，随后推送 `origin/main`；没有创建 `v0.1.4` 标签或 GitHub Release。材料与回执提交单独推送，最终远程 HEAD 在推送后核对，避免把回执自身提交 SHA 写入自身。
+本轮代码与发布准备提交随后推送 `origin/main`；没有创建 `v0.1.4` 标签或 GitHub Release。材料与回执提交单独推送，最终远程 HEAD 在推送后核对，避免把回执自身提交 SHA 写入自身。
 
 ## 商店状态
 
