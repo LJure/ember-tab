@@ -28,11 +28,19 @@
 | --- | --- | --- | --- |
 | Firefox 运行包 | 119 | 554818 | `c952f50f969b347ea58904ae2022f4ef70dd42b052f92c61faacf61142b48bf6` |
 | Chrome 运行包 | 120 | 555661 | `20fdd076f7f5a5dd6a7ef9a1fbe867caff54ac1ed813300a5b558d4d14844a41` |
-| Chrome 自用交付包 | 124 | 573123 | `ba1fb519842d9c4f0796d57dc7bf0ff75b892f0a881a4a452b893e6af294bb74` |
+| Chrome 自用交付包 | 124 | 573515 | `7b5d0cf4721a4f80c7c6ba6a4d3a0e3aeb49e2a1464e42272ed044b8cf6afecf` |
+
+源码包与商店材料由 `tools/package-firefox-release.mjs` 从本次源提交生成，提交、文件数与校验值见 `dist/amo/0.1.5/submission.json` 及打包后的 [材料回执](FIFTH_UPDATE_PACKAGE.json)。
+
+源码包单独解压到隔离目录，在 Node 24.22.1 下执行 `node tools/build-firefox.mjs --release`，无需 npm 安装或 Git 检出，输出与上述 Firefox 运行 ZIP 逐字节一致。删除材料目录后重复打包，运行包、源码包和材料整包哈希均不变，`SHA256SUMS.txt` 覆盖其余十二份材料。源包包含发布前记录，不包含后补回执。
 
 ## 商店状态
 
 AMO 公开版本经 API 核实为 **0.1.4**（文件 ID `5178253`，2026-10-29 查询）。0.1.5 材料已准备，等待维护者手动上传；本次不记录为已上传、已审核、已签名或已公开，也没有创建 GitHub Release 或标签。
+
+## GitHub 推送
+
+本轮代码与发布准备提交随后推送 `origin/main`；没有创建 `v0.1.5` 标签或 GitHub Release。材料与回执提交单独推送，最终远程 HEAD 在推送后核对，避免把回执自身提交 SHA 写入自身。
 
 ## 文件与重建
 

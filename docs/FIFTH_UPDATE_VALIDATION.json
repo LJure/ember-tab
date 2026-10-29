@@ -23,8 +23,8 @@
   "chromeSelfUse": {
     "file": "ember-tab-0.1.5-chrome-self-use.zip",
     "files": 124,
-    "bytes": 573123,
-    "sha256": "ba1fb519842d9c4f0796d57dc7bf0ff75b892f0a881a4a452b893e6af294bb74",
+    "bytes": 573515,
+    "sha256": "7b5d0cf4721a4f80c7c6ba6a4d3a0e3aeb49e2a1464e42272ed044b8cf6afecf",
     "extensionId": "ikjonccnpooflmknleniaiicpogiaieb"
   },
   "unitTests": {
