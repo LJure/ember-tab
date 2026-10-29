@@ -284,6 +284,62 @@ describe('background first-paint color persistence', () => {
         expect(persistedSnapshot.color).toBe('#ccddee');
         expect(persistedSnapshot.previewDataUrl).toBeNull();
     });
+
+    it('keeps the previous preview when a new capture has no image', async () => {
+        const persistSnapshotSpy = vi.fn();
+        globalThis.__AURA_FIRST_PAINT__ = {
+            persistFirstPaintColor: vi.fn(),
+            persistFirstPaintSnapshot: persistSnapshotSpy,
+            readStoredSnapshot: () => ({
+                color: '#111111',
+                previewDataUrl: 'data:image/jpeg;base64,OLD',
+                size: 'cover',
+                position: '40% 60%',
+                repeat: 'no-repeat',
+                ts: Date.now()
+            })
+        };
+
+        const ctx = { wrapper: { dataset: { type: 'files' } } };
+        backgroundApplyMethods._emitBackgroundApplied.call(ctx, {
+            type: 'files',
+            element: null,
+            color: '#ccddee'
+        });
+
+        await vi.runAllTimersAsync();
+
+        const persisted = persistSnapshotSpy.mock.calls[0][0];
+        expect(persisted.color).toBe('#ccddee');
+        expect(persisted.previewDataUrl).toBe('data:image/jpeg;base64,OLD');
+    });
+
+    it('does not wait for idle to capture the snapshot', async () => {
+        const persistSnapshotSpy = vi.fn();
+        const idleSpy = vi.fn();
+        const originalIdle = globalThis.requestIdleCallback;
+        globalThis.requestIdleCallback = idleSpy;
+        globalThis.__AURA_FIRST_PAINT__ = {
+            persistFirstPaintColor: vi.fn(),
+            persistFirstPaintSnapshot: persistSnapshotSpy
+        };
+
+        try {
+            const ctx = { wrapper: { dataset: { type: 'files' } } };
+            backgroundApplyMethods._emitBackgroundApplied.call(ctx, {
+                type: 'files',
+                element: null,
+                color: '#445566'
+            });
+
+            await vi.runAllTimersAsync();
+
+            expect(idleSpy).not.toHaveBeenCalled();
+            expect(persistSnapshotSpy).toHaveBeenCalledTimes(1);
+        } finally {
+            globalThis.requestIdleCallback = originalIdle;
+        }
+    });
 });
 
 describe('newtab first paint markup', () => {

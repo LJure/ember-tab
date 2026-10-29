@@ -94,11 +94,29 @@ function loadImageForPreview(url, timeoutMs = FIRST_PAINT_IMAGE_LOAD_TIMEOUT_MS)
     });
 }
 
+async function fetchImageForPreview(imageUrl) {
+    const response = await fetchWithTimeout(imageUrl, FIRST_PAINT_IMAGE_LOAD_TIMEOUT_MS);
+    if (!response.ok) throw new Error('first-paint-image-fetch-failed');
+    const blob = await response.blob();
+    return URL.createObjectURL(blob);
+}
+
 async function createFirstPaintPreviewDataUrl(sourceImageUrl) {
     if (!sourceImageUrl) return null;
 
+    let objectUrl = null;
     try {
-        const img = await loadImageForPreview(sourceImageUrl, FIRST_PAINT_IMAGE_LOAD_TIMEOUT_MS);
+        let img;
+        try {
+            img = await loadImageForPreview(sourceImageUrl, FIRST_PAINT_IMAGE_LOAD_TIMEOUT_MS);
+        } catch {
+            // Direct <img> loading needs CORS permission and only works while a
+            // blob URL is still alive. Extension host permissions let fetch read
+            // the same bytes as a same-origin blob, so retry that way before
+            // giving up on the preview.
+            objectUrl = await fetchImageForPreview(sourceImageUrl);
+            img = await loadImageForPreview(objectUrl, FIRST_PAINT_IMAGE_LOAD_TIMEOUT_MS);
+        }
         const canvas = document.createElement('canvas');
         canvas.width = FIRST_PAINT_PREVIEW_WIDTH;
         canvas.height = FIRST_PAINT_PREVIEW_HEIGHT;
@@ -108,16 +126,51 @@ async function createFirstPaintPreviewDataUrl(sourceImageUrl) {
         return canvas.toDataURL('image/jpeg', 0.62);
     } catch {
         return null;
+    } finally {
+        if (objectUrl) {
+            try { URL.revokeObjectURL(objectUrl); } catch { }
+        }
+    }
+}
+
+function readPersistedFirstPaintSnapshot() {
+    const firstPaintApi = globalThis[FIRST_PAINT_API_KEY];
+    try {
+        if (firstPaintApi && typeof firstPaintApi.readStoredSnapshot === 'function') {
+            return firstPaintApi.readStoredSnapshot();
+        }
+        if (typeof localStorage === 'undefined') return null;
+        const raw = localStorage.getItem(FIRST_PAINT_SNAPSHOT_STORAGE_KEY);
+        return raw ? JSON.parse(raw) : null;
+    } catch {
+        return null;
     }
 }
 
 function persistFirstPaintSnapshot(snapshot) {
     if (!snapshot || typeof snapshot !== 'object') return;
 
+    let next = snapshot;
+    if (!next.previewDataUrl) {
+        // A snapshot without a preview paints a flat average colour that reads as
+        // a broken wallpaper. Keep the previous real preview instead of
+        // downgrading it during a failed capture.
+        const previous = readPersistedFirstPaintSnapshot();
+        if (previous && previous.previewDataUrl) {
+            next = {
+                ...next,
+                previewDataUrl: previous.previewDataUrl,
+                size: previous.size || next.size,
+                position: previous.position || next.position,
+                repeat: previous.repeat || next.repeat
+            };
+        }
+    }
+
     const firstPaintApi = globalThis[FIRST_PAINT_API_KEY];
     if (firstPaintApi && typeof firstPaintApi.persistFirstPaintSnapshot === 'function') {
         try {
-            firstPaintApi.persistFirstPaintSnapshot(snapshot);
+            firstPaintApi.persistFirstPaintSnapshot(next);
         } catch {
         }
         return;
@@ -125,7 +178,7 @@ function persistFirstPaintSnapshot(snapshot) {
 
     try {
         if (typeof localStorage === 'undefined') return;
-        localStorage.setItem(FIRST_PAINT_SNAPSHOT_STORAGE_KEY, JSON.stringify(snapshot));
+        localStorage.setItem(FIRST_PAINT_SNAPSHOT_STORAGE_KEY, JSON.stringify(next));
     } catch {
     }
 }
@@ -149,15 +202,12 @@ function queueFirstPaintSnapshot(detail) {
         persistFirstPaintSnapshot(snapshot);
     };
 
-    const enqueueTask = () => {
+    // Capture right after the wallpaper is applied. Waiting for idle (or a
+    // later timer) risks the blob URL being revoked, which used to leave a
+    // colour-only snapshot for the next startup.
+    setTimeout(() => {
         _firstPaintSnapshotChain = _firstPaintSnapshotChain.then(task).catch(() => { });
-    };
-
-    if (typeof requestIdleCallback === 'function') {
-        requestIdleCallback(() => enqueueTask(), { timeout: 1200 });
-    } else {
-        setTimeout(enqueueTask, 0);
-    }
+    }, 0);
 }
 
 function persistFirstPaintColor(color) {

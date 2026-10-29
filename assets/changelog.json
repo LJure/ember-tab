@@ -1,19 +1,22 @@
 {
-  "0.1.4": {
+  "0.1.5": {
     "en": [
       "Clock and wallpaper now appear immediately at browser startup instead of waiting for extension storage to initialize.",
-      "Dock shortcuts are initialized without the extra idle delay, so they show up sooner after a cold start.",
-      "The startup wallpaper preview stays until the real wallpaper is ready and renders at a sharper resolution, avoiding a brief blank or colour-only background."
+      "The startup wallpaper preview keeps a real thumbnail of your wallpaper instead of a flat average colour, so a cold start no longer looks like an empty grey page.",
+      "Dock shortcuts render from a local cache right away and refresh once saved settings arrive; cached shortcuts stay inert until the real data is loaded.",
+      "The clock starts from default formatting and updates when your saved format, date and seconds options arrive."
     ],
     "zh_CN": [
       "浏览器启动时立即显示时钟和壁纸，不再等待扩展存储初始化，避免停留在 00:00。",
-      "Dock 不再等待额外的空闲延迟，冷启动后快捷链接更早出现。",
-      "启动壁纸预览保留到真实壁纸就绪，并提升清晰度；不再出现短暂无壁纸或只剩纯色背景。"
+      "启动壁纸预览改用真实壁纸缩略图，不再只剩一块平均色，冷启动时不会看起来像空白灰页。",
+      "Dock 快捷链接先从本地缓存立即显示，保存的设置读回后再刷新；加载完成前缓存项不可拖动或编辑。",
+      "时钟先用默认格式绘制，保存的格式、日期和秒数设置返回后再应用。"
     ],
     "zh_TW": [
       "瀏覽器啟動時立即顯示時鐘和桌布，不再等待擴充套件儲存初始化，避免停留在 00:00。",
-      "Dock 不再等待額外的閒置延遲，冷啟動後捷徑更早出現。",
-      "啟動桌布預覽保留到真實桌布就緒，並提升清晰度；不再出現短暫無桌布或只剩純色背景。"
+      "啟動桌布預覽改用真實桌布縮圖，不再只剩一塊平均色，冷啟動時不會看起來像空白灰頁。",
+      "Dock 捷徑先從本機快取立即顯示，儲存的設定讀回後再重新整理；載入完成前快取項目不可拖曳或編輯。",
+      "時鐘先用預設格式繪製，儲存的格式、日期和秒數設定返回後再套用。"
     ],
     "moreUrl": "https://github.com/LJure/ember-tab/releases"
   },

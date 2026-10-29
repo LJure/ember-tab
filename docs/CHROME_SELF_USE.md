@@ -1,21 +1,21 @@
 # Ember Tab：Chrome 自用安装与更新
 
-本次交付版本为 **0.1.4（启动首屏修复）**，2026-10-28 整理。0.1.3 自用版经测试后递增版本；0.1.4 调整启动初始化顺序与壁纸预览，功能代码保持相同。独立维护的 Aura Tab 非官方移植版；保留上游 MIT 许可和版权。Chrome 版采用本地“加载已解压的扩展程序”，手动更新，尚未提交 Chrome 应用商店。
+本次交付版本为 **0.1.5（首屏壁纸与 Dock 缓存修复）**，2026-10-29 整理。0.1.4 调整启动初始化顺序与壁纸预览；0.1.5 继续修正首屏快照捕获，并加入 Dock 本地缓存，未改变数据结构、权限或身份。独立维护的 Aura Tab 非官方移植版；保留上游 MIT 许可和版权。Chrome 版采用本地“加载已解压的扩展程序”，手动更新，尚未提交 Chrome 应用商店。
 
 固定扩展 ID：`ikjonccnpooflmknleniaiicpogiaieb`。构建声明最低 Chrome 116；本次实际验证 Chrome **154.0.8037.93**，最低版本未逐一实测。验证范围见同目录的 [验证记录](CHROME_SELF_USE_VALIDATION.md)。
 
 ## 首次安装
 
-推荐使用 `ember-tab-0.1.4-chrome-self-use.zip`：
+推荐使用 `ember-tab-0.1.5-chrome-self-use.zip`：
 
 1. 把整个交付包解压到一个长期保留的目录。例如解压到 `D:\workspace\EmberTabChrome`，实际扩展目录就是 `D:\workspace\EmberTabChrome\chrome`。确认该目录直接包含 `manifest.json`、`newtab.html` 和 `scripts` 等文件；不要选择 ZIP 文件或外层交付目录。
 2. 在 Chrome 地址栏输入 `chrome://extensions/`，开启右上角“开发者模式”，点击“加载已解压的扩展程序”，选择上述 **chrome 目录**。
-3. 核对扩展名称 Ember Tab、版本 0.1.4，以及上述固定 ID。打开新标签页；如果 Chrome 询问是否保留新的新标签页，选择保留。
+3. 核对扩展名称 Ember Tab、版本 0.1.5，以及上述固定 ID。打开新标签页；如果 Chrome 询问是否保留新的新标签页，选择保留。
 4. 从新标签页左下角设置按钮调整外观和数据。安装后关闭并重新打开 Chrome，确认新标签页和设置仍正常。
 
 **保持开发者模式开启，并持续保留加载目录。** 当前测试 Chrome 关闭开发者模式会停用未打包扩展。扩展数据属于当前 Chrome 用户配置；相同 ID 并不意味着不同浏览器配置会自动共享本地数据。
 
-也可使用普通运行包 `ember-tab-0.1.4-chrome.zip`：解压后直接选择包含 `manifest.json` 的根目录。普通包和自用交付包的 `chrome/` 运行文件逐字节一致。开发时可以直接加载本仓库的 `D:\workspace\aura-tab-firefox-assessment\dist\chrome`；该目录每次构建会重新生成，若想在写代码时继续使用稳定版本，采用上面的专用安装目录。
+也可使用普通运行包 `ember-tab-0.1.5-chrome.zip`：解压后直接选择包含 `manifest.json` 的根目录。普通包和自用交付包的 `chrome/` 运行文件逐字节一致。开发时可以直接加载本仓库的 `D:\workspace\aura-tab-firefox-assessment\dist\chrome`；该目录每次构建会重新生成，若想在写代码时继续使用稳定版本，采用上面的专用安装目录。
 
 本地安装和重新加载操作参照 [Chrome 官方说明](https://developer.chrome.com/docs/extensions/get-started/tutorial/hello-world#load-unpacked)。
 
@@ -78,7 +78,7 @@ npm run package:chrome:self-use
 
 ## 回退和恢复
 
-若仅新代码不能正常工作，先保留当前数据，恢复此前保存的整套运行文件到同一目录并重新加载。0.1.4 没有数据结构变更；历史同结构更新测试见 0.1.2／0.1.3 记录。
+若仅新代码不能正常工作，先保留当前数据，恢复此前保存的整套运行文件到同一目录并重新加载。0.1.4 起没有数据结构变更；0.1.5 新增的 `localStorage` Dock 缓存会在下次完整加载时重建，回退到旧包后会被忽略。历史同结构更新测试见 0.1.2／0.1.3 记录。
 
 若需恢复迁移前内容，在“设置 → 数据”中导入迁移前另存的 Chrome ZIP；取消导入不会改动数据。本次已验证正常导入、取消以及迁移后手动恢复。恢复不具备跨 storage 与多个数据库的全局自动回滚；重要资料应始终保留独立备份。
 
@@ -87,7 +87,7 @@ npm run package:chrome:self-use
 交付包旁的 `.sha256` 校验整个 ZIP；解压后的 `SHA256SUMS.txt` 校验运行文件和说明文件。Windows 可对下载的 ZIP 执行：
 
 ```powershell
-Get-FileHash -Algorithm SHA256 .\ember-tab-0.1.4-chrome-self-use.zip
+Get-FileHash -Algorithm SHA256 .\ember-tab-0.1.5-chrome-self-use.zip
 ```
 
 将结果与同名 `.sha256` 的第一段进行比较。`RELEASE.json` 还记录普通运行 ZIP 的字节数、哈希、版本、固定 ID 和测试哈希匹配情况。校验值用于核对文件一致性；这不是商店签名。
@@ -105,4 +105,4 @@ Get-FileHash -Algorithm SHA256 .\ember-tab-0.1.4-chrome-self-use.zip
 | 导入后没有搜索历史或 WebDAV 登录信息 | 这些数据不随 ZIP 迁移，按上表在目的端设置 |
 | ZIP 导入或下载失败 | 保留原安装和备份，检查文件是否完整、扩展错误及下载工具接管情况，成功前不要删除原数据 |
 
-交付运行目录保留 `LICENSE`、`NOTICE`、`THIRD_PARTY_NOTICES.md`、`licenses/` 和 `privacy.html`。测试 HTTP 包、测试版本 0.1.4、浏览器配置和迁移备份均不属于本交付包。
+交付运行目录保留 `LICENSE`、`NOTICE`、`THIRD_PARTY_NOTICES.md`、`licenses/` 和 `privacy.html`。测试 HTTP 包、测试版本 0.1.5、浏览器配置和迁移备份均不属于本交付包。

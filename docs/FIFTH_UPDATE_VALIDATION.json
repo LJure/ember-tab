@@ -1,0 +1,57 @@
+{
+  "version": "0.1.5",
+  "status": "passed",
+  "verifiedAt": "2026-10-29T00:00:00+08:00",
+  "amo": {
+    "slug": "ember-tab-firefox",
+    "publicVersion": "0.1.4",
+    "publicFileId": "5178253",
+    "verifiedAt": "2026-10-29"
+  },
+  "runtime": {
+    "file": "ember-tab-0.1.5-firefox.zip",
+    "files": 119,
+    "bytes": 554818,
+    "sha256": "c952f50f969b347ea58904ae2022f4ef70dd42b052f92c61faacf61142b48bf6"
+  },
+  "chromeRuntime": {
+    "file": "ember-tab-0.1.5-chrome.zip",
+    "files": 120,
+    "bytes": 555661,
+    "sha256": "20fdd076f7f5a5dd6a7ef9a1fbe867caff54ac1ed813300a5b558d4d14844a41"
+  },
+  "chromeSelfUse": {
+    "file": "ember-tab-0.1.5-chrome-self-use.zip",
+    "files": 124,
+    "bytes": 573123,
+    "sha256": "ba1fb519842d9c4f0796d57dc7bf0ff75b892f0a881a4a452b893e6af294bb74",
+    "extensionId": "ikjonccnpooflmknleniaiicpogiaieb"
+  },
+  "unitTests": {
+    "files": 99,
+    "tests": 725,
+    "passed": true,
+    "newCoverage": [
+      "first-paint snapshot keeps the previous real preview when a capture has no image",
+      "first-paint snapshot does not depend on requestIdleCallback",
+      "Dock cache persists, hydrates synchronously, expires after 14 days, rejects unknown versions and malformed data"
+    ]
+  },
+  "lint": { "eslint": "passed", "webExt": { "errors": 0, "notices": 0, "warnings": 52 } },
+  "reproducibleBuild": {
+    "firefox": true,
+    "chrome": true,
+    "sourceRebuildCommand": "node tools/build-firefox.mjs --release",
+    "node": "v24.22.1"
+  },
+  "userValidation": {
+    "chromeSelfUse": "passed in Chrome and Edge after 0.1.5 rebuild: startup wallpaper shows a real thumbnail, Dock renders from cache immediately, corner buttons and interactions work, About shows 0.1.5 with the 0.1.5 changelog",
+    "firefox": "0.1.4 startup trial passed earlier; 0.1.5 shares the same code path but the full Firefox browser matrix was not re-run",
+    "edgeMeasurement": "headless Edge 2560x1440 with storage.sync delayed 6s: Dock items painted at 72ms, wall-clock restored at 6.1s, snapshot preview 5431 bytes"
+  },
+  "boundaries": [
+    "No permission, host permission, data category, provider or privacy policy change",
+    "Signature upgrade acceptance still requires the AMO-signed 0.1.5 build after review",
+    "Dock cache keeps at most 14 days of stale shortcuts and only after a complete load; first-ever install has no cache and still waits for storage"
+  ]
+}

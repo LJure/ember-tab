@@ -48,6 +48,12 @@ export const QUICKLINKS_SYNC_DEFAULTS = Object.freeze({
     [QUICKLINKS_SYNC_KEYS.gridRows]: QUICKLINKS_STORE_DEFAULTS.launchpadGridRows
 });
 
+const QUICKLINKS_CACHE_STORAGE_KEY = 'aura:quicklinks-cache:v1';
+const QUICKLINKS_CACHE_VERSION = 1;
+// Cache only shortens the cold-start gap. Drop it once it is clearly stale so a
+// long-offline profile never paints links the user has since deleted.
+const QUICKLINKS_CACHE_MAX_AGE_MS = 14 * 24 * 60 * 60 * 1000;
+
 export function normalizeQuicklinksStyle(value) {
     return QUICKLINKS_ALLOWED_STYLES.includes(value)
         ? value
@@ -205,6 +211,8 @@ class Store {
         this._lastLocalStorageRevision = null;
         this._dockCleanupScheduled = false;
         this._pendingDockCleanup = null;
+        this._cacheHydrated = false;
+        this._cacheReady = false;
         this._destroyed = false;
     }
     _dedupeTagsRaw(raw, maxCount) {
@@ -352,6 +360,83 @@ class Store {
     }
     _rebuildPagesCache() {
         this._pagesCache = this.getPages(this._pageSizeHint);
+    }
+    hydrateFromCache() {
+        if (this._cacheHydrated || this._destroyed) return false;
+        this._cacheHydrated = true;
+        try {
+            if (typeof localStorage === 'undefined') return false;
+            const raw = localStorage.getItem(QUICKLINKS_CACHE_STORAGE_KEY);
+            if (!raw) return false;
+            const cached = JSON.parse(raw);
+            if (!cached || cached.v !== QUICKLINKS_CACHE_VERSION) return false;
+            if (!Number.isFinite(cached.ts) || Date.now() - cached.ts > QUICKLINKS_CACHE_MAX_AGE_MS) return false;
+            const items = Array.isArray(cached.items) ? cached.items : [];
+            const structure = Array.isArray(cached.itemsStructure) ? cached.itemsStructure : [];
+            if (items.length === 0) return false;
+
+            const cachedSettings = cached.settings && typeof cached.settings === 'object' ? cached.settings : {};
+            this.settings = {
+                enabled: cachedSettings.enabled !== false,
+                style: normalizeQuicklinksStyle(cachedSettings.style),
+                newTab: cachedSettings.newTab !== false,
+                dockCount: clampQuicklinksDockCount(cachedSettings.dockCount),
+                magnifyScale: clampQuicklinksMagnifyScale(cachedSettings.magnifyScale),
+                dockPosition: normalizeQuicklinksDockPosition(cachedSettings.dockPosition),
+                showBackdrop: cachedSettings.showBackdrop !== false,
+                launchpadGridColumns: clampLaunchpadGridColumns(cachedSettings.launchpadGridColumns),
+                launchpadGridRows: clampLaunchpadGridRows(cachedSettings.launchpadGridRows)
+            };
+            this._syncPageSizeHint();
+            this.tags = this._normalizeTagLibrary(cached.tags);
+
+            this._itemsCache.clear();
+            for (const sysId of SYSTEM_ITEM_IDS) {
+                this._itemsCache.set(sysId, this._getSystemItem(sysId));
+            }
+            for (const rawItem of items) {
+                const item = this._normalizeItemData(rawItem);
+                if (item) this._itemsCache.set(item._id, item);
+            }
+            this._items = this._normalizeItemsStructure(structure.filter(entry =>
+                entry === CONFIG.PAGE_BREAK || this._itemsCache.has(entry)
+            ));
+            this._rebuildPagesCache();
+            this.dockPins = this._dedupeIdsPreserveOrder(this._normalizeDockPins(cached.dockPins))
+                .filter(id => this._itemsCache.has(id));
+            return true;
+        } catch {
+            return false;
+        }
+    }
+    _persistCache() {
+        // Only snapshot a fully loaded store. Persisting mid-load would save a
+        // partial chunk set and make the next startup flash the wrong list.
+        if (this._destroyed || !this._cacheReady || this._syncSnapshotIncomplete) return;
+        try {
+            if (typeof localStorage === 'undefined') return;
+            const items = this.getAllItemsFlat().map(item => ({
+                _id: item._id,
+                type: item.type,
+                title: item.title,
+                url: item.url,
+                icon: item.icon,
+                iconAppearance: item.iconAppearance,
+                tags: item.tags,
+                children: item.children
+            }));
+            if (items.length === 0) return;
+            localStorage.setItem(QUICKLINKS_CACHE_STORAGE_KEY, JSON.stringify({
+                v: QUICKLINKS_CACHE_VERSION,
+                ts: Date.now(),
+                items,
+                itemsStructure: this._items,
+                dockPins: this.dockPins,
+                tags: this.tags,
+                settings: this.settings
+            }));
+        } catch {
+        }
     }
     setPageSizeHint(pageSize) {
         this._assertNotDestroyed();
@@ -895,6 +980,7 @@ class Store {
             this.tags = this._normalizeTagLibrary(tags);
         }
         await this._loadItemsData(items);
+        this._persistCache();
     }
     subscribe(callback) {
         this._assertNotDestroyed();
@@ -934,6 +1020,8 @@ class Store {
             });
         }
         this._reconcileDockPins();
+        this._cacheReady = true;
+        this._persistCache();
         this._initStorageListener();
     }
     _initStorageListener() {
@@ -1002,6 +1090,7 @@ class Store {
         if (typeof settingsPatch.dockCount !== 'undefined') {
             this._enforceDockLimit();
         }
+        this._persistCache();
     }
     _syncPageSizeHint() {
         const cols = clampLaunchpadGridColumns(this.settings?.launchpadGridColumns);
@@ -1028,6 +1117,7 @@ class Store {
             try {
                 await this.loadData();
                 this._reconcileDockPins();
+                this._persistCache();
                 this._notify('reordered', { pages: this.pages, dockPins: this.dockPins, source: 'storage' });
             } catch (error) {
                 console.warn('[Store] Cross-tab reload failed:', error);

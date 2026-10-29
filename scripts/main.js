@@ -78,6 +78,10 @@ async function main() {
         disarmFirstPaint();
     });
 
+    // Dock paints from its local cache right after the DOM is ready, so start it
+    // before the language/theme storage round-trips.
+    const quickLinksReady = initQuickLinks();
+
     const languageReady = initLanguage();
     const themeReady = initTheme();
 
@@ -89,7 +93,7 @@ async function main() {
     initSearch();
 
     void (async () => {
-        await initQuickLinks();
+        await quickLinksReady;
         void libraryStore.init().catch(() => {});
         const macWindow = initMacSettings();
         const settingsBtn = document.getElementById('settingsBtn');

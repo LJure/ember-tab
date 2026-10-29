@@ -89,6 +89,9 @@ class Dock extends DisposableComponent {
         this._addDisposable(() => this._dragState?.destroy());
         this._applySettings();
         this._render();
+        // Cached links paint before extension storage answers. Keep them
+        // visible but inert so a drag/edit cannot commit against stale order.
+        this.list?.classList.add('quicklinks-list-pending');
         this._scheduleMagnifierAnchorRefresh();
         this._bindEvents();
         this._initSortable();
@@ -103,6 +106,13 @@ class Dock extends DisposableComponent {
         });
         this._addDisposable(() => this._unsubscribeStore?.());
         this._markInitialized();
+    }
+    refresh() {
+        if (this.isDestroyed || !this.container) return;
+        this.list?.classList.remove('quicklinks-list-pending');
+        this._applySettings();
+        this._render();
+        this._scheduleMagnifierAnchorRefresh();
     }
     _bindElements() {
         this.container = document.getElementById('quicklinksContainer');

@@ -47,10 +47,15 @@ class QuickLinksApp extends DisposableComponent {
     async init() {
         if (this.isDestroyed || this.isInitialized) return;
 
-        await store.init();
-
+        // Paint cached links first, then reconcile with extension storage. On a
+        // cold browser start sync can take several seconds; waiting for it left
+        // the Dock area empty while the wallpaper and clock were already up.
+        store.hydrateFromCache();
         contextMenu.init();
         dock.init();
+
+        await store.init();
+        dock.refresh();
         await launchpad.init();
 
         this._bindDialogElements();
