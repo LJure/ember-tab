@@ -33,7 +33,7 @@
 
 - 新配置为 `backgroundSettings.wallhaven.{username,collectionId}` 与 `apiKeys.wallhaven`，沿用 Firefox sync 和 ZIP 备份；密钥不在请求 URL、图片请求或仓库中。
 - API 请求固定发送到 `https://wallhaven.cc/api/v1/`，不跟随重定向。原图仅接受 `w.wallhaven.cc` 的 HTTPS 地址，缩略图仅接受 `th.wallhaven.cc`。
-- Unsplash／Pixabay 不再提供来源选项、独立相册分类、取图适配器或新默认密钥字段。旧配置获取新图时回退本地；已有图片、收藏、旧密钥和导入格式不做破坏性清理。旧收藏中的远端图片仍可能访问原主机。
+- Unsplash 于 0.1.6 恢复为在线来源，使用 `apiKeys.unsplash`；Pixabay 不再提供来源选项、独立相册分类或取图适配器。旧 `pixabay` 配置获取新图时回退本地；已有图片、收藏、旧密钥和导入格式不做破坏性清理。旧收藏中的远端图片仍可能访问原主机。
 - Pexels、Bing、本地壁纸保留。Dock 默认背板保持上游一致。
 - 隐私页已同步说明 Wallhaven 用户名、收藏集 ID、可选密钥及图片请求。
 

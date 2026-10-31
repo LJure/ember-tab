@@ -1,0 +1,52 @@
+{
+  "version": "0.1.6",
+  "status": "passed",
+  "verifiedAt": "2026-10-31T11:52:13+08:00",
+  "amo": {
+    "slug": "ember-tab-firefox",
+    "publicVersion": "0.1.5",
+    "publicFileId": "5182094",
+    "verifiedAt": "2026-10-31"
+  },
+  "runtime": {
+    "file": "ember-tab-0.1.6-firefox.zip",
+    "files": 119,
+    "bytes": 556610,
+    "sha256": "122928255ce70f31d1ccb2634f7ffa189f6747ca0a59eeb3a473cfa3d469a823"
+  },
+  "chromeRuntime": {
+    "file": "ember-tab-0.1.6-chrome.zip",
+    "files": 120,
+    "bytes": 557457,
+    "sha256": "b2fa6054846188bd4a4397389971d2ba8bd139caedcb79126d016de5d8a65d04"
+  },
+  "unitTests": {
+    "files": 99,
+    "tests": 728,
+    "passed": true,
+    "newCoverage": [
+      "Unsplash random requests use Client-ID headers, landscape/high content filtering and utm attribution",
+      "Unsplash search results and required download tracking only target api.unsplash.com",
+      "Photos window exposes an Unsplash favorites category"
+    ]
+  },
+  "lint": { "eslint": "passed", "webExt": { "errors": 0, "notices": 0, "warnings": 52 } },
+  "reproducibleBuild": {
+    "firefox": true,
+    "chrome": true,
+    "sourceRebuildCommand": "node tools/build-firefox.mjs --release",
+    "node": "v24.22.1"
+  },
+  "userValidation": {
+    "status": "passed",
+    "reportedAt": "2026-10-31",
+    "scope": "User reported 0.1.6 testing completed without issues after the Unsplash source changes and automated suite"
+  },
+  "boundaries": [
+    "No manifest permission, host permission, data category or extension ID change; the bundled privacy notice now mentions Unsplash",
+    "Unsplash requires the user's own API key and is subject to the demo quota of 50 requests per hour",
+    "A live Unsplash key flow is not covered by automated tests; provider tests mock responses, headers and download tracking",
+    "Signature upgrade acceptance still requires the AMO-signed 0.1.6 build after review",
+    "The Chrome self-use delivery package was not rebuilt for 0.1.6; this round prepares Firefox store materials only"
+  ]
+}

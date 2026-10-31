@@ -2,11 +2,11 @@
 
 Chrome 自用迁移和交付已完成：执行 `npm run package:chrome:self-use`，生成 `dist/ember-tab-0.1.5-chrome-self-use.zip`（含可加载的 `chrome/`、安装说明、验证记录与校验清单）；只需运行包时执行 `npm run build:chrome`。Chrome 固定 ID 为 `ikjonccnpooflmknleniaiicpogiaieb`，采用开发者模式本地加载和手动更新。具体操作见 [Chrome 自用说明](CHROME_SELF_USE.md)，本次验证及限制见 [验证记录](CHROME_SELF_USE_VALIDATION.md) 和 [完整迁移记录](CHROME_MIGRATION.md)。本轮 Chrome 包只在本地交付，未提交商店或发布到 GitHub；以下 Firefox 商店与发布状态单独保留。
 
-2026-10-29 更新：[Ember Tab 商店公开版本为 0.1.4](https://addons.mozilla.org/zh-CN/firefox/addon/ember-tab-firefox/)，经 AMO API 核实。0.1.5 完成用户测试，商店材料已准备，由维护者手动更新，见 [上传指南](FIFTH_UPDATE_STORE_GUIDE.md)。GitHub 推送、AMO 上传／审核与签名安装是独立状态，见 [当前进度](AMO_SUBMISSION_STATUS.md)。
+2026-10-31 更新：[Ember Tab 商店公开版本为 0.1.5](https://addons.mozilla.org/zh-CN/firefox/addon/ember-tab-firefox/)，经 AMO API 核实。0.1.6 恢复 Unsplash 来源并完成用户测试，商店材料已准备，由维护者手动更新，见 [上传指南](SIXTH_UPDATE_STORE_GUIDE.md)。GitHub 推送、AMO 上传／审核与签名安装是独立状态，见 [当前进度](AMO_SUBMISSION_STATUS.md)。
 
-当前开发者构建版本为 **0.1.5**，本轮未代为提交 AMO；功能与验证见 [发布记录](FIFTH_UPDATE_RELEASE.md)。固定 ID 为 `ember-tab@ljure.github.io`，目标桌面 Firefox 140+；0.1.5 只调整首屏快照捕获与 Dock 缓存，浏览器验收矩阵沿用 0.1.3 记录，历史首版矩阵见 [M6 验收](M6_ACCEPTANCE.md)。
+当前开发者构建版本为 **0.1.6**，本轮未代为提交 AMO；功能与验证见 [发布记录](SIXTH_UPDATE_RELEASE.md)。固定 ID 为 `ember-tab@ljure.github.io`，目标桌面 Firefox 140+；0.1.6 只恢复 Unsplash 来源与隐私说明，浏览器验收矩阵沿用 0.1.3 记录，历史首版矩阵见 [M6 验收](M6_ACCEPTANCE.md)。
 
-当前来源为本地、Wallhaven、Pexels、Bing；Unsplash／Pixabay 已移除，旧收藏保留。用户确认 Pexels 真实取图、Wallhaven 私有收藏集通过。设置方法见 [Wallhaven 使用](WALLHAVEN.md)，Firefox 历史候选包哈希见 [M6 验收](M6_ACCEPTANCE.md)，本轮双浏览器构建哈希见 [Chrome 迁移记录](CHROME_MIGRATION.md)。
+当前来源为本地、Wallhaven、Pexels、Unsplash、Bing；Pixabay 已移除，旧收藏保留。用户确认 Unsplash 测试通过、Pexels 真实取图、Wallhaven 私有收藏集通过。设置方法见 [Wallhaven 使用](WALLHAVEN.md)，Firefox 历史候选包哈希见 [M6 验收](M6_ACCEPTANCE.md)，本轮双浏览器构建哈希见 [Chrome 迁移记录](CHROME_MIGRATION.md)。
 
 ## 复现构建
 

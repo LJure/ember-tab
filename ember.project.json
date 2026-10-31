@@ -6,12 +6,12 @@
   "upstreamVersion": "3.5.3",
   "initialVersion": "0.1.0",
   "currentVersion": "0.1.6",
-  "releaseDocs": "FIFTH_UPDATE",
+  "releaseDocs": "SIXTH_UPDATE",
   "geckoId": "ember-tab@ljure.github.io",
   "minimumFirefoxVersion": "140.0",
   "minimumChromeVersion": "116",
-  "status": "fifth-update-prepared-amo-manual-pending",
-  "note": "Version 0.1.5 folds in the 0.1.4 startup paint work plus Edge/Chromium fixes: first-paint snapshots now keep a real wallpaper preview instead of a flat average colour, and the Dock hydrates from a local cache before extension storage answers. AMO verified 0.1.4 as the public version on 2026-10-29; the maintainer submits 0.1.5 manually. FIFTH_UPDATE materials are packaged under dist/amo/0.1.5. Signed installation/upgrade acceptance remains separate.",
+  "status": "sixth-update-prepared-amo-manual-pending",
+  "note": "Version 0.1.6 restores Unsplash as an optional online wallpaper source. Users supply their own access key; requests go only to api.unsplash.com and Unsplash image hosts, attribution links carry utm parameters, and download tracking is limited to api.unsplash.com. Permissions, host permissions, data categories and the Gecko ID are unchanged; the bundled privacy notice now mentions Unsplash. AMO verified 0.1.5 as the public version on 2026-10-31; the maintainer submits 0.1.6 manually. SIXTH_UPDATE materials are packaged under dist/amo/0.1.6. Signed installation/upgrade acceptance remains separate.",
   "releaseBlockers": [],
   "distributionBlockers": [
     "Signed install/upgrade and distribution acceptance"

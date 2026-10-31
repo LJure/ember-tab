@@ -1,5 +1,13 @@
 # Mozilla 提交进度
 
+## 2026-10-31：0.1.6 恢复 Unsplash 来源，商店材料已准备
+
+- AMO 公开 API 已核实当前版本 **0.1.5**，文件 ID `5182094`（2026-10-29 审核公开），固定 ID 为 `ember-tab@ljure.github.io`。
+- 0.1.6 恢复 Unsplash 在线壁纸来源，用户需填入自己的 Access Key；用户确认本地测试无问题。请求仅发往 api.unsplash.com 与 Unsplash 图片域名，署名链接带 utm 参数，下载计数限定 api.unsplash.com。
+- 0.1.6 的运行包、匹配源码、三个语言的版本说明、隐私文本、审核备注、可选截图与手动指南位于 `dist/amo/0.1.6/`，见 [手动更新](SIXTH_UPDATE_STORE_GUIDE.md)。
+- Firefox 清单权限、host_permissions、数据类别、第三方服务与扩展 ID 与公开 0.1.5 一致；隐私说明文字新增 Unsplash 请求描述。没有代为上传 AMO，不记为 0.1.6 已审核／签名／公开。验证见 [发布记录](SIXTH_UPDATE_RELEASE.md)。
+- 正式签名包的同 ID 升级仍需在商店完成后验收。
+
 ## 2026-10-29：0.1.5 首屏与缓存修复测试完成，商店材料已准备
 
 - AMO 公开 API 已核实当前版本 **0.1.4**，文件 ID `5178253`，固定 ID 为 `ember-tab@ljure.github.io`。0.1.4 已由维护者手动提交并公开，下面各段均为历史记录。
