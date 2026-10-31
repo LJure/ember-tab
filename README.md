@@ -5,7 +5,7 @@ An unofficial Firefox port of [Aura Tab by nil-byte](https://github.com/nil-byte
 基于 Aura Tab 的非官方 Firefox 新标签页扩展，保留快捷链接、Dock、搜索、书签导入、本地／在线壁纸、照片、备份与 WebDAV。独立维护，名称为 **Ember Tab**。
 
 
-**0.1.5 首屏壁纸与 Dock 缓存修复已准备。** 商店当前公开版本为 0.1.4，可继续从 [Firefox 附加组件商店](https://addons.mozilla.org/zh-CN/firefox/addon/ember-tab-firefox/) 安装或更新。0.1.5 源码与文档已推送，商店更新材料见 [0.1.5 手动上传指南](docs/FIFTH_UPDATE_STORE_GUIDE.md)；本轮不代为上传，未创建 0.1.5 GitHub Release 或标签，商店仍以审核后签名版为准。
+**0.1.5 首屏壁纸与 Dock 缓存修复已准备。** 商店当前公开版本为 0.1.4，可继续从 [Firefox 附加组件商店](https://addons.mozilla.org/zh-CN/firefox/addon/ember-tab-firefox/) 安装或更新。0.1.5 源码与文档已推送，商店更新材料见 [0.1.5 手动上传指南](docs/FIFTH_UPDATE_STORE_GUIDE.md)；0.1.4 与 0.1.5 的 [GitHub Release](https://github.com/LJure/ember-tab/releases) 已补充附件与校验值，商店仍以审核后签名版为准。
 
 [![Firefox Add-ons 版本](https://img.shields.io/amo/v/ember-tab-firefox?style=for-the-badge&logo=firefoxbrowser&logoColor=white&label=Firefox%20Add-ons&color=FF7139)](https://addons.mozilla.org/zh-CN/firefox/addon/ember-tab-firefox/)
 

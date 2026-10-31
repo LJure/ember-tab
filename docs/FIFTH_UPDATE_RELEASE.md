@@ -36,11 +36,11 @@
 
 ## 商店状态
 
-AMO 公开版本经 API 核实为 **0.1.4**（文件 ID `5178253`，2026-10-29 查询）。0.1.5 材料已准备，等待维护者手动上传；本次不记录为已上传、已审核、已签名或已公开，也没有创建 GitHub Release 或标签。
+AMO 公开版本经 API 核实为 **0.1.4**（文件 ID `5178253`，2026-10-29 查询）。0.1.5 材料已准备，等待维护者手动上传；本次不记录为已上传、已审核、已签名或已公开。GitHub Release 与标签于 2026-10-31 补充，见下节。
 
 ## GitHub 推送
 
-本轮代码与发布准备提交随后推送 `origin/main`；没有创建 `v0.1.5` 标签或 GitHub Release。材料与回执提交单独推送，最终远程 HEAD 在推送后核对，避免把回执自身提交 SHA 写入自身。
+本轮代码与发布准备提交随后推送 `origin/main`，当时没有创建标签或 GitHub Release。2026-10-31 补充创建注释标签 `v0.1.5`（指向源提交 `47f4b132f5a51b7daf9d996a07ab0f85367641b7`）与 [GitHub Release](https://github.com/LJure/ember-tab/releases/tag/v0.1.5)，上传 `firefox.zip`、`source.zip`、`amo-materials.zip`、`submission.json` 及三个 `.sha256`；七个附件的名称、大小与 SHA-256 已核对，运行包与源码包哈希与上方记录一致。
 
 ## 文件与重建
 

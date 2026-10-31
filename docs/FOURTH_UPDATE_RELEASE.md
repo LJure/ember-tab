@@ -1,6 +1,6 @@
 # Ember Tab 0.1.4 发布记录
 
-2026-10-28：用户反馈启动页出现壁纸缺失、Dock 不显示、时钟停在 00:00，十几秒后才恢复。定位为启动初始化串行等待扩展存储；修复后用户在 Firefox 和 Chrome 自用版本地测试通过，授权准备 0.1.4 商店更新材料并推送代码。本轮没有上传 AMO，也没有创建 GitHub Release 或标签。
+2026-10-28：用户反馈启动页出现壁纸缺失、Dock 不显示、时钟停在 00:00，十几秒后才恢复。定位为启动初始化串行等待扩展存储；修复后用户在 Firefox 和 Chrome 自用版本地测试通过，授权准备 0.1.4 商店更新材料并推送代码。本轮没有上传 AMO；GitHub Release 与标签于 2026-10-31 补充，见下文。
 
 ## 更新范围
 
@@ -39,7 +39,7 @@ Firefox 运行包 `ember-tab-0.1.4-firefox.zip`：119 文件、552742 字节；S
 
 ## GitHub 推送
 
-本轮代码与发布准备提交随后推送 `origin/main`；没有创建 `v0.1.4` 标签或 GitHub Release。材料与回执提交单独推送，最终远程 HEAD 在推送后核对，避免把回执自身提交 SHA 写入自身。
+本轮代码与发布准备提交随后推送 `origin/main`，当时没有创建标签或 GitHub Release。2026-10-31 补充创建注释标签 `v0.1.4`（指向源提交 `cd993d9d615bc26b1e4be5c83d698288637a8fdb`）与 [GitHub Release](https://github.com/LJure/ember-tab/releases/tag/v0.1.4)，上传 `firefox.zip`、`source.zip`、`amo-materials.zip`、`submission.json` 及三个 `.sha256`；七个附件的名称、大小与 SHA-256 已核对，运行包与源码包哈希与上方记录一致。
 
 ## 商店状态
 

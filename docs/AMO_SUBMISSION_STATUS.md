@@ -5,7 +5,7 @@
 - AMO 公开 API 已核实当前版本 **0.1.4**，文件 ID `5178253`，固定 ID 为 `ember-tab@ljure.github.io`。0.1.4 已由维护者手动提交并公开，下面各段均为历史记录。
 - 用户反馈 Edge 首次打开仍可见纯灰壁纸占位与 Dock 长时间为空；修复后用户在 Chrome 与 Edge 自用版本地测试通过，关于页版本和更新日志正确。
 - 0.1.5 的运行包、匹配源码、三个语言的版本说明、隐私文本、审核备注、可选截图与手动指南位于 `dist/amo/0.1.5/`，见 [手动更新](FIFTH_UPDATE_STORE_GUIDE.md)。
-- 本轮只推送源码与文档，未创建 GitHub Release 或标签，也没有代为上传 AMO；不记为 0.1.5 已审核／签名／公开。验证见 [发布记录](FIFTH_UPDATE_RELEASE.md)。
+- 本轮源码与文档已推送，并在 2026-10-31 补充 [GitHub v0.1.5 Release](https://github.com/LJure/ember-tab/releases/tag/v0.1.5)（七个附件，名称、大小与 SHA-256 已核对）；没有代为上传 AMO，不记为 0.1.5 已审核／签名／公开。验证见 [发布记录](FIFTH_UPDATE_RELEASE.md)。
 - Firefox 权限、host_permissions 和数据类别与公开 0.1.4 一致；本次没有隐私政策变化。正式签名包的同 ID 升级仍需在商店完成后验收。
 
 ## 2026-10-28：0.1.4 启动修复测试完成，商店材料已准备
@@ -13,7 +13,7 @@
 - AMO 公开 API 已核实当前版本 **0.1.3**，文件 ID `5081375`，固定 ID 为 `ember-tab@ljure.github.io`。这表示下面 0.1.3“待手动提交”段落已被公开版本取代。
 - 用户反馈浏览器启动时时钟停在 `00:00`、Dock 不显示、壁纸缺失，十几秒后恢复。修复后用户在 Firefox 和 Chrome 自用版本地测试通过。
 - 0.1.4 的运行包、匹配源码、三个语言的版本说明、隐私文本、审核备注、可选截图与手动指南位于 `dist/amo/0.1.4/`，见 [手动更新](FOURTH_UPDATE_STORE_GUIDE.md)。
-- 本轮只推送源码与文档，未创建 GitHub Release 或标签，也没有代为上传 AMO；不记为 0.1.4 已审核／签名／公开。验证见 [发布记录](FOURTH_UPDATE_RELEASE.md)。
+- 本轮源码与文档已推送，并在 2026-10-31 补充 [GitHub v0.1.4 Release](https://github.com/LJure/ember-tab/releases/tag/v0.1.4)（七个附件，名称、大小与 SHA-256 已核对）；没有代为上传 AMO，不记为 0.1.4 已审核／签名／公开。验证见 [发布记录](FOURTH_UPDATE_RELEASE.md)。
 - Firefox 权限、host_permissions 和数据类别与公开 0.1.3 一致；本次没有隐私政策变化。正式签名包的同 ID 升级仍需在商店完成后验收。
 
 ## 2026-10-03：0.1.3 测试完成，商店由维护者手动更新
