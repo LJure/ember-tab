@@ -1,0 +1,32 @@
+{
+  "version": "0.1.6",
+  "passed": true,
+  "commit": "46566970b2d2b6365dc50eddc7b7033da108ecd3",
+  "runtime": {
+    "file": "ember-tab-0.1.6-firefox.zip",
+    "sha256": "122928255ce70f31d1ccb2634f7ffa189f6747ca0a59eeb3a473cfa3d469a823",
+    "bytes": 556610,
+    "files": 119
+  },
+  "source": {
+    "file": "ember-tab-0.1.6-source.zip",
+    "sha256": "9f60b37604c1c27cd7bc8009255bc6ba2682d92fa76aa11ddfd06a13f5fe1524",
+    "bytes": 30153326,
+    "files": 343
+  },
+  "materials": {
+    "file": "ember-tab-0.1.6-amo-materials.zip",
+    "sha256": "c353e014e820df80a7e06d67faf6871a1b9f4e4a3adea2c95eb4d89adc7b6032",
+    "bytes": 30986109,
+    "files": 13
+  },
+  "materialChecksumsVerified": 12,
+  "sourceRebuild": {
+    "byteIdentical": true,
+    "command": "node tools/build-firefox.mjs --release",
+    "node": "v24.22.1",
+    "npmRequired": false,
+    "gitRequired": false
+  },
+  "materialsRepackByteIdentical": true
+}
