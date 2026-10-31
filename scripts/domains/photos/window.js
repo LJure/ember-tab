@@ -7,11 +7,12 @@ import { ICONS } from './icons.js';
 import { libraryRemoteToWallpaperItem } from './mappers.js';
 import { ImmersiveViewer } from './immersive-viewer.js';
 
-const REMOTE_PROVIDER_CATEGORIES = ['wallhaven', 'pexels', 'bing'];
+const REMOTE_PROVIDER_CATEGORIES = ['wallhaven', 'pexels', 'unsplash', 'bing'];
 const REMOTE_PROVIDER_CATEGORY_SET = new Set(REMOTE_PROVIDER_CATEGORIES);
 const REMOTE_PROVIDER_META = {
     wallhaven: { icon: 'image', label: 'Wallhaven' },
     pexels: { icon: 'pexels', label: 'Pexels' },
+    unsplash: { icon: 'image', label: 'Unsplash' },
     bing: { icon: 'bing', label: 'Bing', i18nKey: 'photosBing' }
 };
 
@@ -685,6 +686,7 @@ export class PhotosWindow extends MacWindowBase {
                 'local': t('photosLocal') || 'Local',
                 'wallhaven': 'Wallhaven',
                 'pexels': 'Pexels',
+                'unsplash': 'Unsplash',
                 'bing': t('photosBing') || 'Bing'
             };
             const i18nKey = i18nMap[category];
@@ -860,6 +862,7 @@ export class PhotosWindow extends MacWindowBase {
             case 'favorites':
             case 'wallhaven':
             case 'pexels':
+            case 'unsplash':
             case 'bing':
                 title.dataset.i18n = 'photosNoFavorites';
                 title.textContent = t('photosNoFavorites') || 'No favorites yet';
@@ -891,6 +894,8 @@ export class PhotosWindow extends MacWindowBase {
                 return ICONS.image;
             case 'pexels':
                 return ICONS.pexels;
+            case 'unsplash':
+                return ICONS.image;
             case 'bing':
                 return ICONS.bing;
             case 'favorites':

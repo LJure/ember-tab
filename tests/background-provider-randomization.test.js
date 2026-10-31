@@ -1,5 +1,5 @@
 import { beforeEach, afterEach, describe, expect, it, vi } from 'vitest';
-import { pexelsProvider, bingProvider } from '../scripts/domains/backgrounds/source-remote.js';
+import { pexelsProvider, unsplashProvider, bingProvider } from '../scripts/domains/backgrounds/source-remote.js';
 
 describe('Background provider randomization strategy', () => {
     let originalFetch;
@@ -91,6 +91,94 @@ describe('Background provider randomization strategy', () => {
         expect(secondUrl.pathname).toBe('/v1/search');
         expect(secondUrl.searchParams.get('query')).toBe('city');
         expect(secondUrl.searchParams.get('page')).toBe('1');
+    });
+
+    it('unsplash random should use the random endpoint with key headers and attribution', async () => {
+        const photo = {
+            id: 'unsplash-photo-1',
+            width: 6000,
+            height: 4000,
+            color: '#123456',
+            urls: { raw: 'https://images.unsplash.com/photo-1' },
+            links: {
+                html: 'https://unsplash.com/photos/unsplash-photo-1',
+                download_location: 'https://api.unsplash.com/photos/unsplash-photo-1/download'
+            },
+            user: {
+                name: 'Ada',
+                username: 'ada',
+                links: { html: 'https://unsplash.com/@ada' }
+            }
+        };
+
+        const fetchMock = vi.fn()
+            .mockResolvedValueOnce(new Response(JSON.stringify(photo), {
+                status: 200,
+                headers: { 'Content-Type': 'application/json' }
+            }))
+            .mockResolvedValueOnce(new Response(JSON.stringify({ url: 'https://images.unsplash.com/photo-1' }), {
+                status: 200,
+                headers: { 'Content-Type': 'application/json' }
+            }));
+
+        global.fetch = fetchMock;
+
+        const result = await unsplashProvider.fetchRandom('1234567890abcdef');
+
+        const requestUrl = new URL(String(fetchMock.mock.calls[0][0]));
+        expect(requestUrl.hostname).toBe('api.unsplash.com');
+        expect(requestUrl.pathname).toBe('/photos/random');
+        expect(requestUrl.searchParams.get('orientation')).toBe('landscape');
+        expect(requestUrl.searchParams.get('content_filter')).toBe('high');
+
+        const headers = fetchMock.mock.calls[0][1].headers;
+        expect(headers.Authorization).toBe('Client-ID 1234567890abcdef');
+        expect(headers['Accept-Version']).toBe('v1');
+
+        expect(result.provider).toBe('unsplash');
+        expect(result.username).toBe('Ada');
+        expect(result.urls.full).toContain('w=2400');
+        expect(result.urls.full).toContain('fm=jpg');
+        expect(result.urls.small).toContain('w=1280');
+        expect(result.userUrl).toContain('utm_source=ember_tab');
+        expect(result.userUrl).toContain('utm_medium=referral');
+        expect(result.page).toContain('utm_source=ember_tab');
+
+        const downloadUrl = new URL(String(fetchMock.mock.calls[1][0]));
+        expect(downloadUrl.hostname).toBe('api.unsplash.com');
+        expect(downloadUrl.pathname).toBe('/photos/unsplash-photo-1/download');
+        expect(fetchMock.mock.calls[1][1].headers.Authorization).toBe('Client-ID 1234567890abcdef');
+    });
+
+    it('unsplash search should query results when a query is given', async () => {
+        vi.spyOn(Math, 'random').mockReturnValue(0);
+
+        const photo = {
+            id: 'unsplash-photo-2',
+            urls: { raw: 'https://images.unsplash.com/photo-2' },
+            links: { html: 'https://unsplash.com/photos/unsplash-photo-2' },
+            user: { name: 'Lin', links: { html: 'https://unsplash.com/@lin' } }
+        };
+        const fetchMock = vi.fn()
+            .mockResolvedValueOnce(new Response(JSON.stringify({ results: [photo] }), {
+                status: 200,
+                headers: { 'Content-Type': 'application/json' }
+            }))
+            .mockResolvedValueOnce(new Response(JSON.stringify({}), {
+                status: 200,
+                headers: { 'Content-Type': 'application/json' }
+            }));
+
+        global.fetch = fetchMock;
+
+        const result = await unsplashProvider.fetchRandom('1234567890abcdef', 'mountain');
+
+        const requestUrl = new URL(String(fetchMock.mock.calls[0][0]));
+        expect(requestUrl.pathname).toBe('/search/photos');
+        expect(requestUrl.searchParams.get('query')).toBe('mountain');
+        expect(requestUrl.searchParams.get('per_page')).toBe('30');
+        expect(result.id).toBe('unsplash-photo-2');
+        expect(result.username).toBe('Lin');
     });
 
     it('bing provider should fetch daily image without api key', async () => {

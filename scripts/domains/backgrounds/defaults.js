@@ -18,6 +18,7 @@ export const DEFAULT_SETTINGS = Object.freeze({
     wallhaven: Object.freeze({ username: '', collectionId: '' }),
     apiKeys: Object.freeze({
         wallhaven: '',
-        pexels: ''
+        pexels: '',
+        unsplash: ''
     })
 });

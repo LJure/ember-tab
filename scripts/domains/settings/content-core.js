@@ -18,7 +18,7 @@ import { SEARCH_LOCAL_DEFAULTS, SUGGESTION_SOURCES, requestSearchHistory } from 
 import { hasSearchTermsConsent } from '../../platform/search-suggestions.js';
 import { confirmDialog } from '../../shared/confirm-dialog.js';
 
-const ONLINE_BACKGROUND_SOURCES = ['wallhaven', 'pexels', 'bing'];
+const ONLINE_BACKGROUND_SOURCES = ['wallhaven', 'pexels', 'unsplash', 'bing'];
 const BACKGROUND_UI_DEFAULTS = createBackgroundSettingsDefaults();
 const QUICKLINKS_KEYS = QUICKLINKS_SYNC_KEYS;
 const LAUNCHPAD_DENSITY_STEPPERS = [

@@ -128,6 +128,38 @@ describe('photos window categories', () => {
         expect(ids).toEqual(['bing-1']);
     });
 
+    it('filters unsplash category to unsplash favorites only', async () => {
+        libraryItems = [
+            {
+                id: 'unsplash-1',
+                kind: 'remote',
+                provider: 'unsplash',
+                remote: {
+                    rawUrl: 'https://images.unsplash.com/photo-1',
+                    downloadUrl: 'https://images.unsplash.com/photo-1'
+                },
+                favoritedAt: '2026-10-31T10:00:00.000Z'
+            },
+            {
+                id: 'pexels-1',
+                kind: 'remote',
+                provider: 'pexels',
+                remote: {
+                    rawUrl: 'https://images.pexels.com/photos/1/pexels-photo-1.jpeg',
+                    downloadUrl: 'https://images.pexels.com/photos/1/pexels-photo-1.jpeg'
+                },
+                favoritedAt: '2026-10-30T10:00:00.000Z'
+            }
+        ];
+
+        const photosWindow = new PhotosWindow();
+        await photosWindow._renderCategory('unsplash');
+
+        const ids = Array.from(document.querySelectorAll('.photos-card'))
+            .map((card) => card.getAttribute('data-wallpaper-id'));
+        expect(ids).toEqual(['unsplash-1']);
+    });
+
     it('defers external library refresh while a local mutation is in flight', async () => {
         const photosWindow = new PhotosWindow();
         photosWindow._isOpen = true;

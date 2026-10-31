@@ -424,6 +424,7 @@ class BackgroundSystem {
                     return;
                 case 'wallhaven':
                 case 'pexels':
+                case 'unsplash':
                 case 'bing':
                     background = await this.getProviderBackground(requestedType, {
                         suppressRecoverableErrors
@@ -501,7 +502,7 @@ class BackgroundSystem {
     }
 
     async getProviderBackground(type, { suppressRecoverableErrors = false } = {}) {
-        if (type === 'pixabay' || type === 'unsplash') return this.getLocalFileBackground();
+        if (type === 'pixabay') return this.getLocalFileBackground();
         const provider = getProvider(type, this.settings);
         if (!provider) {
             throw new Error(t('bgUnknownProvider'));

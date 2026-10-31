@@ -1,4 +1,4 @@
-const ONLINE_BACKGROUND_TYPES = new Set(['wallhaven', 'pexels', 'bing']);
+const ONLINE_BACKGROUND_TYPES = new Set(['wallhaven', 'pexels', 'unsplash', 'bing']);
 const SMART_CROP_STABLE_PREPARE_TIMEOUT_MS = 360;
 
 export function isOnlineBackgroundType(type) {

@@ -59,7 +59,7 @@ function _ensureAppearanceGlobalListeners() {
 }
 
 const API_KEY_MAX_LENGTH = 256;
-const API_KEY_SOURCES = ["wallhaven", "pexels"];
+const API_KEY_SOURCES = ["wallhaven", "pexels", "unsplash"];
 const ONLINE_SOURCES = [...API_KEY_SOURCES, "bing"];
 const BACKGROUND_APPEARANCE_DEFAULTS = createBackgroundSettingsDefaults();
 const LEGACY_HIDDEN_BACKGROUND_SOURCES = new Set(["color"]);
@@ -67,6 +67,7 @@ const LEGACY_HIDDEN_BACKGROUND_SOURCES = new Set(["color"]);
 const API_LINKS = {
   wallhaven: "https://wallhaven.cc/settings/account",
   pexels: "https://www.pexels.com/api/",
+  unsplash: "https://unsplash.com/developers",
 };
 
 export function registerAppearanceContent(window) {
@@ -107,6 +108,7 @@ export function registerAppearanceContent(window) {
                                     <option value="files" data-i18n="settingsBgSourceLocal"></option>
                                     <option value="wallhaven">Wallhaven</option>
                                     <option value="pexels">Pexels</option>
+                                    <option value="unsplash">Unsplash</option>
                                     <option value="bing" data-i18n="settingsBgSourceBing"></option>
                                 </select>
                                 <span class="mac-select-arrow">
@@ -188,6 +190,24 @@ export function registerAppearanceContent(window) {
                             <div class="mac-api-input-container">
                                 <input type="password" class="mac-api-input" id="macPexelsApiKey" data-api="pexels" placeholder="">
                                 <button class="mac-api-toggle-btn" id="macPexelsApiToggle" type="button">
+                                    <svg class="eye-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                                        <path class="eye-open" d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                                        <circle class="eye-open" cx="12" cy="12" r="3"/>
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Unsplash API Key -->
+                    <div class="mac-settings-row hidden" id="macUnsplashApiRow">
+                        <div class="mac-settings-row-label">
+                            <span class="mac-settings-row-title">Unsplash <span data-i18n="settingsBgApiKey"></span></span>
+                            <a href="${API_LINKS.unsplash}" target="_blank" class="mac-api-link" data-i18n="settingsBgApiKeyGet"></a>
+                        </div>
+                        <div class="mac-settings-row-control" style="flex: 1; max-width: 240px;">
+                            <div class="mac-api-input-container">
+                                <input type="password" class="mac-api-input" id="macUnsplashApiKey" data-api="unsplash" placeholder="">
+                                <button class="mac-api-toggle-btn" id="macUnsplashApiToggle" type="button">
                                     <svg class="eye-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
                                         <path class="eye-open" d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
                                         <circle class="eye-open" cx="12" cy="12" r="3"/>
@@ -676,7 +696,7 @@ async function _loadAppearanceSettings(container) {
 
     const bgSourceSelect = container.querySelector("#macBgSource");
     const currentSource =
-      ["unsplash", "pixabay"].includes(backgroundSettings.type) ? "files" :
+      backgroundSettings.type === "pixabay" ? "files" :
       backgroundSettings.type || BACKGROUND_APPEARANCE_DEFAULTS.type;
     if (bgSourceSelect) {
       if (!LEGACY_HIDDEN_BACKGROUND_SOURCES.has(currentSource)) {

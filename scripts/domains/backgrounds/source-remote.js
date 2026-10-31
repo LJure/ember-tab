@@ -4,6 +4,8 @@ import { t } from '../../platform/i18n.js';
 import { fetchWithRetry } from '../../shared/net.js';
 
 const PEXELS_RANDOM_PAGE_MAX = 25;
+const UNSPLASH_API = 'https://api.unsplash.com';
+const UNSPLASH_ATTRIBUTION = { utm_source: 'ember_tab', utm_medium: 'referral' };
 const BING_ENDPOINT = 'https://www.bing.com/HPImageArchive.aspx';
 const BING_DEFAULT_MARKET = 'en-US';
 
@@ -268,6 +270,116 @@ export const pexelsProvider = {
     }
 };
 
+function unsplashHeaders(apiKey) {
+    return {
+        'Authorization': `Client-ID ${apiKey.trim()}`,
+        'Accept-Version': 'v1'
+    };
+}
+
+function withUnsplashAttribution(value) {
+    if (!value || typeof value !== 'string') return '';
+    try {
+        const url = new URL(value);
+        if (url.protocol !== 'https:' || url.hostname !== 'unsplash.com') return '';
+        for (const [key, param] of Object.entries(UNSPLASH_ATTRIBUTION)) {
+            url.searchParams.set(key, param);
+        }
+        return url.toString();
+    } catch {
+        return '';
+    }
+}
+
+function buildUnsplashUrls(photo) {
+    const baseUrl = photo?.urls?.raw || photo?.urls?.full || photo?.urls?.regular || '';
+    if (!baseUrl) return { full: '', small: '' };
+
+    return {
+        full: appendImageParams(baseUrl, { w: 2400, q: 85, fm: 'jpg', fit: 'max' }),
+        small: appendImageParams(baseUrl, { w: 1280, q: 80, fm: 'jpg', fit: 'max' })
+    };
+}
+
+async function fetchUnsplashPhoto(apiKey, query) {
+    const params = new URLSearchParams({
+        orientation: 'landscape',
+        content_filter: 'high'
+    });
+    let endpoint = `${UNSPLASH_API}/photos/random`;
+
+    if (query) {
+        endpoint = `${UNSPLASH_API}/search/photos`;
+        params.set('query', query);
+        params.set('per_page', '30');
+    }
+
+    const response = await fetchWithProviderRetry(
+        `${endpoint}?${params}`,
+        { headers: unsplashHeaders(apiKey) }
+    );
+
+    await handleApiError(response, 'Unsplash');
+
+    const data = await response.json();
+    const photo = query
+        ? pickRandomItem(data?.results)
+        : (Array.isArray(data) ? pickRandomItem(data) : data);
+
+    if (!photo) throw new Error(t('bgNoResults'));
+    return photo;
+}
+
+async function triggerUnsplashDownload(photo, apiKey) {
+    const location = photo?.links?.download_location;
+    if (!location || typeof location !== 'string') return;
+
+    let url;
+    try {
+        url = new URL(location);
+    } catch {
+        return;
+    }
+    if (url.protocol !== 'https:' || url.hostname !== 'api.unsplash.com') return;
+
+    // Required by the Unsplash API guidelines; failures must not block wallpaper selection.
+    try {
+        await fetchWithProviderRetry(url.href, { headers: unsplashHeaders(apiKey) });
+    } catch { /* Download tracking is best effort. */ }
+}
+
+export const unsplashProvider = {
+    name: 'Unsplash',
+    requiresApiKey: true,
+
+    async fetchRandom(apiKey, query) {
+        validateApiKey(apiKey, 'Unsplash');
+
+        const photo = await fetchUnsplashPhoto(apiKey, normalizeQuery(query));
+        const urls = buildUnsplashUrls(photo);
+        if (!urls.full || !urls.small) {
+            throw new Error(t('bgApiDataError', { source: 'Unsplash' }));
+        }
+
+        await triggerUnsplashDownload(photo, apiKey);
+
+        const username = String(photo?.user?.name || photo?.user?.username || '').trim();
+        return {
+            format: 'image',
+            id: String(photo?.id || `unsplash-${Date.now()}`),
+            urls,
+            downloadUrl: urls.full,
+            username: username || 'Unsplash',
+            provider: 'unsplash',
+            userUrl: withUnsplashAttribution(photo?.user?.links?.html),
+            page: withUnsplashAttribution(photo?.links?.html),
+            color: photo?.color,
+            width: Number.isFinite(photo?.width) ? photo.width : undefined,
+            height: Number.isFinite(photo?.height) ? photo.height : undefined
+        };
+    }
+};
+
 function buildBingUrls(image) {
     const urlPath = typeof image?.url === 'string' ? image.url : '';
     const urlBase = typeof image?.urlbase === 'string' ? image.urlbase : '';
@@ -330,6 +442,7 @@ export function getProvider(type, settings = {}) {
     switch (type) {
         case 'wallhaven': return createWallhavenProvider(settings.wallhaven);
         case 'pexels': return pexelsProvider;
+        case 'unsplash': return unsplashProvider;
         case 'bing': return bingProvider;
         default: return null;
     }

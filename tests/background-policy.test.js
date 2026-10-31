@@ -9,7 +9,7 @@ import {
 
 describe('background policy', () => {
     it('should detect online source types', () => {
-        expect(isOnlineBackgroundType('unsplash')).toBe(false);
+        expect(isOnlineBackgroundType('unsplash')).toBe(true);
         expect(isOnlineBackgroundType('pixabay')).toBe(false);
         expect(isOnlineBackgroundType('wallhaven')).toBe(true);
         expect(isOnlineBackgroundType('pexels')).toBe(true);

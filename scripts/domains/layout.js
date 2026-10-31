@@ -254,7 +254,7 @@ export class LayoutManager extends DisposableComponent {
             // Required source credit remains visible for online licensed images.
             const provider = currentBg?.provider || this.backgroundSystem.settings?.type;
             this.photoAuthor?.querySelector('.author-prefix')?.classList.toggle('hidden', provider === 'wallhaven');
-            const sourceCredit = provider === 'wallhaven' ? 'Wallhaven' : provider === 'pexels' ? 'Pexels' : '';
+            const sourceCredit = provider === 'wallhaven' ? 'Wallhaven' : provider === 'pexels' ? 'Pexels' : provider === 'unsplash' ? 'Unsplash' : '';
             if (sourceCredit && currentBg?.username) this.cornerTopRight?.classList.add('always-visible');
 
             if (currentBg?.username && this.authorName && this.photoAuthor) {

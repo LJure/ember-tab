@@ -1,7 +1,7 @@
 export { DEFAULT_SETTINGS } from './defaults.js';
 
 /**
- * @typedef {'files' | 'wallhaven' | 'pexels' | 'bing' | 'color'} BackgroundType
+ * @typedef {'files' | 'wallhaven' | 'pexels' | 'unsplash' | 'bing' | 'color'} BackgroundType
  */
 
 /**

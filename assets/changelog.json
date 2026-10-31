@@ -1,4 +1,25 @@
 {
+  "0.1.6": {
+    "en": [
+      "Restored Unsplash as an online wallpaper source. Choose Unsplash in Settings and add your own Unsplash access key.",
+      "Random landscape photos use the Unsplash API with high content filtering, alongside the existing refresh and favorites flows.",
+      "Photographer credits link back to Unsplash with referral parameters, and required download tracking contacts only api.unsplash.com.",
+      "Local, Wallhaven, Pexels and Bing options are unchanged; keys stay in sync settings and are sent only to the Unsplash API."
+    ],
+    "zh_CN": [
+      "恢复 Unsplash 在线壁纸来源，在设置中选择 Unsplash 并填入自己的 Unsplash Access Key 即可使用。",
+      "默认按横向、高内容过滤获取随机照片，沿用现有的自动更换与收藏流程。",
+      "照片信息显示摄影师署名并带 utm 参数链接回 Unsplash；必需的下载计数只请求 api.unsplash.com。",
+      "本地、Wallhaven、Pexels 与 Bing 来源不变；密钥仍保存在同步设置中，只发送给 Unsplash API。"
+    ],
+    "zh_TW": [
+      "恢復 Unsplash 線上桌布來源，在設定中選擇 Unsplash 並填入自己的 Unsplash Access Key 即可使用。",
+      "預設以橫向、高內容過濾取得隨機照片，沿用現有的自動更換與收藏流程。",
+      "照片資訊顯示攝影師署名並帶 utm 參數連結回 Unsplash；必要的下載計數只請求 api.unsplash.com。",
+      "本機、Wallhaven、Pexels 與 Bing 來源不變；金鑰仍保存在同步設定中，只傳送給 Unsplash API。"
+    ],
+    "moreUrl": "https://github.com/LJure/ember-tab/releases"
+  },
   "0.1.5": {
     "en": [
       "Clock and wallpaper now appear immediately at browser startup instead of waiting for extension storage to initialize.",
